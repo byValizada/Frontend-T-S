@@ -2,19 +2,12 @@ import { useState } from 'react'
 import { FaUser, FaLock, FaEye, FaEyeSlash, FaTasks } from 'react-icons/fa'
 import { isSuperAdmin } from '../../services/dataService'
 import './Login.css'
-
+import type { User } from '../../services/dataService'
 interface LoginProps {
   onLogin: (user: User) => void
 }
 
-interface User {
-  login: string
-  parol: string
-  rol: string
-  adSoyad: string
-  companyId?: string
-  bolmeId?: string
-}
+
 
 function Login({ onLogin }: LoginProps) {
   const [login, setLogin] = useState('')

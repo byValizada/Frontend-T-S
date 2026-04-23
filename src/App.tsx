@@ -4,16 +4,7 @@ import Dashboard from './components/Dashboard/Dashboard'
 import SuperAdminPanel from './components/SuperAdminPanel/SuperAdminPanel'
 import MuessiseAdminPanel from './components/MuessiseAdminPanel/MuessiseAdminPanel'
 import BolmeAdminPanel from './components/BolmeAdminPanel/BolmeAdminPanel'
-
-interface User {
-  login: string
-  parol: string
-  rol: string
-  adSoyad: string
-  companyId?: string
-  bolmeId?: string
-}
-
+import type { User } from './services/dataService'
 function App() {
   const [currentUser, setCurrentUser] = useState<User | null>(null)
 

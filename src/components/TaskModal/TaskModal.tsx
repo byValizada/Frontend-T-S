@@ -7,8 +7,9 @@ interface User {
   parol: string
   rol: string
   adSoyad: string
+  companyId?: string
+  bolmeId?: string
 }
-
 interface TaskModalProps {
   isOpen: boolean
   onClose: () => void
@@ -82,7 +83,29 @@ function TaskModal({ isOpen, onClose, currentUser, onSave }: TaskModalProps) {
       const data = localStorage.getItem('users')
       if (data) {
         const allUsers: User[] = JSON.parse(data)
-        const others = allUsers.filter(u => u.login !== currentUser.login)
+
+        // FİLTR: yalnız eyni bölmənin/müəssisənin üzvləri
+        const others = allUsers.filter(u => {
+          // Özünü çıxar
+          if (u.login === currentUser.login) return false
+
+          // SuperAdmin heç kimin bölməsinə aid deyil - onu gizlət
+          if (u.rol === 'SuperAdmin') return false
+
+          // Əgər cari istifadəçinin bölməsi varsa → yalnız eyni bölmənin üzvləri
+          if (currentUser.bolmeId) {
+            return u.bolmeId === currentUser.bolmeId
+          }
+
+          // Əgər bölməsi yoxdur amma müəssisəsi var (Müəssisə Admini) → yalnız öz müəssisəsinin üzvləri
+          if (currentUser.companyId) {
+            return u.companyId === currentUser.companyId
+          }
+
+          // Heç bir məlumat yoxdursa heç kimi göstərmə
+          return false
+        })
+
         setUsers(others)
       }
       setTapsirigAdi('')
@@ -93,7 +116,7 @@ function TaskModal({ isOpen, onClose, currentUser, onSave }: TaskModalProps) {
       setXeta('')
       setTecili(false)
     }
-  }, [isOpen, currentUser.login])
+  }, [isOpen, currentUser.login, currentUser.bolmeId, currentUser.companyId])
 
   const toggleShexs = (login: string) => {
     setSecilmisLoginler(prev =>

@@ -40,6 +40,9 @@ function SuperAdminPanel({ currentUser, onLogout }: SuperAdminPanelProps) {
   // Bölmə formu
   const [newBolmeAd, setNewBolmeAd] = useState("");
   const [newBolmeCompanyId, setNewBolmeCompanyId] = useState("");
+  const [newBolmeAdminLogin, setNewBolmeAdminLogin] = useState("");
+  const [newBolmeAdminParol, setNewBolmeAdminParol] = useState("");
+  const [newBolmeAdminAdSoyad, setNewBolmeAdminAdSoyad] = useState("");
 
   // İstifadəçi formu
   const [newUserLogin, setNewUserLogin] = useState("");
@@ -130,26 +133,58 @@ function SuperAdminPanel({ currentUser, onLogout }: SuperAdminPanelProps) {
     showUgurlu("Müəssisə silindi");
   };
 
-  // BÖLMƏ YARAT
+  //// BÖLMƏ YARAT
   const handleAddBolme = () => {
-    if (!newBolmeAd.trim() || !newBolmeCompanyId) {
-      setXeta("Bölmə adı və müəssisəni seçin");
+    if (
+      !newBolmeAd.trim() ||
+      !newBolmeCompanyId ||
+      !newBolmeAdminLogin.trim() ||
+      !newBolmeAdminParol.trim() ||
+      !newBolmeAdminAdSoyad.trim()
+    ) {
+      setXeta("Bütün sahələri doldurun");
       return;
     }
 
+    const allUsers = getUsers();
+    if (allUsers.find((u) => u.login === newBolmeAdminLogin)) {
+      setXeta("Bu login artıq mövcuddur");
+      return;
+    }
+
+    const bolmeId = Date.now().toString();
+
     const newBolme: Bolme = {
-      id: Date.now().toString(),
+      id: bolmeId,
       ad: newBolmeAd.trim(),
       companyId: newBolmeCompanyId,
+      adminLogin: newBolmeAdminLogin.trim(),
+    };
+
+    const adminUser: User = {
+      login: newBolmeAdminLogin.trim(),
+      parol: newBolmeAdminParol.trim(),
+      rol: "BolmeAdmin",
+      adSoyad: newBolmeAdminAdSoyad.trim(),
+      companyId: newBolmeCompanyId,
+      bolmeId,
     };
 
     const updatedBolmeler = [...bolmeler, newBolme];
+    const updatedUsers = [...allUsers, adminUser];
+
     saveBolmeler(updatedBolmeler);
+    saveUsers(updatedUsers);
     setBolmeler(updatedBolmeler);
+    setUsers(updatedUsers);
+
     setNewBolmeAd("");
     setNewBolmeCompanyId("");
+    setNewBolmeAdminLogin("");
+    setNewBolmeAdminParol("");
+    setNewBolmeAdminAdSoyad("");
     setXeta("");
-    showUgurlu("Bölmə uğurla yaradıldı");
+    showUgurlu("Bölmə və bölmə admini uğurla yaradıldı");
   };
 
   // BÖLMƏ SİL
@@ -161,26 +196,32 @@ function SuperAdminPanel({ currentUser, onLogout }: SuperAdminPanelProps) {
   };
 
   // İSTİFADƏÇİ YARAT
-   // İSTİFADƏÇİ YARAT
+  // İSTİFADƏÇİ YARAT
   const handleAddUser = () => {
-    if (!newUserLogin.trim() || !newUserParol.trim() || !newUserAdSoyad.trim() || !newUserCompanyId) {
-      setXeta('Bütün məcburi sahələri doldurun')
-      return
+    if (
+      !newUserLogin.trim() ||
+      !newUserParol.trim() ||
+      !newUserAdSoyad.trim() ||
+      !newUserCompanyId
+    ) {
+      setXeta("Bütün məcburi sahələri doldurun");
+      return;
     }
 
     // Rol yoxlaması: yalnız Müavin və İşçi yaradıla bilər.
     // Admin və BolmeAdmin rolları müvafiq Müəssisə/Bölmə yaratma formaları ilə avtomatik təyin edilir.
-    if (newUserRol !== 'Müavin' && newUserRol !== 'İşçi') {
-      setXeta('Bu rolu seçə bilməzsiniz. Admin yalnız Müəssisə yaradılanda təyin edilir.')
-      return
+    if (newUserRol !== "Müavin" && newUserRol !== "İşçi") {
+      setXeta(
+        "Bu rolu seçə bilməzsiniz. Admin yalnız Müəssisə yaradılanda təyin edilir.",
+      );
+      return;
     }
 
-    const allUsers = getUsers()
-    if (allUsers.find(u => u.login === newUserLogin)) {
-      setXeta('Bu login artıq mövcuddur')
-      return
+    const allUsers = getUsers();
+    if (allUsers.find((u) => u.login === newUserLogin)) {
+      setXeta("Bu login artıq mövcuddur");
+      return;
     }
-
 
     const newUser: User = {
       login: newUserLogin.trim(),
@@ -366,6 +407,33 @@ function SuperAdminPanel({ currentUser, onLogout }: SuperAdminPanelProps) {
                     placeholder="Bölmənin adı"
                   />
                 </div>
+                <div className="sa-form-group">
+                  <label>Bölmə admin adı soyadı *</label>
+                  <input
+                    type="text"
+                    value={newBolmeAdminAdSoyad}
+                    onChange={(e) => setNewBolmeAdminAdSoyad(e.target.value)}
+                    placeholder="Ad Soyad"
+                  />
+                </div>
+                <div className="sa-form-group">
+                  <label>Bölmə admin login *</label>
+                  <input
+                    type="text"
+                    value={newBolmeAdminLogin}
+                    onChange={(e) => setNewBolmeAdminLogin(e.target.value)}
+                    placeholder="Login"
+                  />
+                </div>
+                <div className="sa-form-group">
+                  <label>Bölmə admin parol *</label>
+                  <input
+                    type="password"
+                    value={newBolmeAdminParol}
+                    onChange={(e) => setNewBolmeAdminParol(e.target.value)}
+                    placeholder="Parol"
+                  />
+                </div>
               </div>
               {xeta && activePage === "bolmeler" && (
                 <p className="sa-xeta">{xeta}</p>
@@ -450,11 +518,13 @@ function SuperAdminPanel({ currentUser, onLogout }: SuperAdminPanelProps) {
                 </div>
                 <div className="sa-form-group">
                   <label>Rol *</label>
-                                   <select value={newUserRol} onChange={e => setNewUserRol(e.target.value)}>
+                  <select
+                    value={newUserRol}
+                    onChange={(e) => setNewUserRol(e.target.value)}
+                  >
                     <option value="Müavin">Müavin</option>
                     <option value="İşçi">İşçi</option>
                   </select>
-
                 </div>
                 <div className="sa-form-group">
                   <label>Müəssisə *</label>
