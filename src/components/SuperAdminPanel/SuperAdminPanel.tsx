@@ -7,6 +7,9 @@ import {
   FaBuilding,
   FaUsers,
   FaLayerGroup,
+  FaEye,
+  FaEyeSlash,
+  FaKey,
 } from "react-icons/fa";
 import {
   getCompanies,
@@ -18,6 +21,7 @@ import {
 } from "../../services/dataService";
 import type { Company, User, Bolme } from "../../services/dataService";
 import "./SuperAdminPanel.css";
+import StatsCards from "../shared/StatsCards";
 interface SuperAdminPanelProps {
   currentUser: User;
   onLogout: () => void;
@@ -54,6 +58,15 @@ function SuperAdminPanel({ currentUser, onLogout }: SuperAdminPanelProps) {
 
   const [xeta, setXeta] = useState("");
   const [ugurlu, setUgurlu] = useState("");
+
+  // Parol göstərmə/gizlətmə
+  const [gorunenParollar, setGorunenParollar] = useState<string[]>([]);
+
+  // Parol dəyişdirmə
+  const [parolDeyisenLogin, setParolDeyisenLogin] = useState<string | null>(
+    null,
+  );
+  const [yeniParol, setYeniParol] = useState("");
 
   useEffect(() => {
     setCompanies(getCompanies());
@@ -253,7 +266,31 @@ function SuperAdminPanel({ currentUser, onLogout }: SuperAdminPanelProps) {
     setUsers(updatedUsers);
     showUgurlu("İstifadəçi silindi");
   };
+  // PAROL GÖSTƏR/GİZLƏT
+  const toggleParol = (login: string) => {
+    setGorunenParollar((prev) =>
+      prev.includes(login) ? prev.filter((l) => l !== login) : [...prev, login],
+    );
+  };
 
+  // PAROLU DƏYİŞDİR
+  const handleChangeParol = (login: string) => {
+    if (!yeniParol.trim()) {
+      setXeta("Yeni parolu daxil edin");
+      return;
+    }
+
+    const allUsers = getUsers();
+    const updatedUsers = allUsers.map((u) =>
+      u.login === login ? { ...u, parol: yeniParol.trim() } : u,
+    );
+    saveUsers(updatedUsers);
+    setUsers(updatedUsers);
+    setParolDeyisenLogin(null);
+    setYeniParol("");
+    setXeta("");
+    showUgurlu("Parol uğurla dəyişdirildi");
+  };
   return (
     <div className="sa-container">
       {/* SIDEBAR */}
@@ -294,6 +331,7 @@ function SuperAdminPanel({ currentUser, onLogout }: SuperAdminPanelProps) {
           <div className="sa-page">
             <h2 className="sa-page-title">Müəssisələr</h2>
 
+            <StatsCards currentUser={currentUser} />
             {/* YENI MÜƏSSİSƏ FORMU */}
             <div className="sa-card">
               <h3 className="sa-card-title">Yeni müəssisə yarat</h3>
@@ -587,6 +625,66 @@ function SuperAdminPanel({ currentUser, onLogout }: SuperAdminPanelProps) {
                               {u.bolmeId &&
                                 ` • ${bolmeler.find((b) => b.id === u.bolmeId)?.ad || ""}`}
                             </span>
+                            <span className="sa-list-item-parol">
+                              🔑 Parol:{" "}
+                              <span className="parol-text">
+                                {gorunenParollar.includes(u.login)
+                                  ? u.parol
+                                  : "••••••••"}
+                              </span>
+                              <button
+                                className="sa-btn-icon"
+                                onClick={() => toggleParol(u.login)}
+                                title={
+                                  gorunenParollar.includes(u.login)
+                                    ? "Gizlət"
+                                    : "Göstər"
+                                }
+                              >
+                                {gorunenParollar.includes(u.login) ? (
+                                  <FaEyeSlash />
+                                ) : (
+                                  <FaEye />
+                                )}
+                              </button>
+                              <button
+                                className="sa-btn-icon"
+                                onClick={() => {
+                                  setParolDeyisenLogin(u.login);
+                                  setYeniParol("");
+                                }}
+                                title="Parolu dəyişdir"
+                              >
+                                <FaKey />
+                              </button>
+                            </span>
+                            {parolDeyisenLogin === u.login && (
+                              <div className="parol-deyisdir-row">
+                                <input
+                                  type="text"
+                                  placeholder="Yeni parol"
+                                  value={yeniParol}
+                                  onChange={(e) => setYeniParol(e.target.value)}
+                                  autoFocus
+                                />
+                                <button
+                                  className="sa-btn-primary sa-btn-sm"
+                                  onClick={() => handleChangeParol(u.login)}
+                                >
+                                  Təsdiqlə
+                                </button>
+                                <button
+                                  className="sa-btn-cancel sa-btn-sm"
+                                  onClick={() => {
+                                    setParolDeyisenLogin(null);
+                                    setYeniParol("");
+                                    setXeta("");
+                                  }}
+                                >
+                                  Ləğv et
+                                </button>
+                              </div>
+                            )}
                           </div>
                           <button
                             className="sa-btn-delete"

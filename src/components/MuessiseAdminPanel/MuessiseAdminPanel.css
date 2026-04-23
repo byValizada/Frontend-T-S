@@ -350,3 +350,98 @@
 .map-content::-webkit-scrollbar-thumb:hover {
   background: rgba(78, 205, 196, 0.4);
 }
+/* PAROL STYLELARı */
+.map-list-item-parol {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #90D1CA;
+  margin-top: 4px;
+  font-family: 'Courier New', monospace;
+}
+
+.parol-text {
+  background-color: rgba(144, 209, 202, 0.1);
+  padding: 2px 8px;
+  border-radius: 4px;
+  min-width: 90px;
+  display: inline-block;
+  letter-spacing: 1px;
+}
+
+.map-btn-icon {
+  background: transparent;
+  border: 1px solid rgba(144, 209, 202, 0.3);
+  color: #90D1CA;
+  padding: 4px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+  font-size: 12px;
+}
+
+.map-btn-icon:hover {
+  background-color: rgba(144, 209, 202, 0.2);
+  border-color: #90D1CA;
+  color: #fff;
+}
+
+.parol-deyisdir-row {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+  align-items: center;
+}
+
+.parol-deyisdir-row input {
+  flex: 1;
+  padding: 6px 12px;
+  background-color: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(144, 209, 202, 0.3);
+  border-radius: 6px;
+  color: #fff;
+  font-size: 13px;
+  outline: none;
+}
+
+.parol-deyisdir-row input:focus {
+  border-color: #90D1CA;
+  background-color: rgba(255, 255, 255, 0.12);
+}
+
+.map-btn-sm {
+  padding: 6px 14px !important;
+  font-size: 12px !important;
+}
+
+.map-btn-cancel {
+  background-color: transparent;
+  color: #ff6b6b;
+  border: 1px solid #ff6b6b;
+  border-radius: 6px;
+  cursor: pointer;
+  padding: 6px 14px;
+  font-size: 12px;
+  transition: all 0.2s;
+}
+
+.map-btn-cancel:hover {
+  background-color: rgba(255, 107, 107, 0.15);
+}
+/* DASHBOARD KEÇİD DÜYMƏSİ */
+.map-dashboard-btn {
+  margin: 12px 0;
+  background-color: rgba(144, 209, 202, 0.12) !important;
+  border: 1px solid rgba(144, 209, 202, 0.3) !important;
+  color: #90D1CA !important;
+}
+
+.map-dashboard-btn:hover {
+  background-color: rgba(144, 209, 202, 0.25) !important;
+  border-color: #90D1CA !important;
+  color: #fff !important;
+}

@@ -44,7 +44,7 @@ function Sidebar({ currentUser, onLogout, activePage, onPageChange, onGoToAdminP
 
       {/* AŞAĞI - İSTİFADƏÇİ */}
       <div className="sidebar-bottom">
-        {currentUser.rol === 'Admin' && onGoToAdminPanel && (
+       {(currentUser.rol === 'Admin' || currentUser.rol === 'BolmeAdmin') && onGoToAdminPanel && (
           <button className="sidebar-admin-btn" onClick={onGoToAdminPanel}>
             İdarəetmə
           </button>

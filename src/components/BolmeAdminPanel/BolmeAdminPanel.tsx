@@ -1,5 +1,14 @@
 import { useState, useEffect } from "react";
-import { FaPlus, FaTrash, FaSignOutAlt, FaUsers } from "react-icons/fa";
+import {
+  FaPlus,
+  FaTrash,
+  FaSignOutAlt,
+  FaUsers,
+  FaEye,
+  FaEyeSlash,
+  FaKey,
+  FaTasks,
+} from "react-icons/fa";
 import {
   getBolmeByAdminLogin,
   getCompanies,
@@ -8,13 +17,15 @@ import {
 } from "../../services/dataService";
 import type { Bolme, User, Company } from "../../services/dataService";
 import "./BolmeAdminPanel.css";
+import StatsCards from "../shared/StatsCards";
 
 interface Props {
   currentUser: User;
   onLogout: () => void;
+  onGoToDashboard: () => void;
 }
 
-function BolmeAdminPanel({ currentUser, onLogout }: Props) {
+function BolmeAdminPanel({ currentUser, onLogout, onGoToDashboard }: Props) {
   const [bolme, setBolme] = useState<Bolme | null>(null);
   const [company, setCompany] = useState<Company | null>(null);
   const [users, setUsers] = useState<User[]>([]);
@@ -26,7 +37,14 @@ function BolmeAdminPanel({ currentUser, onLogout }: Props) {
 
   const [xeta, setXeta] = useState("");
   const [ugurlu, setUgurlu] = useState("");
+  // Parol göstərmə/gizlətmə
+  const [gorunenParollar, setGorunenParollar] = useState<string[]>([]);
 
+  // Parol dəyişdirmə
+  const [parolDeyisenLogin, setParolDeyisenLogin] = useState<string | null>(
+    null,
+  );
+  const [yeniParol, setYeniParol] = useState("");
   useEffect(() => {
     const b = getBolmeByAdminLogin(currentUser.login);
     if (b) {
@@ -94,7 +112,31 @@ function BolmeAdminPanel({ currentUser, onLogout }: Props) {
     if (bolme) refreshUsers(bolme.id);
     showUgurlu("İstifadəçi silindi");
   };
+  // PAROL GÖSTƏR/GİZLƏT
+  const toggleParol = (login: string) => {
+    setGorunenParollar((prev) =>
+      prev.includes(login) ? prev.filter((l) => l !== login) : [...prev, login],
+    );
+  };
 
+  // PAROLU DƏYİŞDİR
+  const handleChangeParol = (login: string) => {
+    if (!yeniParol.trim()) {
+      setXeta("Yeni parolu daxil edin");
+      return;
+    }
+
+    const allUsers = getUsers();
+    const updatedUsers = allUsers.map((u) =>
+      u.login === login ? { ...u, parol: yeniParol.trim() } : u,
+    );
+    saveUsers(updatedUsers);
+    if (bolme) refreshUsers(bolme.id);
+    setParolDeyisenLogin(null);
+    setYeniParol("");
+    setXeta("");
+    showUgurlu("Parol uğurla dəyişdirildi");
+  };
   if (!bolme) {
     return (
       <div className="bap-container">
@@ -118,6 +160,13 @@ function BolmeAdminPanel({ currentUser, onLogout }: Props) {
           </div>
         </div>
 
+        <button
+          className="bap-nav-btn bap-dashboard-btn"
+          onClick={onGoToDashboard}
+        >
+          <FaTasks /> Tapşırıq pəncərəsi
+        </button>
+
         <button className="bap-logout" onClick={onLogout}>
           <FaSignOutAlt /> Çıxış
         </button>
@@ -127,6 +176,11 @@ function BolmeAdminPanel({ currentUser, onLogout }: Props) {
       <div className="bap-content">
         <div className="bap-page">
           <h2 className="bap-page-title">İşçilər - {bolme.ad}</h2>
+
+          <StatsCards
+            currentUser={currentUser}
+            allowedLogins={users.map((u) => u.login)}
+          />
 
           <div className="bap-card">
             <h3 className="bap-card-title">Yeni işçi əlavə et</h3>
@@ -187,6 +241,66 @@ function BolmeAdminPanel({ currentUser, onLogout }: Props) {
                     <span className="bap-list-item-meta">
                       {u.login} • {u.rol}
                     </span>
+                    <span className="bap-list-item-parol">
+                      🔑 Parol:{" "}
+                      <span className="parol-text">
+                        {gorunenParollar.includes(u.login)
+                          ? u.parol
+                          : "••••••••"}
+                      </span>
+                      <button
+                        className="bap-btn-icon"
+                        onClick={() => toggleParol(u.login)}
+                        title={
+                          gorunenParollar.includes(u.login)
+                            ? "Gizlət"
+                            : "Göstər"
+                        }
+                      >
+                        {gorunenParollar.includes(u.login) ? (
+                          <FaEyeSlash />
+                        ) : (
+                          <FaEye />
+                        )}
+                      </button>
+                      <button
+                        className="bap-btn-icon"
+                        onClick={() => {
+                          setParolDeyisenLogin(u.login);
+                          setYeniParol("");
+                        }}
+                        title="Parolu dəyişdir"
+                      >
+                        <FaKey />
+                      </button>
+                    </span>
+                    {parolDeyisenLogin === u.login && (
+                      <div className="parol-deyisdir-row">
+                        <input
+                          type="text"
+                          placeholder="Yeni parol"
+                          value={yeniParol}
+                          onChange={(e) => setYeniParol(e.target.value)}
+                          autoFocus
+                        />
+                        <button
+                          className="bap-btn-primary bap-btn-sm"
+                          onClick={() => handleChangeParol(u.login)}
+                        >
+                          Təsdiqlə
+                        </button>
+                        <button
+                          className="bap-btn-cancel bap-btn-sm"
+                          onClick={() => {
+                            setParolDeyisenLogin(null);
+                            setYeniParol("");
+                            setXeta("");
+                          }}
+                        >
+                          Ləğv et
+                        </button>
+                      </div>
+                    )}
                   </div>
                   <button
                     className="bap-btn-delete"

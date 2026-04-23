@@ -5,6 +5,10 @@ import {
   FaSignOutAlt,
   FaLayerGroup,
   FaUsers,
+  FaEye,
+  FaEyeSlash,
+  FaKey,
+  FaTasks,
 } from "react-icons/fa";
 import {
   getCompanyByAdminLogin,
@@ -15,13 +19,13 @@ import {
 } from "../../services/dataService";
 import type { Company, Bolme, User } from "../../services/dataService";
 import "./MuessiseAdminPanel.css";
-
+import StatsCards from "../shared/StatsCards";
 interface Props {
   currentUser: User;
   onLogout: () => void;
+  onGoToDashboard: () => void;
 }
-
-function MuessiseAdminPanel({ currentUser, onLogout }: Props) {
+function MuessiseAdminPanel({ currentUser, onLogout, onGoToDashboard }: Props) {
   const [activePage, setActivePage] = useState<"bolmeler" | "users">(
     "bolmeler",
   );
@@ -44,7 +48,14 @@ function MuessiseAdminPanel({ currentUser, onLogout }: Props) {
 
   const [xeta, setXeta] = useState("");
   const [ugurlu, setUgurlu] = useState("");
+  // Parol göstərmə/gizlətmə
+  const [gorunenParollar, setGorunenParollar] = useState<string[]>([]);
 
+  // Parol dəyişdirmə
+  const [parolDeyisenLogin, setParolDeyisenLogin] = useState<string | null>(
+    null,
+  );
+  const [yeniParol, setYeniParol] = useState("");
   useEffect(() => {
     const c = getCompanyByAdminLogin(currentUser.login);
     if (c) {
@@ -177,7 +188,31 @@ function MuessiseAdminPanel({ currentUser, onLogout }: Props) {
     if (company) refreshData(company.id);
     showUgurlu("İstifadəçi silindi");
   };
+  // PAROL GÖSTƏR/GİZLƏT
+  const toggleParol = (login: string) => {
+    setGorunenParollar((prev) =>
+      prev.includes(login) ? prev.filter((l) => l !== login) : [...prev, login],
+    );
+  };
 
+  // PAROLU DƏYİŞDİR
+  const handleChangeParol = (login: string) => {
+    if (!yeniParol.trim()) {
+      setXeta("Yeni parolu daxil edin");
+      return;
+    }
+
+    const allUsers = getUsers();
+    const updatedUsers = allUsers.map((u) =>
+      u.login === login ? { ...u, parol: yeniParol.trim() } : u,
+    );
+    saveUsers(updatedUsers);
+    if (company) refreshData(company.id);
+    setParolDeyisenLogin(null);
+    setYeniParol("");
+    setXeta("");
+    showUgurlu("Parol uğurla dəyişdirildi");
+  };
   if (!company) {
     return (
       <div className="map-container">
@@ -209,6 +244,13 @@ function MuessiseAdminPanel({ currentUser, onLogout }: Props) {
           </button>
         </nav>
 
+        <button
+          className="map-nav-btn map-dashboard-btn"
+          onClick={onGoToDashboard}
+        >
+          <FaTasks /> Tapşırıq pəncərəsi
+        </button>
+
         <button className="map-logout" onClick={onLogout}>
           <FaSignOutAlt /> Çıxış
         </button>
@@ -220,7 +262,10 @@ function MuessiseAdminPanel({ currentUser, onLogout }: Props) {
         {activePage === "bolmeler" && (
           <div className="map-page">
             <h2 className="map-page-title">Bölmələr</h2>
-
+            <StatsCards
+              currentUser={currentUser}
+              allowedLogins={users.map((u) => u.login)}
+            />
             <div className="map-card">
               <h3 className="map-card-title">Yeni bölmə yarat</h3>
               <div className="map-form-grid">
@@ -380,6 +425,66 @@ function MuessiseAdminPanel({ currentUser, onLogout }: Props) {
                             <span className="map-list-item-meta">
                               {u.login} • {u.rol}
                             </span>
+                            <span className="map-list-item-parol">
+                              🔑 Parol:{" "}
+                              <span className="parol-text">
+                                {gorunenParollar.includes(u.login)
+                                  ? u.parol
+                                  : "••••••••"}
+                              </span>
+                              <button
+                                className="map-btn-icon"
+                                onClick={() => toggleParol(u.login)}
+                                title={
+                                  gorunenParollar.includes(u.login)
+                                    ? "Gizlət"
+                                    : "Göstər"
+                                }
+                              >
+                                {gorunenParollar.includes(u.login) ? (
+                                  <FaEyeSlash />
+                                ) : (
+                                  <FaEye />
+                                )}
+                              </button>
+                              <button
+                                className="map-btn-icon"
+                                onClick={() => {
+                                  setParolDeyisenLogin(u.login);
+                                  setYeniParol("");
+                                }}
+                                title="Parolu dəyişdir"
+                              >
+                                <FaKey />
+                              </button>
+                            </span>
+                            {parolDeyisenLogin === u.login && (
+                              <div className="parol-deyisdir-row">
+                                <input
+                                  type="text"
+                                  placeholder="Yeni parol"
+                                  value={yeniParol}
+                                  onChange={(e) => setYeniParol(e.target.value)}
+                                  autoFocus
+                                />
+                                <button
+                                  className="map-btn-primary map-btn-sm"
+                                  onClick={() => handleChangeParol(u.login)}
+                                >
+                                  Təsdiqlə
+                                </button>
+                                <button
+                                  className="map-btn-cancel map-btn-sm"
+                                  onClick={() => {
+                                    setParolDeyisenLogin(null);
+                                    setYeniParol("");
+                                    setXeta("");
+                                  }}
+                                >
+                                  Ləğv et
+                                </button>
+                              </div>
+                            )}
                           </div>
                           <button
                             className="map-btn-delete"
