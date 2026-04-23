@@ -1,0 +1,345 @@
+.sa-container {
+  display: flex;
+  height: 100vh;
+  background: #0F1923;
+  overflow: hidden;
+}
+
+/* SIDEBAR */
+.sa-sidebar {
+  width: 220px;
+  flex-shrink: 0;
+  background: linear-gradient(180deg, #0D2137 0%, #0a1a2e 100%);
+  border-right: 1px solid rgba(78, 205, 196, 0.1);
+  display: flex;
+  flex-direction: column;
+  padding: 24px 16px;
+  gap: 8px;
+}
+
+.sa-logo {
+  font-size: 28px;
+  font-weight: 800;
+  color: #4ECDC4;
+  letter-spacing: 2px;
+  text-align: center;
+  margin-bottom: 4px;
+}
+
+.sa-logo-sub {
+  font-size: 10px;
+  color: rgba(78, 205, 196, 0.4);
+  text-align: center;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  margin-bottom: 24px;
+}
+
+.sa-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+}
+
+.sa-nav-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: none;
+  border: 1px solid transparent;
+  border-radius: 8px;
+  color: rgba(139, 184, 181, 0.5);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.2s;
+  text-align: left;
+  font-family: inherit;
+}
+
+.sa-nav-btn:hover {
+  background: rgba(78, 205, 196, 0.06);
+  color: #4ECDC4;
+  border-color: rgba(78, 205, 196, 0.1);
+}
+
+.sa-nav-btn.aktiv {
+  background: rgba(78, 205, 196, 0.1);
+  color: #4ECDC4;
+  border-color: rgba(78, 205, 196, 0.2);
+}
+
+.sa-logout {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: rgba(255, 107, 107, 0.06);
+  border: 1px solid rgba(255, 107, 107, 0.15);
+  border-radius: 8px;
+  color: rgba(255, 107, 107, 0.6);
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.2s;
+  font-family: inherit;
+  margin-top: auto;
+}
+
+.sa-logout:hover {
+  background: rgba(255, 107, 107, 0.12);
+  color: #ff6b6b;
+}
+
+/* MƏZMUN */
+.sa-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 28px;
+}
+
+.sa-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 900px;
+}
+
+.sa-page-title {
+  margin: 0;
+  font-size: 18px;
+  font-weight: 700;
+  color: #4ECDC4;
+}
+
+/* KART */
+.sa-card {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(78, 205, 196, 0.1);
+  border-radius: 12px;
+  padding: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sa-card-title {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(139, 184, 181, 0.6);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+/* FORM */
+.sa-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+}
+
+.sa-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sa-form-group label {
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(139, 184, 181, 0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.4px;
+}
+
+.sa-form-group input,
+.sa-form-group select {
+  padding: 9px 12px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(78, 205, 196, 0.15);
+  border-radius: 8px;
+  color: #E8F4F3;
+  font-size: 13px;
+  font-family: inherit;
+  outline: none;
+  transition: all 0.2s;
+}
+
+.sa-form-group input:focus,
+.sa-form-group select:focus {
+  border-color: rgba(78, 205, 196, 0.4);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.sa-form-group input::placeholder {
+  color: rgba(139, 184, 181, 0.25);
+}
+
+.sa-form-group select option {
+  background: #0D2137;
+  color: #E8F4F3;
+}
+
+.sa-form-group select:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* DÜYMƏLƏR */
+.sa-btn-primary {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 20px;
+  background: rgba(78, 205, 196, 0.12);
+  color: #4ECDC4;
+  border: 1px solid rgba(78, 205, 196, 0.3);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.2s;
+  font-family: inherit;
+  width: fit-content;
+}
+
+.sa-btn-primary:hover {
+  background: rgba(78, 205, 196, 0.2);
+  border-color: rgba(78, 205, 196, 0.5);
+}
+
+.sa-btn-delete {
+  background: rgba(255, 107, 107, 0.06);
+  border: 1px solid rgba(255, 107, 107, 0.15);
+  color: rgba(255, 107, 107, 0.5);
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  transition: all 0.2s;
+  flex-shrink: 0;
+}
+
+.sa-btn-delete:hover {
+  background: rgba(255, 107, 107, 0.12);
+  color: #ff6b6b;
+  border-color: rgba(255, 107, 107, 0.3);
+}
+
+/* SİYAHI */
+.sa-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.sa-list-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(78, 205, 196, 0.07);
+  border-radius: 10px;
+  transition: all 0.2s;
+  gap: 12px;
+}
+
+.sa-list-item:hover {
+  background: rgba(78, 205, 196, 0.03);
+  border-color: rgba(78, 205, 196, 0.14);
+}
+
+.sa-list-item-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+  min-width: 0;
+}
+
+.sa-list-item-ad {
+  font-size: 14px;
+  font-weight: 600;
+  color: #E8F4F3;
+}
+
+.sa-list-item-meta {
+  font-size: 11px;
+  color: rgba(139, 184, 181, 0.4);
+}
+
+/* QRUP */
+.sa-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 8px;
+}
+
+.sa-group-title {
+  margin: 0;
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(78, 205, 196, 0.5);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  padding: 4px 0;
+  border-bottom: 1px solid rgba(78, 205, 196, 0.08);
+}
+
+/* XƏTA / UĞURLU */
+.sa-xeta {
+  margin: 0;
+  font-size: 12px;
+  color: #ff6b6b;
+  padding: 8px 12px;
+  background: rgba(255, 107, 107, 0.08);
+  border: 1px solid rgba(255, 107, 107, 0.2);
+  border-radius: 6px;
+}
+
+.sa-ugurlu {
+  margin: 0;
+  font-size: 12px;
+  color: #5dd87a;
+  padding: 8px 12px;
+  background: rgba(40, 167, 69, 0.08);
+  border: 1px solid rgba(40, 167, 69, 0.2);
+  border-radius: 6px;
+}
+
+/* BOŞ */
+.sa-bos {
+  text-align: center;
+  color: rgba(139, 184, 181, 0.3);
+  font-size: 13px;
+  font-style: italic;
+  padding: 20px 0;
+  margin: 0;
+}
+
+/* SCROLLBAR */
+.sa-content::-webkit-scrollbar {
+  width: 4px;
+}
+
+.sa-content::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.sa-content::-webkit-scrollbar-thumb {
+  background: rgba(78, 205, 196, 0.2);
+  border-radius: 2px;
+}
+
+.sa-content::-webkit-scrollbar-thumb:hover {
+  background: rgba(78, 205, 196, 0.4);
+}
