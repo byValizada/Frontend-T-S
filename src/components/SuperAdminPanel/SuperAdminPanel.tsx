@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import {
   FaPlus,
   FaTrash,
-  FaEdit,
   FaSignOutAlt,
   FaBuilding,
   FaUsers,
@@ -10,6 +9,9 @@ import {
   FaEye,
   FaEyeSlash,
   FaKey,
+  FaChartBar,
+  FaBullhorn,
+  FaHistory
 } from "react-icons/fa";
 import {
   getCompanies,
@@ -22,6 +24,10 @@ import {
 import type { Company, User, Bolme } from "../../services/dataService";
 import "./SuperAdminPanel.css";
 import StatsCards from "../shared/StatsCards";
+import PerformansPanel from "../shared/PerformansPanel";
+import ElanPanel from "../shared/ElanPanel";
+import ActivityLog from "../shared/ActivityLog";
+import { addLog } from '../shared/logHelper';
 interface SuperAdminPanelProps {
   currentUser: User;
   onLogout: () => void;
@@ -58,7 +64,9 @@ function SuperAdminPanel({ currentUser, onLogout }: SuperAdminPanelProps) {
 
   const [xeta, setXeta] = useState("");
   const [ugurlu, setUgurlu] = useState("");
-
+  const [isPerformansOpen, setIsPerformansOpen] = useState(false);
+   const [isElanOpen, setIsElanOpen] = useState(false);
+    const [isLogOpen, setIsLogOpen] = useState(false);
   // Parol göstərmə/gizlətmə
   const [gorunenParollar, setGorunenParollar] = useState<string[]>([]);
 
@@ -127,11 +135,13 @@ function SuperAdminPanel({ currentUser, onLogout }: SuperAdminPanelProps) {
     setNewCompanyAdminParol("");
     setNewCompanyAdminAdSoyad("");
     setXeta("");
+    addLog('istifadeci_yarat', currentUser.adSoyad, currentUser.login, `"${newCompanyAd}" müəssisəsini və admini yaratdı`);
     showUgurlu("Müəssisə uğurla yaradıldı");
   };
 
   // MÜƏSSİSƏ SİL
   const handleDeleteCompany = (companyId: string) => {
+    const silinen = companies.find(c => c.id === companyId);
     const updatedCompanies = companies.filter((c) => c.id !== companyId);
     const updatedUsers = users.filter((u) => u.companyId !== companyId);
     const updatedBolmeler = bolmeler.filter((b) => b.companyId !== companyId);
@@ -143,6 +153,7 @@ function SuperAdminPanel({ currentUser, onLogout }: SuperAdminPanelProps) {
     setCompanies(updatedCompanies);
     setUsers(updatedUsers);
     setBolmeler(updatedBolmeler);
+    addLog('istifadeci_sil', currentUser.adSoyad, currentUser.login, `"${silinen?.ad || companyId}" müəssisəsini sildi`);
     showUgurlu("Müəssisə silindi");
   };
 
@@ -197,6 +208,7 @@ function SuperAdminPanel({ currentUser, onLogout }: SuperAdminPanelProps) {
     setNewBolmeAdminParol("");
     setNewBolmeAdminAdSoyad("");
     setXeta("");
+    addLog('istifadeci_yarat', currentUser.adSoyad, currentUser.login, `"${newBolmeAd}" bölməsini və admini yaratdı`);
     showUgurlu("Bölmə və bölmə admini uğurla yaradıldı");
   };
 
@@ -256,14 +268,17 @@ function SuperAdminPanel({ currentUser, onLogout }: SuperAdminPanelProps) {
     setNewUserCompanyId("");
     setNewUserBolmeId("");
     setXeta("");
+    addLog('istifadeci_yarat', currentUser.adSoyad, currentUser.login, `"${newUserAdSoyad}" istifadəçisini yaratdı`);
     showUgurlu("İstifadəçi uğurla yaradıldı");
   };
 
   // İSTİFADƏÇİ SİL
   const handleDeleteUser = (login: string) => {
+    const silinən = users.find(u => u.login === login);
     const updatedUsers = users.filter((u) => u.login !== login);
     saveUsers(updatedUsers);
     setUsers(updatedUsers);
+    addLog('istifadeci_sil', currentUser.adSoyad, currentUser.login, `"${silinən?.adSoyad || login}" istifadəçisini sildi`);
     showUgurlu("İstifadəçi silindi");
   };
   // PAROL GÖSTƏR/GİZLƏT
@@ -319,6 +334,27 @@ function SuperAdminPanel({ currentUser, onLogout }: SuperAdminPanelProps) {
           </button>
         </nav>
 
+        <button
+          className="sa-nav-btn"
+          onClick={() => setIsPerformansOpen(!isPerformansOpen)}
+        >
+          <FaChartBar /> Performans
+        </button>
+
+        <button
+          className="sa-nav-btn"
+          onClick={() => setIsElanOpen(!isElanOpen)}
+        >
+          <FaBullhorn /> Elanlar
+        </button>
+
+        <button
+          className="sa-nav-btn"
+          onClick={() => setIsLogOpen(!isLogOpen)}
+        >
+          <FaHistory /> Aktivlik
+        </button>
+
         <button className="sa-logout" onClick={onLogout}>
           <FaSignOutAlt /> Çıxış
         </button>
@@ -331,7 +367,30 @@ function SuperAdminPanel({ currentUser, onLogout }: SuperAdminPanelProps) {
           <div className="sa-page">
             <h2 className="sa-page-title">Müəssisələr</h2>
 
-            <StatsCards currentUser={currentUser} />
+           <StatsCards currentUser={currentUser} />
+
+           {isPerformansOpen && (
+              <PerformansPanel
+                users={users}
+                currentUser={currentUser}
+                onClose={() => setIsPerformansOpen(false)}
+              />
+            )}
+
+            {isElanOpen && (
+              <ElanPanel
+                users={users}
+                currentUser={currentUser}
+                onClose={() => setIsElanOpen(false)}
+              />
+            )}
+
+            {isLogOpen && (
+              <ActivityLog
+                onClose={() => setIsLogOpen(false)}
+              />
+            )}
+
             {/* YENI MÜƏSSİSƏ FORMU */}
             <div className="sa-card">
               <h3 className="sa-card-title">Yeni müəssisə yarat</h3>

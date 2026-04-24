@@ -12,6 +12,7 @@ import CompletedModal from '../CompletedModal/CompletedModal'
 import CompletedNotesModal from '../CompletedModal/CompletedNotesModal'
 import NoteDetailModal from '../TaskDetailModal/NoteDetailModal'
 import ElanBildirisi from './ElanBildirisi'
+import { addLog } from '../shared/logHelper'
 import './Dashboard.css'
 
 interface User {
@@ -66,6 +67,7 @@ function Dashboard({ currentUser, onLogout, onGoToAdminPanel }: DashboardProps) 
     const updatedTasks = [...tasks, task]
     setTasks(updatedTasks)
     localStorage.setItem('tasks', JSON.stringify(updatedTasks))
+    addLog('tapsirig_yarat', currentUser.adSoyad, currentUser.login, `"${task.tapsirigAdi}" tapşırığını yaratdı`)
   }
 
   const handleUpdateTask = (updatedTask: NewTask) => {
@@ -94,6 +96,7 @@ function Dashboard({ currentUser, onLogout, onGoToAdminPanel }: DashboardProps) 
     )
     setTasks(updatedTasks)
     localStorage.setItem('tasks', JSON.stringify(updatedTasks))
+    addLog('tapsirig_redakte', currentUser.adSoyad, currentUser.login, `"${updatedTask.tapsirigAdi}" tapşırığını redaktə etdi`)
   }
 
   const handleCheckboxClick = (e: React.MouseEvent, task: NewTask) => {
@@ -110,6 +113,7 @@ function Dashboard({ currentUser, onLogout, onGoToAdminPanel }: DashboardProps) 
       })
       setTasks(updatedTasks)
       localStorage.setItem('tasks', JSON.stringify(updatedTasks))
+      addLog('tapsirig_tamamla', currentUser.adSoyad, currentUser.login, `"${task.tapsirigAdi}" tapşırığını tamamladı`)
       setCheckingTaskId(null)
     }, 1500)
   }

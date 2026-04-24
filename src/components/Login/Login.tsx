@@ -1,75 +1,82 @@
-import { useState } from 'react'
-import { FaUser, FaLock, FaEye, FaEyeSlash, FaTasks } from 'react-icons/fa'
-import { isSuperAdmin } from '../../services/dataService'
-import './Login.css'
-import type { User } from '../../services/dataService'
+import { useState } from "react";
+import { FaUser, FaLock, FaEye, FaEyeSlash, FaTasks } from "react-icons/fa";
+import { isSuperAdmin } from "../../services/dataService";
+import { addLog } from "../shared/logHelper";
+import "./Login.css";
+import type { User } from "../../services/dataService";
 interface LoginProps {
-  onLogin: (user: User) => void
+  onLogin: (user: User) => void;
 }
 
-
-
 function Login({ onLogin }: LoginProps) {
-  const [login, setLogin] = useState('')
-  const [parol, setParol] = useState('')
-  const [xeta, setXeta] = useState('')
-  const [showParol, setShowParol] = useState(false)
-  const [loading, setLoading] = useState(false)
+  const [login, setLogin] = useState("");
+  const [parol, setParol] = useState("");
+  const [xeta, setXeta] = useState("");
+  const [showParol, setShowParol] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = () => {
     if (!login.trim() || !parol.trim()) {
-      setXeta('Login və parolu daxil edin')
-      return
+      setXeta("Login və parolu daxil edin");
+      return;
     }
 
-    setLoading(true)
+    setLoading(true);
 
     setTimeout(() => {
       // Super Admin yoxlama
       if (isSuperAdmin(login)) {
-        const superAdminParol = localStorage.getItem('superAdminParol') || 'Tural123@'
+        const superAdminParol =
+          localStorage.getItem("superAdminParol") || "Tural123@";
         if (parol === superAdminParol) {
           const user: User = {
             login: login,
             parol: parol,
-            rol: 'SuperAdmin',
-            adSoyad: 'Tural Vəlizadə'
-          }
-          localStorage.setItem('currentUser', JSON.stringify(user))
-          onLogin(user)
-          setLoading(false)
-          return
+            rol: "SuperAdmin",
+            adSoyad: "Tural Vəlizadə",
+          };
+          localStorage.setItem("currentUser", JSON.stringify(user));
+          addLog(
+            "giris",
+            "Tural Vəlizadə",
+            "Tural",
+            "SuperAdmin sisteme daxil oldu",
+          );
+          onLogin(user);
+          setLoading(false);
+          return;
         } else {
-          setXeta('Parol yanlışdır')
-          setLoading(false)
-          return
+          setXeta("Parol yanlışdır");
+          setLoading(false);
+          return;
         }
       }
 
       // Adi istifadəçi yoxlama
-      const usersData = localStorage.getItem('users')
+      const usersData = localStorage.getItem("users");
       if (!usersData) {
-        setXeta('İstifadəçi tapılmadı')
-        setLoading(false)
-        return
+        setXeta("İstifadəçi tapılmadı");
+        setLoading(false);
+        return;
       }
 
-      const users: User[] = JSON.parse(usersData)
-      const user = users.find(u => u.login === login && u.parol === parol)
+      const users: User[] = JSON.parse(usersData);
+      const user = users.find((u) => u.login === login && u.parol === parol);
 
       if (user) {
-        localStorage.setItem('currentUser', JSON.stringify(user))
-        onLogin(user)
+        localStorage.setItem("currentUser", JSON.stringify(user));
+        addLog('giris', user.adSoyad, user.login, `${user.adSoyad} (${user.rol}) sistemə daxil oldu`)
+        onLogin(user);
       } else {
-        setXeta('Login və ya parol yanlışdır')
+        setXeta("Login və ya parol yanlışdır");
       }
-      setLoading(false)
-    }, 400)
-  }
+      setLoading(false);
+    }, 400);
+  };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter') handleLogin()
-  }
+    if (e.key === "Enter") handleLogin();
+  };
 
   return (
     <div className="login-page">
@@ -96,7 +103,10 @@ function Login({ onLogin }: LoginProps) {
               <input
                 type="text"
                 value={login}
-                onChange={e => { setLogin(e.target.value); setXeta('') }}
+                onChange={(e) => {
+                  setLogin(e.target.value);
+                  setXeta("");
+                }}
                 onKeyDown={handleKeyDown}
                 placeholder="Login daxil edin"
                 autoComplete="username"
@@ -109,9 +119,12 @@ function Login({ onLogin }: LoginProps) {
             <div className="input-wrapper">
               <FaLock className="input-icon" />
               <input
-                type={showParol ? 'text' : 'password'}
+                type={showParol ? "text" : "password"}
                 value={parol}
-                onChange={e => { setParol(e.target.value); setXeta('') }}
+                onChange={(e) => {
+                  setParol(e.target.value);
+                  setXeta("");
+                }}
                 onKeyDown={handleKeyDown}
                 placeholder="Parol daxil edin"
                 autoComplete="current-password"
@@ -135,15 +148,11 @@ function Login({ onLogin }: LoginProps) {
           )}
 
           <button
-            className={`giris-btn ${loading ? 'loading' : ''}`}
+            className={`giris-btn ${loading ? "loading" : ""}`}
             onClick={handleLogin}
             disabled={loading}
           >
-            {loading ? (
-              <span className="btn-loader"></span>
-            ) : (
-              <>Daxil ol</>
-            )}
+            {loading ? <span className="btn-loader"></span> : <>Daxil ol</>}
           </button>
         </div>
 
@@ -152,7 +161,7 @@ function Login({ onLogin }: LoginProps) {
         </div>
       </div>
     </div>
-  )
+  );
 }
 
-export default Login
+export default Login;

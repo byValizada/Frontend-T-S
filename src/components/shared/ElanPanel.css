@@ -1,0 +1,343 @@
+/* ELAN PANELİ */
+.elan-bolme {
+  margin-bottom: 25px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(144, 209, 202, 0.15);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.elan-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background: rgba(144, 209, 202, 0.05);
+  border-bottom: 1px solid rgba(144, 209, 202, 0.1);
+}
+
+.elan-header h3 {
+  margin: 0;
+  color: #90D1CA;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+}
+
+.elan-close {
+  background: none;
+  border: 1px solid rgba(144, 209, 202, 0.3);
+  color: #90D1CA;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+  font-size: 12px;
+}
+
+.elan-close:hover {
+  background: rgba(144, 209, 202, 0.15);
+}
+
+.elan-icerik {
+  display: flex;
+  gap: 20px;
+  padding: 20px;
+}
+
+/* ELAN FORMU */
+.elan-form {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  min-width: 0;
+}
+
+.elan-form-baslig {
+  margin: 0;
+  color: #E8F4F3;
+  font-size: 14px;
+  font-weight: 600;
+  opacity: 0.8;
+}
+
+.elan-form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.elan-form-group label {
+  font-size: 11px;
+  font-weight: 600;
+  color: #8BB8B5;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.elan-form-group input,
+.elan-form-group textarea {
+  padding: 10px 14px;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(144, 209, 202, 0.15);
+  border-radius: 8px;
+  color: #E8F4F3;
+  font-size: 13px;
+  outline: none;
+  font-family: inherit;
+  resize: vertical;
+  transition: all 0.3s;
+}
+
+.elan-form-group input::placeholder,
+.elan-form-group textarea::placeholder {
+  color: rgba(139, 184, 181, 0.3);
+}
+
+.elan-form-group input:focus,
+.elan-form-group textarea:focus {
+  border-color: rgba(144, 209, 202, 0.4);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+/* ALICIlar */
+.elan-alici-secim {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 8px;
+}
+
+.elan-alici-btn {
+  flex: 1;
+  padding: 8px 12px;
+  text-align: center;
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  border: 1px solid rgba(144, 209, 202, 0.2);
+  color: #8BB8B5;
+  background: rgba(255, 255, 255, 0.02);
+  transition: all 0.3s;
+}
+
+.elan-alici-btn.selected {
+  background: rgba(144, 209, 202, 0.12);
+  color: #90D1CA;
+  border-color: rgba(144, 209, 202, 0.35);
+}
+
+.elan-alici-btn:hover {
+  background: rgba(144, 209, 202, 0.08);
+  color: #90D1CA;
+}
+
+.elan-alici-list {
+  border: 1px solid rgba(144, 209, 202, 0.12);
+  border-radius: 8px;
+  max-height: 150px;
+  overflow-y: auto;
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.elan-alici-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 12px;
+  cursor: pointer;
+  transition: all 0.2s;
+  border-bottom: 1px solid rgba(144, 209, 202, 0.06);
+  font-size: 13px;
+  color: #E8F4F3;
+}
+
+.elan-alici-item:last-child {
+  border-bottom: none;
+}
+
+.elan-alici-item:hover {
+  background: rgba(144, 209, 202, 0.05);
+}
+
+.elan-alici-item.selected {
+  background: rgba(144, 209, 202, 0.08);
+}
+
+.elan-alici-item input[type="checkbox"] {
+  accent-color: #90D1CA;
+  width: 14px;
+  height: 14px;
+}
+
+.elan-alici-rol {
+  font-size: 11px;
+  color: #8BB8B5;
+  margin-left: auto;
+}
+
+/* XƏTA */
+.elan-xeta {
+  color: #ff6b6b;
+  font-size: 12px;
+  margin: 0;
+  padding: 8px 12px;
+  background: rgba(255, 107, 107, 0.08);
+  border: 1px solid rgba(255, 107, 107, 0.2);
+  border-radius: 6px;
+}
+
+/* GÖNDƏR DÜYMƏSİ */
+.elan-gonder-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px;
+  background: rgba(144, 209, 202, 0.12);
+  color: #90D1CA;
+  border: 1px solid rgba(144, 209, 202, 0.3);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.elan-gonder-btn:hover {
+  background: rgba(144, 209, 202, 0.22);
+  border-color: rgba(144, 209, 202, 0.5);
+}
+
+/* GÖNDƏRILMIŞ ELANLAR */
+.elan-list-wrapper {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-width: 0;
+}
+
+.elan-bos {
+  text-align: center;
+  color: rgba(139, 184, 181, 0.4);
+  font-size: 13px;
+  padding: 30px;
+  margin: 0;
+  font-style: italic;
+}
+
+.elan-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-height: 350px;
+  overflow-y: auto;
+}
+
+.elan-item {
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(144, 209, 202, 0.1);
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: all 0.2s;
+}
+
+.elan-item:hover {
+  border-color: rgba(144, 209, 202, 0.2);
+  background: rgba(144, 209, 202, 0.03);
+}
+
+.elan-item-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+}
+
+.elan-item-baslig {
+  font-size: 13px;
+  font-weight: 700;
+  color: #90D1CA;
+}
+
+.elan-item-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.elan-oxuyan {
+  font-size: 11px;
+  color: #8BB8B5;
+  background: rgba(255, 255, 255, 0.04);
+  padding: 2px 8px;
+  border-radius: 10px;
+  border: 1px solid rgba(144, 209, 202, 0.1);
+}
+
+.elan-sil-btn {
+  background: none;
+  border: none;
+  color: rgba(255, 107, 107, 0.5);
+  cursor: pointer;
+  font-size: 12px;
+  padding: 4px;
+  transition: all 0.2s;
+}
+
+.elan-sil-btn:hover {
+  color: #ff6b6b;
+  transform: scale(1.1);
+}
+
+.elan-item-metn {
+  font-size: 12px;
+  color: #E8F4F3;
+  opacity: 0.7;
+  margin: 0;
+  line-height: 1.5;
+}
+
+.elan-item-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.elan-item-tarix {
+  font-size: 11px;
+  color: rgba(139, 184, 181, 0.4);
+}
+
+.elan-item-alici {
+  font-size: 11px;
+  color: #90D1CA;
+  opacity: 0.6;
+}
+
+/* SCROLLBAR */
+.elan-list::-webkit-scrollbar,
+.elan-alici-list::-webkit-scrollbar {
+  width: 4px;
+}
+
+.elan-list::-webkit-scrollbar-track,
+.elan-alici-list::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
+}
+
+.elan-list::-webkit-scrollbar-thumb,
+.elan-alici-list::-webkit-scrollbar-thumb {
+  background: rgba(144, 209, 202, 0.2);
+  border-radius: 2px;
+}

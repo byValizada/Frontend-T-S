@@ -1,12 +1,14 @@
 import { useState } from 'react'
 import { FaTimes, FaBullhorn, FaTrash, FaPlus } from 'react-icons/fa'
-import './AdminPanel.css'
+import './ElanPanel.css'
 
 interface User {
   login: string
   parol: string
   rol: string
   adSoyad: string
+  companyId?: string
+  bolmeId?: string
 }
 
 export interface Elan {
@@ -16,6 +18,11 @@ export interface Elan {
   yaranmaTarixi: string
   oxuyanlar: string[]
   alicilar: string[] | 'hamisi'
+  gonderenLogin: string
+  gonderenAd: string
+  gonderenRol: string
+  companyId?: string
+  bolmeId?: string
 }
 
 interface ElanPanelProps {
@@ -34,7 +41,12 @@ function ElanPanel({ users, currentUser, onClose }: ElanPanelProps) {
   const getElanlar = (): Elan[] => {
     const data = localStorage.getItem('elanlar')
     if (!data) return []
-    return JSON.parse(data).reverse()
+    const all: Elan[] = JSON.parse(data)
+
+    // Rola görə filter - yalnız öz göndərdikləri görünsün
+    return all
+      .filter(e => e.gonderenLogin === currentUser.login)
+      .reverse()
   }
 
   const elanlar = getElanlar()
@@ -65,7 +77,12 @@ function ElanPanel({ users, currentUser, onClose }: ElanPanelProps) {
       metn: metn.trim(),
       yaranmaTarixi: new Date().toLocaleString('az-AZ'),
       oxuyanlar: [],
-      alicilar: hamiseyaGonder ? 'hamisi' : secilmisAlicilar
+      alicilar: hamiseyaGonder ? 'hamisi' : secilmisAlicilar,
+      gonderenLogin: currentUser.login,
+      gonderenAd: currentUser.adSoyad,
+      gonderenRol: currentUser.rol,
+      companyId: currentUser.companyId,
+      bolmeId: currentUser.bolmeId
     }
 
     const data = localStorage.getItem('elanlar')
@@ -76,28 +93,27 @@ function ElanPanel({ users, currentUser, onClose }: ElanPanelProps) {
     setMetn('')
     setSecilmisAlicilar([])
     setXeta('')
-    alert('Elan uğurla göndərildi!')
   }
 
   const handleSil = (id: string) => {
-    if (!window.confirm('Bu elanı silmək istədiyinizə əminsiniz?')) return
     const data = localStorage.getItem('elanlar')
     const elanlarList: Elan[] = data ? JSON.parse(data) : []
     const updated = elanlarList.filter(e => e.id !== id)
     localStorage.setItem('elanlar', JSON.stringify(updated))
-    window.location.reload()
+    // Force re-render
+    setBaslig(prev => prev + '')
   }
 
-  const otherUsers = users.filter(u => u.login !== currentUser.login)
+  const otherUsers = users.filter(u => u.login !== currentUser.login && u.rol !== 'SuperAdmin')
 
   return (
     <div className="elan-bolme">
-      <div className="activitylog-header">
+      <div className="elan-header">
         <h3>
           <FaBullhorn style={{ marginRight: 8 }} />
           Elan / Bildiriş
         </h3>
-        <button className="performans-close" onClick={onClose}>
+        <button className="elan-close" onClick={onClose}>
           <FaTimes />
         </button>
       </div>
@@ -127,7 +143,6 @@ function ElanPanel({ users, currentUser, onClose }: ElanPanelProps) {
             />
           </div>
 
-          {/* ALICIlar */}
           <div className="elan-form-group">
             <label>Alıcılar</label>
             <div className="elan-alici-secim">
@@ -177,7 +192,7 @@ function ElanPanel({ users, currentUser, onClose }: ElanPanelProps) {
         <div className="elan-list-wrapper">
           <h4 className="elan-form-baslig">Göndərilmiş elanlar ({elanlar.length})</h4>
           {elanlar.length === 0 ? (
-            <p className="activitylog-bos">Hələ elan göndərilməyib</p>
+            <p className="elan-bos">Hələ elan göndərilməyib</p>
           ) : (
             <div className="elan-list">
               {elanlar.map(elan => (

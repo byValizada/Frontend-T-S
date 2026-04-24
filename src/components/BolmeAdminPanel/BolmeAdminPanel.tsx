@@ -8,6 +8,8 @@ import {
   FaEyeSlash,
   FaKey,
   FaTasks,
+  FaChartBar,
+  FaBullhorn
 } from "react-icons/fa";
 import {
   getBolmeByAdminLogin,
@@ -18,7 +20,9 @@ import {
 import type { Bolme, User, Company } from "../../services/dataService";
 import "./BolmeAdminPanel.css";
 import StatsCards from "../shared/StatsCards";
-
+import PerformansPanel from "../shared/PerformansPanel";
+import ElanPanel from "../shared/ElanPanel";
+import { addLog } from "../shared/logHelper";
 interface Props {
   currentUser: User;
   onLogout: () => void;
@@ -37,6 +41,9 @@ function BolmeAdminPanel({ currentUser, onLogout, onGoToDashboard }: Props) {
 
   const [xeta, setXeta] = useState("");
   const [ugurlu, setUgurlu] = useState("");
+  const [isPerformansOpen, setIsPerformansOpen] = useState(false);
+  const [isElanOpen, setIsElanOpen] = useState(false);
+
   // Parol göstərmə/gizlətmə
   const [gorunenParollar, setGorunenParollar] = useState<string[]>([]);
 
@@ -102,14 +109,17 @@ function BolmeAdminPanel({ currentUser, onLogout, onGoToDashboard }: Props) {
     setNewUserParol("");
     setNewUserAdSoyad("");
     setNewUserRol("İşçi");
+    addLog('istifadeci_yarat', currentUser.adSoyad, currentUser.login, `"${newUserAdSoyad}" istifadəçisini yaratdı`);
     showUgurlu("İstifadəçi uğurla yaradıldı");
   };
 
   const handleDeleteUser = (login: string) => {
     const allUsers = getUsers();
+    const silinən = allUsers.find(u => u.login === login);
     const updatedUsers = allUsers.filter((u) => u.login !== login);
     saveUsers(updatedUsers);
     if (bolme) refreshUsers(bolme.id);
+    addLog('istifadeci_sil', currentUser.adSoyad, currentUser.login, `"${silinən?.adSoyad || login}" istifadəçisini sildi`);
     showUgurlu("İstifadəçi silindi");
   };
   // PAROL GÖSTƏR/GİZLƏT
@@ -161,9 +171,20 @@ function BolmeAdminPanel({ currentUser, onLogout, onGoToDashboard }: Props) {
         </div>
 
         <button
-          className="bap-nav-btn bap-dashboard-btn"
-          onClick={onGoToDashboard}
+          className="bap-nav-btn"
+          onClick={() => setIsPerformansOpen(!isPerformansOpen)}
         >
+          <FaChartBar /> Performans
+        </button>
+
+        <button
+          className="bap-nav-btn"
+          onClick={() => setIsElanOpen(!isElanOpen)}
+        >
+          <FaBullhorn /> Elanlar
+        </button>
+
+        <button className="bap-nav-btn bap-dashboard-btn" onClick={onGoToDashboard}>
           <FaTasks /> Tapşırıq pəncərəsi
         </button>
 
@@ -179,8 +200,24 @@ function BolmeAdminPanel({ currentUser, onLogout, onGoToDashboard }: Props) {
 
           <StatsCards
             currentUser={currentUser}
-            allowedLogins={users.map((u) => u.login)}
+            allowedLogins={[...users.map(u => u.login), currentUser.login]}
           />
+
+          {isPerformansOpen && (
+            <PerformansPanel
+              users={users}
+              currentUser={currentUser}
+              onClose={() => setIsPerformansOpen(false)}
+            />
+          )}
+
+          {isElanOpen && (
+            <ElanPanel
+              users={users}
+              currentUser={currentUser}
+              onClose={() => setIsElanOpen(false)}
+            />
+          )}
 
           <div className="bap-card">
             <h3 className="bap-card-title">Yeni işçi əlavə et</h3>

@@ -9,6 +9,8 @@ import {
   FaEyeSlash,
   FaKey,
   FaTasks,
+  FaChartBar,
+  FaBullhorn
 } from "react-icons/fa";
 import {
   getCompanyByAdminLogin,
@@ -20,6 +22,9 @@ import {
 import type { Company, Bolme, User } from "../../services/dataService";
 import "./MuessiseAdminPanel.css";
 import StatsCards from "../shared/StatsCards";
+import PerformansPanel from "../shared/PerformansPanel";
+import ElanPanel from "../shared/ElanPanel";
+import { addLog } from "../shared/logHelper";
 interface Props {
   currentUser: User;
   onLogout: () => void;
@@ -32,7 +37,8 @@ function MuessiseAdminPanel({ currentUser, onLogout, onGoToDashboard }: Props) {
   const [company, setCompany] = useState<Company | null>(null);
   const [bolmeler, setBolmeler] = useState<Bolme[]>([]);
   const [users, setUsers] = useState<User[]>([]);
-
+  const [isPerformansOpen, setIsPerformansOpen] = useState(false);
+  const [isElanOpen, setIsElanOpen] = useState(false);
   // Bölmə formu
   const [newBolmeAd, setNewBolmeAd] = useState("");
   const [newBolmeAdminLogin, setNewBolmeAdminLogin] = useState("");
@@ -125,18 +131,21 @@ function MuessiseAdminPanel({ currentUser, onLogout, onGoToDashboard }: Props) {
     setNewBolmeAdminLogin("");
     setNewBolmeAdminParol("");
     setNewBolmeAdminAdSoyad("");
+    addLog('istifadeci_yarat', currentUser.adSoyad, currentUser.login, `"${newBolmeAd}" bölməsini və admini yaratdı`);
     showUgurlu("Bölmə uğurla yaradıldı");
   };
 
   // BÖLMƏ SİL
   const handleDeleteBolme = (bolmeId: string) => {
     const allBolmeler = getBolmeler();
+    const silinen = allBolmeler.find(b => b.id === bolmeId);
     const updatedBolmeler = allBolmeler.filter((b) => b.id !== bolmeId);
     const allUsers = getUsers();
     const updatedUsers = allUsers.filter((u) => u.bolmeId !== bolmeId);
     saveBolmeler(updatedBolmeler);
     saveUsers(updatedUsers);
     if (company) refreshData(company.id);
+    addLog('istifadeci_sil', currentUser.adSoyad, currentUser.login, `"${silinen?.ad || bolmeId}" bölməsini sildi`);
     showUgurlu("Bölmə silindi");
   };
 
@@ -177,15 +186,18 @@ function MuessiseAdminPanel({ currentUser, onLogout, onGoToDashboard }: Props) {
     setNewUserAdSoyad("");
     setNewUserRol("İşçi");
     setNewUserBolmeId("");
+    addLog('istifadeci_yarat', currentUser.adSoyad, currentUser.login, `"${newUserAdSoyad}" istifadəçisini yaratdı`);
     showUgurlu("İstifadəçi uğurla yaradıldı");
   };
 
   // İSTİFADƏÇİ SİL
   const handleDeleteUser = (login: string) => {
     const allUsers = getUsers();
+    const silinən = allUsers.find(u => u.login === login);
     const updatedUsers = allUsers.filter((u) => u.login !== login);
     saveUsers(updatedUsers);
     if (company) refreshData(company.id);
+    addLog('istifadeci_sil', currentUser.adSoyad, currentUser.login, `"${silinən?.adSoyad || login}" istifadəçisini sildi`);
     showUgurlu("İstifadəçi silindi");
   };
   // PAROL GÖSTƏR/GİZLƏT
@@ -244,10 +256,21 @@ function MuessiseAdminPanel({ currentUser, onLogout, onGoToDashboard }: Props) {
           </button>
         </nav>
 
-        <button
-          className="map-nav-btn map-dashboard-btn"
-          onClick={onGoToDashboard}
+       <button
+          className="map-nav-btn"
+          onClick={() => setIsPerformansOpen(!isPerformansOpen)}
         >
+          <FaChartBar /> Performans
+        </button>
+
+        <button
+          className="map-nav-btn"
+          onClick={() => setIsElanOpen(!isElanOpen)}
+        >
+          <FaBullhorn /> Elanlar
+        </button>
+
+        <button className="map-nav-btn map-dashboard-btn" onClick={onGoToDashboard}>
           <FaTasks /> Tapşırıq pəncərəsi
         </button>
 
@@ -262,10 +285,27 @@ function MuessiseAdminPanel({ currentUser, onLogout, onGoToDashboard }: Props) {
         {activePage === "bolmeler" && (
           <div className="map-page">
             <h2 className="map-page-title">Bölmələr</h2>
-            <StatsCards
+           <StatsCards
               currentUser={currentUser}
-              allowedLogins={users.map((u) => u.login)}
+              allowedLogins={users.map(u => u.login)}
             />
+
+            {isPerformansOpen && (
+              <PerformansPanel
+                users={users}
+                currentUser={currentUser}
+                onClose={() => setIsPerformansOpen(false)}
+              />
+            )}
+
+            {isElanOpen && (
+              <ElanPanel
+                users={users}
+                currentUser={currentUser}
+                onClose={() => setIsElanOpen(false)}
+              />
+            )}
+
             <div className="map-card">
               <h3 className="map-card-title">Yeni bölmə yarat</h3>
               <div className="map-form-grid">
