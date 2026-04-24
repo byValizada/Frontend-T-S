@@ -2,10 +2,10 @@
   width: 220px;
   min-width: 220px;
   height: 100vh;
-  background: #0D2137;
+  background: #2D2D2D;
   display: flex;
   flex-direction: column;
-  border-right: 1px solid rgba(78, 205, 196, 0.1);
+  border-right: 1px solid #404040;
   position: fixed;
   left: 0;
   top: 0;
@@ -14,7 +14,7 @@
 /* LOGO */
 .sidebar-logo {
   padding: 24px 20px 20px;
-  border-bottom: 1px solid rgba(78, 205, 196, 0.08);
+  border-bottom: 1px solid #404040;
   display: flex;
   justify-content: center;
 }
@@ -22,7 +22,7 @@
 .sidebar-logo-text {
   font-size: 24px;
   font-weight: 800;
-  color: #4ECDC4;
+  color: #7B83EB;
   letter-spacing: 3px;
 }
 
@@ -42,7 +42,7 @@
   padding: 13px 16px;
   border-radius: 10px;
   cursor: pointer;
-  color: #8BB8B5;
+  color: #888888;
   font-size: 13px;
   font-weight: 500;
   transition: all 0.25s;
@@ -50,15 +50,15 @@
 }
 
 .sidebar-nav-item:hover {
-  background: rgba(78, 205, 196, 0.06);
-  color: #E8F4F3;
-  border-color: rgba(78, 205, 196, 0.12);
+  background: #3D3D3D;
+  color: #E8E8E8;
+  border-color: #505050;
   transform: translateX(3px);
 }
 
 .sidebar-nav-item.aktiv {
-  background: rgba(78, 205, 196, 0.12);
-  color: #4ECDC4;
+  background: rgba(123, 131, 235, 0.12);
+  color: #7B83EB;
   font-weight: 600;
 }
 
@@ -73,27 +73,28 @@
   display: flex;
   flex-direction: column;
   gap: 10px;
-  border-top: 1px solid rgba(78, 205, 196, 0.08);
+  border-top: 1px solid #404040;
 }
 
 /* ADMIN DÜYMƏSİ */
 .sidebar-admin-btn {
   width: 100%;
   padding: 9px;
-  background: rgba(78, 205, 196, 0.08);
-  color: #4ECDC4;
-  border: 1px solid rgba(78, 205, 196, 0.2);
+  background: rgba(123, 131, 235, 0.08);
+  color: #7B83EB;
+  border: 1px solid rgba(123, 131, 235, 0.2);
   border-radius: 8px;
   cursor: pointer;
   font-size: 12px;
   font-weight: 600;
   transition: all 0.3s;
   text-align: center;
+  font-family: inherit;
 }
 
 .sidebar-admin-btn:hover {
-  background: rgba(78, 205, 196, 0.15);
-  border-color: rgba(78, 205, 196, 0.35);
+  background: rgba(123, 131, 235, 0.15);
+  border-color: rgba(123, 131, 235, 0.35);
 }
 
 /* İSTİFADƏÇİ */
@@ -108,14 +109,14 @@
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: rgba(78, 205, 196, 0.15);
-  border: 1px solid rgba(78, 205, 196, 0.3);
+  background: rgba(123, 131, 235, 0.15);
+  border: 1px solid rgba(123, 131, 235, 0.3);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 15px;
   font-weight: 700;
-  color: #4ECDC4;
+  color: #7B83EB;
   flex-shrink: 0;
 }
 
@@ -129,7 +130,7 @@
 .sidebar-user-name {
   font-size: 13px;
   font-weight: 600;
-  color: #E8F4F3;
+  color: #E8E8E8;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -137,7 +138,7 @@
 
 .sidebar-user-rol {
   font-size: 11px;
-  color: rgba(139, 184, 181, 0.5);
+  color: #888888;
 }
 
 /* ÇIXIŞ */
@@ -156,6 +157,7 @@
   font-size: 12px;
   font-weight: 600;
   transition: all 0.3s;
+  font-family: inherit;
 }
 
 .sidebar-cixis-btn:hover {

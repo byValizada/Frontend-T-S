@@ -24,23 +24,23 @@
 
 /* ÜMUMİ TAPŞIRIQ */
 .stats-all {
-  background: rgba(144, 209, 202, 0.08);
-  border-color: rgba(144, 209, 202, 0.25);
+  background: rgba(123, 131, 235, 0.08);
+  border-color: rgba(123, 131, 235, 0.25);
 }
 
 .stats-all:hover {
-  background: rgba(144, 209, 202, 0.15);
-  border-color: rgba(144, 209, 202, 0.5);
+  background: rgba(123, 131, 235, 0.15);
+  border-color: rgba(123, 131, 235, 0.5);
 }
 
 .stats-all .stats-icon-box {
-  background: rgba(144, 209, 202, 0.15);
-  border: 1px solid rgba(144, 209, 202, 0.3);
+  background: rgba(123, 131, 235, 0.15);
+  border: 1px solid rgba(123, 131, 235, 0.3);
 }
 
 .stats-all .stats-icon,
 .stats-all .stats-sayi {
-  color: #90D1CA;
+  color: #7B83EB;
 }
 
 /* AKTİV */
@@ -115,7 +115,7 @@
 
 .stats-ad {
   font-size: 12px;
-  color: #8BB8B5;
+  color: #888888;
   font-weight: 500;
 }
 
@@ -137,8 +137,8 @@
 .stats-modal-box {
   width: 600px;
   max-height: 80vh;
-  background: linear-gradient(180deg, #0D2137 0%, #0F1923 100%);
-  border: 1px solid rgba(144, 209, 202, 0.25);
+  background: #2D2D2D;
+  border: 1px solid #404040;
   border-radius: 16px;
   display: flex;
   flex-direction: column;
@@ -151,20 +151,20 @@
   justify-content: space-between;
   align-items: center;
   padding: 18px 25px;
-  background: rgba(144, 209, 202, 0.07);
-  border-bottom: 1px solid rgba(144, 209, 202, 0.15);
+  background: #333333;
+  border-bottom: 1px solid #404040;
 }
 
 .stats-modal-header h3 {
   margin: 0;
-  color: #90D1CA;
+  color: #7B83EB;
   font-size: 17px;
 }
 
 .stats-modal-close {
   background: none;
-  border: 1px solid rgba(144, 209, 202, 0.3);
-  color: #90D1CA;
+  border: 1px solid #505050;
+  color: #888888;
   width: 32px;
   height: 32px;
   border-radius: 50%;
@@ -176,7 +176,8 @@
 }
 
 .stats-modal-close:hover {
-  background: rgba(144, 209, 202, 0.15);
+  background: #3D3D3D;
+  color: #E8E8E8;
 }
 
 .stats-modal-body {
@@ -187,7 +188,7 @@
 
 .stats-bos {
   text-align: center;
-  color: rgba(139, 184, 181, 0.5);
+  color: #666666;
   font-size: 14px;
   padding: 40px;
   font-style: italic;
@@ -221,13 +222,13 @@
   align-items: center;
   gap: 10px;
   padding: 10px 14px;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+  border-bottom: 1px solid #404040;
 }
 
 .stats-task-no {
   font-size: 12px;
   font-weight: 700;
-  color: #8BB8B5;
+  color: #888888;
   width: 20px;
 }
 
@@ -235,7 +236,7 @@
   flex: 1;
   font-weight: 600;
   font-size: 13px;
-  color: #E8F4F3;
+  color: #E8E8E8;
 }
 
 .stats-task-status {
@@ -274,7 +275,7 @@
 .stats-task-label {
   font-size: 11px;
   font-weight: 600;
-  color: #8BB8B5;
+  color: #888888;
   text-transform: uppercase;
   letter-spacing: 0.3px;
   min-width: 70px;
@@ -282,7 +283,7 @@
 
 .stats-task-value {
   font-size: 12px;
-  color: #E8F4F3;
+  color: #E8E8E8;
   opacity: 0.85;
 }
 
@@ -330,14 +331,14 @@
 }
 
 .stats-modal-body::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.02);
+  background: transparent;
 }
 
 .stats-modal-body::-webkit-scrollbar-thumb {
-  background: rgba(144, 209, 202, 0.25);
+  background: rgba(123, 131, 235, 0.25);
   border-radius: 2px;
 }
 
 .stats-modal-body::-webkit-scrollbar-thumb:hover {
-  background: rgba(144, 209, 202, 0.5);
+  background: rgba(123, 131, 235, 0.5);
 }

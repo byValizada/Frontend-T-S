@@ -1,7 +1,7 @@
 .sa-container {
   display: flex;
   height: 100vh;
-  background: #0F1923;
+  background: #1F1F1F;
   overflow: hidden;
 }
 
@@ -9,8 +9,8 @@
 .sa-sidebar {
   width: 220px;
   flex-shrink: 0;
-  background: linear-gradient(180deg, #0D2137 0%, #0a1a2e 100%);
-  border-right: 1px solid rgba(78, 205, 196, 0.1);
+  background: #2D2D2D;
+  border-right: 1px solid #404040;
   display: flex;
   flex-direction: column;
   padding: 24px 16px;
@@ -20,7 +20,7 @@
 .sa-logo {
   font-size: 28px;
   font-weight: 800;
-  color: #4ECDC4;
+  color: #7B83EB;
   letter-spacing: 2px;
   text-align: center;
   margin-bottom: 4px;
@@ -28,7 +28,7 @@
 
 .sa-logo-sub {
   font-size: 10px;
-  color: rgba(78, 205, 196, 0.4);
+  color: rgba(123, 131, 235, 0.4);
   text-align: center;
   text-transform: uppercase;
   letter-spacing: 1.5px;
@@ -50,7 +50,7 @@
   background: none;
   border: 1px solid transparent;
   border-radius: 8px;
-  color: rgba(139, 184, 181, 0.5);
+  color: #888888;
   cursor: pointer;
   font-size: 13px;
   font-weight: 500;
@@ -60,15 +60,16 @@
 }
 
 .sa-nav-btn:hover {
-  background: rgba(78, 205, 196, 0.06);
-  color: #4ECDC4;
-  border-color: rgba(78, 205, 196, 0.1);
+  background: #3D3D3D;
+  color: #E8E8E8;
+  border-color: #505050;
 }
 
 .sa-nav-btn.aktiv {
-  background: rgba(78, 205, 196, 0.1);
-  color: #4ECDC4;
-  border-color: rgba(78, 205, 196, 0.2);
+  background: rgba(123, 131, 235, 0.12);
+  color: #7B83EB;
+  border-color: rgba(123, 131, 235, 0.25);
+  font-weight: 700;
 }
 
 .sa-logout {
@@ -110,13 +111,13 @@
   margin: 0;
   font-size: 18px;
   font-weight: 700;
-  color: #4ECDC4;
+  color: #7B83EB;
 }
 
 /* KART */
 .sa-card {
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(78, 205, 196, 0.1);
+  background: #2D2D2D;
+  border: 1px solid #404040;
   border-radius: 12px;
   padding: 20px;
   display: flex;
@@ -128,7 +129,7 @@
   margin: 0;
   font-size: 13px;
   font-weight: 700;
-  color: rgba(139, 184, 181, 0.6);
+  color: #888888;
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
@@ -149,7 +150,7 @@
 .sa-form-group label {
   font-size: 11px;
   font-weight: 600;
-  color: rgba(139, 184, 181, 0.5);
+  color: #888888;
   text-transform: uppercase;
   letter-spacing: 0.4px;
 }
@@ -157,10 +158,10 @@
 .sa-form-group input,
 .sa-form-group select {
   padding: 9px 12px;
-  background: rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(78, 205, 196, 0.15);
+  background: #333333;
+  border: 1px solid #404040;
   border-radius: 8px;
-  color: #E8F4F3;
+  color: #E8E8E8;
   font-size: 13px;
   font-family: inherit;
   outline: none;
@@ -169,17 +170,17 @@
 
 .sa-form-group input:focus,
 .sa-form-group select:focus {
-  border-color: rgba(78, 205, 196, 0.4);
-  background: rgba(255, 255, 255, 0.06);
+  border-color: #7B83EB;
+  background: #3A3A3A;
 }
 
 .sa-form-group input::placeholder {
-  color: rgba(139, 184, 181, 0.25);
+  color: #666666;
 }
 
 .sa-form-group select option {
-  background: #0D2137;
-  color: #E8F4F3;
+  background: #2D2D2D;
+  color: #E8E8E8;
 }
 
 .sa-form-group select:disabled {
@@ -193,9 +194,9 @@
   align-items: center;
   gap: 8px;
   padding: 10px 20px;
-  background: rgba(78, 205, 196, 0.12);
-  color: #4ECDC4;
-  border: 1px solid rgba(78, 205, 196, 0.3);
+  background: rgba(123, 131, 235, 0.12);
+  color: #7B83EB;
+  border: 1px solid rgba(123, 131, 235, 0.3);
   border-radius: 8px;
   cursor: pointer;
   font-size: 13px;
@@ -206,8 +207,8 @@
 }
 
 .sa-btn-primary:hover {
-  background: rgba(78, 205, 196, 0.2);
-  border-color: rgba(78, 205, 196, 0.5);
+  background: rgba(123, 131, 235, 0.2);
+  border-color: rgba(123, 131, 235, 0.5);
 }
 
 .sa-btn-delete {
@@ -244,16 +245,16 @@
   align-items: center;
   justify-content: space-between;
   padding: 12px 16px;
-  background: rgba(255, 255, 255, 0.02);
-  border: 1px solid rgba(78, 205, 196, 0.07);
+  background: #2D2D2D;
+  border: 1px solid #404040;
   border-radius: 10px;
   transition: all 0.2s;
   gap: 12px;
 }
 
 .sa-list-item:hover {
-  background: rgba(78, 205, 196, 0.03);
-  border-color: rgba(78, 205, 196, 0.14);
+  background: #333333;
+  border-color: #505050;
 }
 
 .sa-list-item-info {
@@ -267,12 +268,12 @@
 .sa-list-item-ad {
   font-size: 14px;
   font-weight: 600;
-  color: #E8F4F3;
+  color: #E8E8E8;
 }
 
 .sa-list-item-meta {
   font-size: 11px;
-  color: rgba(139, 184, 181, 0.4);
+  color: #888888;
 }
 
 /* QRUP */
@@ -287,11 +288,11 @@
   margin: 0;
   font-size: 11px;
   font-weight: 700;
-  color: rgba(78, 205, 196, 0.5);
+  color: rgba(123, 131, 235, 0.5);
   text-transform: uppercase;
   letter-spacing: 1px;
   padding: 4px 0;
-  border-bottom: 1px solid rgba(78, 205, 196, 0.08);
+  border-bottom: 1px solid #404040;
 }
 
 /* XƏTA / UĞURLU */
@@ -318,7 +319,7 @@
 /* BOŞ */
 .sa-bos {
   text-align: center;
-  color: rgba(139, 184, 181, 0.3);
+  color: #666666;
   font-size: 13px;
   font-style: italic;
   padding: 20px 0;
@@ -331,30 +332,31 @@
 }
 
 .sa-content::-webkit-scrollbar-track {
-  background: rgba(255, 255, 255, 0.02);
+  background: transparent;
 }
 
 .sa-content::-webkit-scrollbar-thumb {
-  background: rgba(78, 205, 196, 0.2);
+  background: rgba(123, 131, 235, 0.2);
   border-radius: 2px;
 }
 
 .sa-content::-webkit-scrollbar-thumb:hover {
-  background: rgba(78, 205, 196, 0.4);
+  background: rgba(123, 131, 235, 0.4);
 }
+
 /* PAROL STYLELARı */
 .sa-list-item-parol {
   display: flex;
   align-items: center;
   gap: 8px;
   font-size: 13px;
-  color: #90D1CA;
+  color: #7B83EB;
   margin-top: 4px;
   font-family: 'Courier New', monospace;
 }
 
 .parol-text {
-  background-color: rgba(144, 209, 202, 0.1);
+  background-color: rgba(123, 131, 235, 0.1);
   padding: 2px 8px;
   border-radius: 4px;
   min-width: 90px;
@@ -364,8 +366,8 @@
 
 .sa-btn-icon {
   background: transparent;
-  border: 1px solid rgba(144, 209, 202, 0.3);
-  color: #90D1CA;
+  border: 1px solid rgba(123, 131, 235, 0.3);
+  color: #7B83EB;
   padding: 4px 8px;
   border-radius: 4px;
   cursor: pointer;
@@ -377,8 +379,8 @@
 }
 
 .sa-btn-icon:hover {
-  background-color: rgba(144, 209, 202, 0.2);
-  border-color: #90D1CA;
+  background-color: rgba(123, 131, 235, 0.2);
+  border-color: #7B83EB;
   color: #fff;
 }
 
@@ -392,17 +394,17 @@
 .parol-deyisdir-row input {
   flex: 1;
   padding: 6px 12px;
-  background-color: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(144, 209, 202, 0.3);
+  background-color: #333333;
+  border: 1px solid #404040;
   border-radius: 6px;
-  color: #fff;
+  color: #E8E8E8;
   font-size: 13px;
   outline: none;
 }
 
 .parol-deyisdir-row input:focus {
-  border-color: #90D1CA;
-  background-color: rgba(255, 255, 255, 0.12);
+  border-color: #7B83EB;
+  background-color: #3A3A3A;
 }
 
 .sa-btn-sm {
