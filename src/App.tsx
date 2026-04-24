@@ -4,7 +4,9 @@ import Dashboard from './components/Dashboard/Dashboard'
 import SuperAdminPanel from './components/SuperAdminPanel/SuperAdminPanel'
 import MuessiseAdminPanel from './components/MuessiseAdminPanel/MuessiseAdminPanel'
 import BolmeAdminPanel from './components/BolmeAdminPanel/BolmeAdminPanel'
+import ChatWidget from './components/shared/ChatWidget'
 import type { User } from './services/dataService'
+
 function App() {
   const [currentUser, setCurrentUser] = useState<User | null>(null)
   const [adminInDashboard, setAdminInDashboard] = useState(false)
@@ -27,62 +29,70 @@ function App() {
   if (!currentUser) {
     return <Login onLogin={handleLogin} />
   }
-if (currentUser.rol === 'SuperAdmin') {
-    return (
-      <SuperAdminPanel
-        currentUser={currentUser}
-        onLogout={handleLogout}
-      />
-    )
-  }
 
-  // Müəssisə Admini - Dashboard-da isə Dashboard göstər, yoxsa öz panelini
-  if (currentUser.rol === 'Admin') {
-    if (adminInDashboard) {
+  // Chat hər yerdə görünür
+const renderPanel = () => {
+    if (currentUser.rol === 'SuperAdmin') {
       return (
-        <Dashboard
+        <SuperAdminPanel
           currentUser={currentUser}
           onLogout={handleLogout}
-          onGoToAdminPanel={() => setAdminInDashboard(false)}
         />
       )
     }
-    return (
-      <MuessiseAdminPanel
-        currentUser={currentUser}
-        onLogout={handleLogout}
-        onGoToDashboard={() => setAdminInDashboard(true)}
-      />
-    )
-  }
 
-  // Bölmə Admini - eyni məntiqlə
-  if (currentUser.rol === 'BolmeAdmin') {
-    if (adminInDashboard) {
+    if (currentUser.rol === 'Admin') {
+      if (adminInDashboard) {
+        return (
+          <Dashboard
+            currentUser={currentUser}
+            onLogout={handleLogout}
+            onGoToAdminPanel={() => setAdminInDashboard(false)}
+          />
+        )
+      }
       return (
-        <Dashboard
+        <MuessiseAdminPanel
           currentUser={currentUser}
           onLogout={handleLogout}
-          onGoToAdminPanel={() => setAdminInDashboard(false)}
+          onGoToDashboard={() => setAdminInDashboard(true)}
         />
       )
     }
+
+    if (currentUser.rol === 'BolmeAdmin') {
+      if (adminInDashboard) {
+        return (
+          <Dashboard
+            currentUser={currentUser}
+            onLogout={handleLogout}
+            onGoToAdminPanel={() => setAdminInDashboard(false)}
+          />
+        )
+      }
+      return (
+        <BolmeAdminPanel
+          currentUser={currentUser}
+          onLogout={handleLogout}
+          onGoToDashboard={() => setAdminInDashboard(true)}
+        />
+      )
+    }
+
     return (
-      <BolmeAdminPanel
+      <Dashboard
         currentUser={currentUser}
         onLogout={handleLogout}
-        onGoToDashboard={() => setAdminInDashboard(true)}
+        onGoToAdminPanel={() => {}}
       />
     )
   }
 
-  // Müavin və İşçi - birbaşa Dashboard, admin panel yoxdur
   return (
-    <Dashboard
-      currentUser={currentUser}
-      onLogout={handleLogout}
-      onGoToAdminPanel={() => {}}
-    />
+    <>
+      {renderPanel()}
+      <ChatWidget currentUser={currentUser as any} />
+    </>
   )
 }
 
