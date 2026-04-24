@@ -1,4 +1,4 @@
-import { FaTimes, FaChartBar, FaTrophy } from 'react-icons/fa'
+import { FaChartBar, FaTrophy } from 'react-icons/fa'
 import './PerformansPanel.css'
 
 interface User {
@@ -13,10 +13,9 @@ interface User {
 interface PerformansPanelProps {
   users: User[]
   currentUser: User
-  onClose: () => void
 }
 
-function PerformansPanel({ users, currentUser, onClose }: PerformansPanelProps) {
+function PerformansPanel({ users, currentUser }: PerformansPanelProps) {
   const getPerformans = () => {
     const data = localStorage.getItem('tasks')
     const allTasks = data ? JSON.parse(data) : []
@@ -61,17 +60,7 @@ function PerformansPanel({ users, currentUser, onClose }: PerformansPanelProps) 
   }
 
   return (
-    <div className="performans-bolme">
-      <div className="performans-header">
-        <h3>
-          <FaChartBar style={{ marginRight: 8 }} />
-          İstifadəçi Performansı
-        </h3>
-        <button className="performans-close" onClick={onClose}>
-          <FaTimes />
-        </button>
-      </div>
-
+    <div>
       <div className="performans-list">
         {performansData.length === 0 ? (
           <p style={{ textAlign: 'center', color: '#8BB8B5', padding: '20px' }}>

@@ -31,14 +31,12 @@ interface Props {
   onGoToDashboard: () => void;
 }
 function MuessiseAdminPanel({ currentUser, onLogout, onGoToDashboard }: Props) {
-  const [activePage, setActivePage] = useState<"bolmeler" | "users">(
-    "bolmeler",
-  );
+  type PageType = "bolmeler" | "users" | "performans" | "elanlar"
+  const [activePage, setActivePage] = useState<PageType>("bolmeler");
   const [company, setCompany] = useState<Company | null>(null);
   const [bolmeler, setBolmeler] = useState<Bolme[]>([]);
   const [users, setUsers] = useState<User[]>([]);
-  const [isPerformansOpen, setIsPerformansOpen] = useState(false);
-  const [isElanOpen, setIsElanOpen] = useState(false);
+  
   // Bölmə formu
   const [newBolmeAd, setNewBolmeAd] = useState("");
   const [newBolmeAdminLogin, setNewBolmeAdminLogin] = useState("");
@@ -257,15 +255,15 @@ function MuessiseAdminPanel({ currentUser, onLogout, onGoToDashboard }: Props) {
         </nav>
 
        <button
-          className="map-nav-btn"
-          onClick={() => setIsPerformansOpen(!isPerformansOpen)}
+          className={`map-nav-btn ${activePage === "performans" ? "aktiv" : ""}`}
+          onClick={() => setActivePage("performans")}
         >
           <FaChartBar /> Performans
         </button>
 
         <button
-          className="map-nav-btn"
-          onClick={() => setIsElanOpen(!isElanOpen)}
+          className={`map-nav-btn ${activePage === "elanlar" ? "aktiv" : ""}`}
+          onClick={() => setActivePage("elanlar")}
         >
           <FaBullhorn /> Elanlar
         </button>
@@ -290,21 +288,7 @@ function MuessiseAdminPanel({ currentUser, onLogout, onGoToDashboard }: Props) {
               allowedLogins={users.map(u => u.login)}
             />
 
-            {isPerformansOpen && (
-              <PerformansPanel
-                users={users}
-                currentUser={currentUser}
-                onClose={() => setIsPerformansOpen(false)}
-              />
-            )}
-
-            {isElanOpen && (
-              <ElanPanel
-                users={users}
-                currentUser={currentUser}
-                onClose={() => setIsElanOpen(false)}
-              />
-            )}
+           
 
             <div className="map-card">
               <h3 className="map-card-title">Yeni bölmə yarat</h3>
@@ -539,6 +523,27 @@ function MuessiseAdminPanel({ currentUser, onLogout, onGoToDashboard }: Props) {
                 })
               )}
             </div>
+          </div>
+        )}
+        {/* PERFORMANS */}
+        {activePage === "performans" && (
+          <div className="map-page">
+            <h2 className="map-page-title">Performans</h2>
+            <PerformansPanel
+              users={users}
+              currentUser={currentUser}
+            />
+          </div>
+        )}
+
+        {/* ELANLAR */}
+        {activePage === "elanlar" && (
+          <div className="map-page">
+            <h2 className="map-page-title">Elanlar</h2>
+            <ElanPanel
+              users={users}
+              currentUser={currentUser}
+            />
           </div>
         )}
       </div>

@@ -1,13 +1,12 @@
 import { useState, useEffect } from 'react'
-import { FaTimes, FaHistory, FaSignInAlt, FaPlus, FaCheck, FaEdit, FaTrash, FaBullhorn, FaUserPlus, FaUserMinus } from 'react-icons/fa'
+import { FaHistory, FaSignInAlt, FaPlus, FaCheck, FaEdit, FaTrash, FaBullhorn, FaUserPlus, FaUserMinus } from 'react-icons/fa'
 import type { LogItem } from './logHelper'
 import './ActivityLog.css'
 
 interface ActivityLogProps {
-  onClose: () => void
 }
 
-function ActivityLog({ onClose }: ActivityLogProps) {
+function ActivityLog({}: ActivityLogProps) {
   const [logs, setLogs] = useState<LogItem[]>([])
   const [filter, setFilter] = useState<string>('hamisi')
 
@@ -49,16 +48,7 @@ function ActivityLog({ onClose }: ActivityLogProps) {
     : logs.filter(l => l.tip === filter)
 
   return (
-    <div className="actlog-bolme">
-      <div className="actlog-header">
-        <h3>
-          <FaHistory style={{ marginRight: 8 }} />
-          Aktivlik Jurnalı ({filteredLogs.length})
-        </h3>
-        <button className="actlog-close" onClick={onClose}>
-          <FaTimes />
-        </button>
-      </div>
+    <div >
 
       {/* FİLTR */}
       <div className="actlog-filter">

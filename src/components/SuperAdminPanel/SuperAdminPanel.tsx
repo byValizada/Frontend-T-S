@@ -34,9 +34,8 @@ interface SuperAdminPanelProps {
 }
 
 function SuperAdminPanel({ currentUser, onLogout }: SuperAdminPanelProps) {
-  const [activePage, setActivePage] = useState<
-    "companies" | "users" | "bolmeler"
-  >("companies");
+ type PageType = "companies" | "users" | "bolmeler" | "performans" | "elanlar" | "aktivlik"
+  const [activePage, setActivePage] = useState<PageType>("companies");
   const [companies, setCompanies] = useState<Company[]>([]);
   const [users, setUsers] = useState<User[]>([]);
   const [bolmeler, setBolmeler] = useState<Bolme[]>([]);
@@ -64,9 +63,7 @@ function SuperAdminPanel({ currentUser, onLogout }: SuperAdminPanelProps) {
 
   const [xeta, setXeta] = useState("");
   const [ugurlu, setUgurlu] = useState("");
-  const [isPerformansOpen, setIsPerformansOpen] = useState(false);
-   const [isElanOpen, setIsElanOpen] = useState(false);
-    const [isLogOpen, setIsLogOpen] = useState(false);
+
   // Parol göstərmə/gizlətmə
   const [gorunenParollar, setGorunenParollar] = useState<string[]>([]);
 
@@ -335,22 +332,22 @@ function SuperAdminPanel({ currentUser, onLogout }: SuperAdminPanelProps) {
         </nav>
 
         <button
-          className="sa-nav-btn"
-          onClick={() => setIsPerformansOpen(!isPerformansOpen)}
+          className={`sa-nav-btn ${activePage === "performans" ? "aktiv" : ""}`}
+          onClick={() => setActivePage("performans")}
         >
           <FaChartBar /> Performans
         </button>
 
         <button
-          className="sa-nav-btn"
-          onClick={() => setIsElanOpen(!isElanOpen)}
+          className={`sa-nav-btn ${activePage === "elanlar" ? "aktiv" : ""}`}
+          onClick={() => setActivePage("elanlar")}
         >
           <FaBullhorn /> Elanlar
         </button>
 
         <button
-          className="sa-nav-btn"
-          onClick={() => setIsLogOpen(!isLogOpen)}
+          className={`sa-nav-btn ${activePage === "aktivlik" ? "aktiv" : ""}`}
+          onClick={() => setActivePage("aktivlik")}
         >
           <FaHistory /> Aktivlik
         </button>
@@ -369,27 +366,7 @@ function SuperAdminPanel({ currentUser, onLogout }: SuperAdminPanelProps) {
 
            <StatsCards currentUser={currentUser} />
 
-           {isPerformansOpen && (
-              <PerformansPanel
-                users={users}
-                currentUser={currentUser}
-                onClose={() => setIsPerformansOpen(false)}
-              />
-            )}
-
-            {isElanOpen && (
-              <ElanPanel
-                users={users}
-                currentUser={currentUser}
-                onClose={() => setIsElanOpen(false)}
-              />
-            )}
-
-            {isLogOpen && (
-              <ActivityLog
-                onClose={() => setIsLogOpen(false)}
-              />
-            )}
+          
 
             {/* YENI MÜƏSSİSƏ FORMU */}
             <div className="sa-card">
@@ -758,6 +735,36 @@ function SuperAdminPanel({ currentUser, onLogout }: SuperAdminPanelProps) {
                 })
               )}
             </div>
+          </div>
+        )}
+        {/* PERFORMANS */}
+        {activePage === "performans" && (
+          <div className="sa-page">
+            <h2 className="sa-page-title">Performans</h2>
+            <PerformansPanel
+              users={users}
+              currentUser={currentUser}
+            />
+          </div>
+        )}
+
+        {/* ELANLAR */}
+        {activePage === "elanlar" && (
+          <div className="sa-page">
+            <h2 className="sa-page-title">Elanlar</h2>
+            <ElanPanel
+              users={users}
+              currentUser={currentUser}
+            />
+          </div>
+        )}
+
+        {/* AKTİVLİK */}
+        {activePage === "aktivlik" && (
+          <div className="sa-page">
+            <h2 className="sa-page-title">Aktivlik Jurnalı</h2>
+            <ActivityLog
+            />
           </div>
         )}
       </div>

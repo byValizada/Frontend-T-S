@@ -41,8 +41,8 @@ function BolmeAdminPanel({ currentUser, onLogout, onGoToDashboard }: Props) {
 
   const [xeta, setXeta] = useState("");
   const [ugurlu, setUgurlu] = useState("");
-  const [isPerformansOpen, setIsPerformansOpen] = useState(false);
-  const [isElanOpen, setIsElanOpen] = useState(false);
+  type PageType = "users" | "performans" | "elanlar"
+  const [activePage, setActivePage] = useState<PageType>("users");
 
   // Parol göstərmə/gizlətmə
   const [gorunenParollar, setGorunenParollar] = useState<string[]>([]);
@@ -165,24 +165,25 @@ function BolmeAdminPanel({ currentUser, onLogout, onGoToDashboard }: Props) {
         <div className="bap-logo-sub">Bölmə Admin</div>
 
         <div className="bap-nav">
-          <div className="bap-nav-btn aktiv">
+          <div
+            className={`bap-nav-btn ${activePage === "users" ? "aktiv" : ""}`}
+            onClick={() => setActivePage("users")}
+          >
             <FaUsers /> İşçilər
           </div>
+          <div
+            className={`bap-nav-btn ${activePage === "performans" ? "aktiv" : ""}`}
+            onClick={() => setActivePage("performans")}
+          >
+            <FaChartBar /> Performans
+          </div>
+          <div
+            className={`bap-nav-btn ${activePage === "elanlar" ? "aktiv" : ""}`}
+            onClick={() => setActivePage("elanlar")}
+          >
+            <FaBullhorn /> Elanlar
+          </div>
         </div>
-
-        <button
-          className="bap-nav-btn"
-          onClick={() => setIsPerformansOpen(!isPerformansOpen)}
-        >
-          <FaChartBar /> Performans
-        </button>
-
-        <button
-          className="bap-nav-btn"
-          onClick={() => setIsElanOpen(!isElanOpen)}
-        >
-          <FaBullhorn /> Elanlar
-        </button>
 
         <button className="bap-nav-btn bap-dashboard-btn" onClick={onGoToDashboard}>
           <FaTasks /> Tapşırıq pəncərəsi
@@ -195,6 +196,8 @@ function BolmeAdminPanel({ currentUser, onLogout, onGoToDashboard }: Props) {
 
       {/* MƏZMUN */}
       <div className="bap-content">
+        {/* İŞÇİLƏR */}
+        {activePage === "users" && (
         <div className="bap-page">
           <h2 className="bap-page-title">İşçilər - {bolme.ad}</h2>
 
@@ -202,22 +205,6 @@ function BolmeAdminPanel({ currentUser, onLogout, onGoToDashboard }: Props) {
             currentUser={currentUser}
             allowedLogins={[...users.map(u => u.login), currentUser.login]}
           />
-
-          {isPerformansOpen && (
-            <PerformansPanel
-              users={users}
-              currentUser={currentUser}
-              onClose={() => setIsPerformansOpen(false)}
-            />
-          )}
-
-          {isElanOpen && (
-            <ElanPanel
-              users={users}
-              currentUser={currentUser}
-              onClose={() => setIsElanOpen(false)}
-            />
-          )}
 
           <div className="bap-card">
             <h3 className="bap-card-title">Yeni işçi əlavə et</h3>
@@ -281,24 +268,14 @@ function BolmeAdminPanel({ currentUser, onLogout, onGoToDashboard }: Props) {
                     <span className="bap-list-item-parol">
                       🔑 Parol:{" "}
                       <span className="parol-text">
-                        {gorunenParollar.includes(u.login)
-                          ? u.parol
-                          : "••••••••"}
+                        {gorunenParollar.includes(u.login) ? u.parol : "••••••••"}
                       </span>
                       <button
                         className="bap-btn-icon"
                         onClick={() => toggleParol(u.login)}
-                        title={
-                          gorunenParollar.includes(u.login)
-                            ? "Gizlət"
-                            : "Göstər"
-                        }
+                        title={gorunenParollar.includes(u.login) ? "Gizlət" : "Göstər"}
                       >
-                        {gorunenParollar.includes(u.login) ? (
-                          <FaEyeSlash />
-                        ) : (
-                          <FaEye />
-                        )}
+                        {gorunenParollar.includes(u.login) ? <FaEyeSlash /> : <FaEye />}
                       </button>
                       <button
                         className="bap-btn-icon"
@@ -350,6 +327,29 @@ function BolmeAdminPanel({ currentUser, onLogout, onGoToDashboard }: Props) {
             )}
           </div>
         </div>
+        )}
+
+        {/* PERFORMANS */}
+        {activePage === "performans" && (
+          <div className="bap-page">
+            <h2 className="bap-page-title">Performans</h2>
+            <PerformansPanel
+              users={users}
+              currentUser={currentUser}
+            />
+          </div>
+        )}
+
+        {/* ELANLAR */}
+        {activePage === "elanlar" && (
+          <div className="bap-page">
+            <h2 className="bap-page-title">Elanlar</h2>
+            <ElanPanel
+              users={users}
+              currentUser={currentUser}
+            />
+          </div>
+        )}
       </div>
     </div>
   );

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { FaTimes, FaBullhorn, FaTrash, FaPlus } from 'react-icons/fa'
+import { FaBullhorn, FaTrash, FaPlus } from 'react-icons/fa'
 import './ElanPanel.css'
 
 interface User {
@@ -28,10 +28,9 @@ export interface Elan {
 interface ElanPanelProps {
   users: User[]
   currentUser: User
-  onClose: () => void
 }
 
-function ElanPanel({ users, currentUser, onClose }: ElanPanelProps) {
+function ElanPanel({ users, currentUser }: ElanPanelProps) {
   const [baslig, setBaslig] = useState('')
   const [metn, setMetn] = useState('')
   const [secilmisAlicilar, setSecilmisAlicilar] = useState<string[]>([])
@@ -107,16 +106,8 @@ function ElanPanel({ users, currentUser, onClose }: ElanPanelProps) {
   const otherUsers = users.filter(u => u.login !== currentUser.login && u.rol !== 'SuperAdmin')
 
   return (
-    <div className="elan-bolme">
-      <div className="elan-header">
-        <h3>
-          <FaBullhorn style={{ marginRight: 8 }} />
-          Elan / Bildiriş
-        </h3>
-        <button className="elan-close" onClick={onClose}>
-          <FaTimes />
-        </button>
-      </div>
+    <div>
+      
 
       <div className="elan-icerik">
         {/* YENİ ELAN FORMU */}
