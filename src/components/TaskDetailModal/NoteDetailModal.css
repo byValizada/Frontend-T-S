@@ -1,0 +1,262 @@
+.note-detail-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.6);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+  backdrop-filter: blur(8px);
+}
+
+.note-detail-box {
+  width: 420px;
+  background: linear-gradient(180deg, #0d2137 0%, #0f1923 100%);
+  border: 1px solid rgba(78, 205, 196, 0.2);
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+}
+
+/* BAŞLIQ */
+.note-detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 14px 20px;
+  background: rgba(78, 205, 196, 0.05);
+  border-bottom: 1px solid rgba(78, 205, 196, 0.1);
+}
+
+.note-detail-title {
+  font-size: 15px;
+  font-weight: 600;
+  color: #e8f4f3;
+}
+
+.note-detail-close {
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: #e8f4f3;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  transition: all 0.2s;
+}
+
+.note-detail-close:hover {
+  background: rgba(255, 107, 107, 0.1);
+  border-color: rgba(255, 107, 107, 0.3);
+  color: #ff6b6b;
+}
+
+.note-detail-save {
+  background: #4ECDC4;
+  border: none;
+  color: #0f1923;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+  font-weight: 700;
+  transition: all 0.2s;
+}
+
+.note-detail-save:hover {
+  background: #5eddd4;
+  transform: scale(1.05);
+}
+
+/* BÖLMƏ */
+.note-detail-section {
+  padding: 16px 20px;
+  background: rgba(255, 255, 255, 0.02);
+  margin-top: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  border-top: 1px solid rgba(78, 205, 196, 0.06);
+  border-bottom: 1px solid rgba(78, 205, 196, 0.06);
+}
+
+.note-detail-section-title {
+  margin: 0 0 10px 0;
+  font-size: 11px;
+  font-weight: 700;
+  color: rgba(139, 184, 181, 0.5);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* QEYD INPUT */
+.note-detail-metn-input {
+  background: none;
+  border: none;
+  outline: none;
+  color: #e8f4f3;
+  font-size: 20px;
+  font-weight: 500;
+  width: 100%;
+  font-family: inherit;
+  padding: 4px 0;
+}
+
+.note-detail-metn-input::placeholder {
+  color: rgba(232, 244, 243, 0.2);
+}
+
+/* NOTLAR TEXTAREA */
+.note-detail-notlar-input {
+  background: none;
+  border: none;
+  outline: none;
+  color: rgba(139, 184, 181, 0.35);
+  font-size: 14px;
+  width: 100%;
+  font-family: inherit;
+  resize: none;
+  min-height: 60px;
+  padding: 4px 0;
+  line-height: 1.5;
+}
+
+.note-detail-notlar-input::placeholder {
+  color: rgba(139, 184, 181, 0.2);
+}
+
+/* SƏTIR */
+.note-detail-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 11px 0;
+  border-bottom: 1px solid rgba(78, 205, 196, 0.06);
+}
+
+.note-detail-row:last-child {
+  border-bottom: none;
+}
+
+.note-detail-row.disabled {
+  opacity: 0.35;
+}
+
+.note-detail-row-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: #e8f4f3;
+  font-size: 14px;
+}
+
+.note-detail-row-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 13px;
+}
+
+.note-detail-row-icon.tarih {
+  background: #FF9500;
+  color: #fff;
+}
+
+.note-detail-row-icon.saat {
+  background: #30B0C7;
+  color: #fff;
+}
+
+.note-detail-row-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* DATE INPUT */
+.note-detail-date-input {
+  background: rgba(78, 205, 196, 0.08);
+  border: 1px solid rgba(78, 205, 196, 0.2);
+  border-radius: 6px;
+  color: #4ecdc4;
+  font-size: 12px;
+  padding: 4px 8px;
+  outline: none;
+  font-family: inherit;
+}
+
+/* TOGGLE */
+.note-toggle {
+  width: 46px;
+  height: 26px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 13px;
+  position: relative;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.note-toggle.aktiv {
+  background: #4ECDC4;
+}
+
+.note-toggle.disabled {
+  cursor: not-allowed;
+}
+
+.note-toggle-circle {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 20px;
+  height: 20px;
+  background: #fff;
+  border-radius: 50%;
+  transition: all 0.3s;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.note-toggle.aktiv .note-toggle-circle {
+  left: 23px;
+}
+.note-detail-footer {
+  display: flex;
+  justify-content: flex-end;
+  padding: 12px 20px;
+  border-top: 1px solid rgba(78, 205, 196, 0.08);
+  background: rgba(78, 205, 196, 0.02);
+}
+
+.note-detail-save-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 9px 20px;
+  background: rgba(78, 205, 196, 0.12);
+  color: #4ecdc4;
+  border: 1px solid rgba(78, 205, 196, 0.3);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  transition: all 0.2s;
+}
+
+.note-detail-save-btn:hover {
+  background: rgba(78, 205, 196, 0.22);
+  border-color: rgba(78, 205, 196, 0.5);
+}

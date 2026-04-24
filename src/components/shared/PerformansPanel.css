@@ -1,0 +1,166 @@
+/* PERFORMANS BÖLMƏSİ */
+.performans-bolme {
+  margin-bottom: 25px;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(144, 209, 202, 0.15);
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.performans-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 20px;
+  background: rgba(144, 209, 202, 0.05);
+  border-bottom: 1px solid rgba(144, 209, 202, 0.1);
+}
+
+.performans-header h3 {
+  margin: 0;
+  color: #90D1CA;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+}
+
+.performans-close {
+  background: none;
+  border: 1px solid rgba(144, 209, 202, 0.3);
+  color: #90D1CA;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s;
+  font-size: 12px;
+}
+
+.performans-close:hover {
+  background: rgba(144, 209, 202, 0.15);
+}
+
+.performans-list {
+  padding: 15px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.performans-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 15px;
+  background: rgba(255, 255, 255, 0.02);
+  border: 1px solid rgba(144, 209, 202, 0.08);
+  border-radius: 10px;
+  transition: all 0.2s;
+  gap: 20px;
+}
+
+.performans-item:hover {
+  background: rgba(144, 209, 202, 0.04);
+  border-color: rgba(144, 209, 202, 0.18);
+}
+
+.performans-item-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 200px;
+}
+
+.performans-sira {
+  width: 30px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.performans-user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+}
+
+.performans-ad {
+  font-size: 13px;
+  font-weight: 600;
+  color: #E8F4F3;
+}
+
+.performans-rol {
+  font-size: 11px;
+  color: #8BB8B5;
+}
+
+.performans-stats {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex: 1;
+  justify-content: flex-end;
+}
+
+.performans-stat {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  min-width: 50px;
+}
+
+.pstat-sayi {
+  font-size: 18px;
+  font-weight: 700;
+  color: #E8F4F3;
+}
+
+.pstat-sayi.aktiv {
+  color: #ffc107;
+}
+
+.pstat-sayi.tamamlandi {
+  color: #5dd87a;
+}
+
+.pstat-ad {
+  font-size: 10px;
+  color: #8BB8B5;
+  text-transform: uppercase;
+  letter-spacing: 0.3px;
+}
+
+.performans-faiz-wrapper {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 150px;
+}
+
+.performans-faiz-bar {
+  flex: 1;
+  height: 6px;
+  background: rgba(255, 255, 255, 0.06);
+  border-radius: 3px;
+  overflow: hidden;
+}
+
+.performans-faiz-dolu {
+  height: 100%;
+  background: linear-gradient(90deg, #90D1CA, #5dd87a);
+  border-radius: 3px;
+  transition: width 0.5s ease;
+}
+
+.performans-faiz-metn {
+  font-size: 13px;
+  font-weight: 700;
+  color: #90D1CA;
+  min-width: 35px;
+  text-align: right;
+}

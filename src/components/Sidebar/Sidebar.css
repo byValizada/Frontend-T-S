@@ -1,0 +1,165 @@
+.sidebar {
+  width: 220px;
+  min-width: 220px;
+  height: 100vh;
+  background: #0D2137;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid rgba(78, 205, 196, 0.1);
+  position: fixed;
+  left: 0;
+  top: 0;
+}
+
+/* LOGO */
+.sidebar-logo {
+  padding: 24px 20px 20px;
+  border-bottom: 1px solid rgba(78, 205, 196, 0.08);
+  display: flex;
+  justify-content: center;
+}
+
+.sidebar-logo-text {
+  font-size: 24px;
+  font-weight: 800;
+  color: #4ECDC4;
+  letter-spacing: 3px;
+}
+
+/* NAVİQASİYA */
+.sidebar-nav {
+  flex: 1;
+  padding: 20px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.sidebar-nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 13px 16px;
+  border-radius: 10px;
+  cursor: pointer;
+  color: #8BB8B5;
+  font-size: 13px;
+  font-weight: 500;
+  transition: all 0.25s;
+  border: 1px solid transparent;
+}
+
+.sidebar-nav-item:hover {
+  background: rgba(78, 205, 196, 0.06);
+  color: #E8F4F3;
+  border-color: rgba(78, 205, 196, 0.12);
+  transform: translateX(3px);
+}
+
+.sidebar-nav-item.aktiv {
+  background: rgba(78, 205, 196, 0.12);
+  color: #4ECDC4;
+  font-weight: 600;
+}
+
+.sidebar-nav-icon {
+  font-size: 15px;
+  flex-shrink: 0;
+}
+
+/* AŞAĞI */
+.sidebar-bottom {
+  padding: 16px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  border-top: 1px solid rgba(78, 205, 196, 0.08);
+}
+
+/* ADMIN DÜYMƏSİ */
+.sidebar-admin-btn {
+  width: 100%;
+  padding: 9px;
+  background: rgba(78, 205, 196, 0.08);
+  color: #4ECDC4;
+  border: 1px solid rgba(78, 205, 196, 0.2);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.3s;
+  text-align: center;
+}
+
+.sidebar-admin-btn:hover {
+  background: rgba(78, 205, 196, 0.15);
+  border-color: rgba(78, 205, 196, 0.35);
+}
+
+/* İSTİFADƏÇİ */
+.sidebar-user {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 6px;
+}
+
+.sidebar-user-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(78, 205, 196, 0.15);
+  border: 1px solid rgba(78, 205, 196, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 15px;
+  font-weight: 700;
+  color: #4ECDC4;
+  flex-shrink: 0;
+}
+
+.sidebar-user-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.sidebar-user-name {
+  font-size: 13px;
+  font-weight: 600;
+  color: #E8F4F3;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar-user-rol {
+  font-size: 11px;
+  color: rgba(139, 184, 181, 0.5);
+}
+
+/* ÇIXIŞ */
+.sidebar-cixis-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  width: 100%;
+  padding: 9px;
+  background: rgba(255, 107, 107, 0.06);
+  color: rgba(255, 107, 107, 0.7);
+  border: 1px solid rgba(255, 107, 107, 0.15);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  transition: all 0.3s;
+}
+
+.sidebar-cixis-btn:hover {
+  background: rgba(255, 107, 107, 0.12);
+  color: #ff6b6b;
+  border-color: rgba(255, 107, 107, 0.3);
+}
