@@ -28,6 +28,7 @@ import PerformansPanel from "../shared/PerformansPanel";
 import ElanPanel from "../shared/ElanPanel";
 import ActivityLog from "../shared/ActivityLog";
 import { addLog } from '../shared/logHelper';
+import ThemeToggle from "../shared/ThemeToggle";
 interface SuperAdminPanelProps {
   currentUser: User;
   onLogout: () => void;
@@ -307,7 +308,11 @@ function SuperAdminPanel({ currentUser, onLogout }: SuperAdminPanelProps) {
     <div className="sa-container">
       {/* SIDEBAR */}
       <div className="sa-sidebar">
-        <div className="sa-logo">TİS</div>
+        <div className="sa-logo-row">
+          <div className="sa-logo">TİS</div>
+          <ThemeToggle />
+        </div>
+        
         <div className="sa-logo-sub">Super Admin</div>
 
         <nav className="sa-nav">

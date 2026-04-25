@@ -64,14 +64,38 @@ function Dashboard({
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
   const [isNoteDetailOpen, setIsNoteDetailOpen] = useState(false);
   const [fadingNoteId, setFadingNoteId] = useState<string | null>(null);
-
+  const [yeniTapsirig, setYeniTapsirig] = useState('')
   useEffect(() => {
     const data = localStorage.getItem("tasks");
     if (data) setTasks(JSON.parse(data));
     const notesData = localStorage.getItem(`notes_${currentUser.login}`);
     if (notesData) setNotes(JSON.parse(notesData));
   }, [currentUser.login]);
-
+const handleQuickAddTask = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter' && yeniTapsirig.trim()) {
+      const newTask: NewTask = {
+        id: Date.now().toString(),
+        tapsirigAdi: yeniTapsirig.trim(),
+        qeyd: '',
+        veren: currentUser.adSoyad,
+        verenLogin: currentUser.login,
+        secilmisShexsler: [{
+          login: currentUser.login,
+          adSoyad: currentUser.adSoyad,
+          icraEdilib: false
+        }],
+        deadline: '',
+        fayllar: [],
+        tarix: new Date().toLocaleString('az-AZ'),
+        tamamlanib: false
+      }
+      const updatedTasks = [...tasks, newTask]
+      setTasks(updatedTasks)
+      localStorage.setItem('tasks', JSON.stringify(updatedTasks))
+      addLog('tapsirig_yarat', currentUser.adSoyad, currentUser.login, `"${newTask.tapsirigAdi}" tapşırığını yaratdı`)
+      setYeniTapsirig('')
+    }
+  }
   const handleSaveTask = (task: NewTask) => {
     const updatedTasks = [...tasks, task];
     setTasks(updatedTasks);
@@ -263,14 +287,9 @@ function Dashboard({
           <section className="bolme">
             <div className="baslig-sira">
               <h2>Ümumi tapşırıqlar</h2>
-              <button
-                className="plus-btn"
-                title="Yeni tapşırıq əlavə et"
-                onClick={() => setIsTaskModalOpen(true)}
-              >
-                <FaPlus />
-              </button>
             </div>
+
+            
 
             <div className="content">
               {myActiveTasks.length === 0 ? (
@@ -336,18 +355,18 @@ function Dashboard({
               )}
             </div>
 
-            <div className="footer">
-              <button
-                className="tamamlanmis-btn"
-                onClick={() => setIsCompletedOpen(true)}
-              >
-                tamamlanmış tapşırıqlar
-                {myCompletedTasks.length > 0 && (
-                  <span className="completed-count">
-                    {myCompletedTasks.length}
-                  </span>
-                )}
-              </button>
+          <div className="footer">
+              <div className="quick-add-row">
+                <FaPlus className="quick-add-icon" />
+                <input
+                  type="text"
+                  className="quick-add-input"
+                  placeholder="Tapşırıq əlavə et..."
+                  value={yeniTapsirig}
+                  onChange={e => setYeniTapsirig(e.target.value)}
+                  onKeyDown={handleQuickAddTask}
+                />
+              </div>
             </div>
           </section>
         )}

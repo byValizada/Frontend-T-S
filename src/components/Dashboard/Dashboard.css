@@ -308,10 +308,9 @@
 
 .footer {
   display: flex;
-  justify-content: flex-end;
   align-items: center;
-  padding: 10px 20px 12px;
-  background: var(--bg-secondary);
+  padding: 8px 16px;
+  background: var(--bg-primary);
   border-top: 1px solid var(--border-primary);
   transition: background 0.3s;
 }
@@ -485,4 +484,42 @@
 .main-content::-webkit-scrollbar-thumb {
   background: var(--scrollbar-thumb);
   border-radius: 2px;
+}
+/* SÜRƏTLİ TAPŞIRIQ ƏLAVƏ ET */
+.quick-add-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-primary);
+  border-radius: 8px;
+  cursor: text;
+  transition: all 0.2s;
+  width: 100%;
+}
+
+.quick-add-row:focus-within {
+  border-color: var(--accent);
+  background: var(--bg-tertiary);
+}
+
+.quick-add-icon {
+  color: var(--accent);
+  font-size: 14px;
+  flex-shrink: 0;
+}
+
+.quick-add-input {
+  flex: 1;
+  background: none;
+  border: none;
+  outline: none;
+  color: var(--text-primary);
+  font-size: 14px;
+  font-family: inherit;
+}
+
+.quick-add-input::placeholder {
+  color: var(--text-muted);
 }

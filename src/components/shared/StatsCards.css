@@ -1,4 +1,3 @@
-/* STATİSTİKA KARTLARI */
 .stats-cards {
   display: flex;
   gap: 15px;
@@ -19,73 +18,69 @@
 
 .stats-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.2);
 }
 
-/* ÜMUMİ TAPŞIRIQ */
 .stats-all {
-  background: rgba(123, 131, 235, 0.08);
-  border-color: rgba(123, 131, 235, 0.25);
+  background: var(--accent-bg);
+  border-color: var(--accent-border);
 }
 
 .stats-all:hover {
-  background: rgba(123, 131, 235, 0.15);
-  border-color: rgba(123, 131, 235, 0.5);
+  background: var(--accent-bg-hover);
+  border-color: var(--accent);
 }
 
 .stats-all .stats-icon-box {
-  background: rgba(123, 131, 235, 0.15);
-  border: 1px solid rgba(123, 131, 235, 0.3);
+  background: var(--accent-bg-hover);
+  border: 1px solid var(--accent-border);
 }
 
 .stats-all .stats-icon,
 .stats-all .stats-sayi {
-  color: #7B83EB;
+  color: var(--accent);
 }
 
-/* AKTİV */
 .stats-active {
-  background: rgba(255, 193, 7, 0.06);
-  border-color: rgba(255, 193, 7, 0.2);
+  background: var(--warning-bg);
+  border-color: var(--warning-border);
 }
 
 .stats-active:hover {
-  background: rgba(255, 193, 7, 0.12);
-  border-color: rgba(255, 193, 7, 0.4);
+  background: rgba(255, 193, 7, 0.15);
+  border-color: var(--warning);
 }
 
 .stats-active .stats-icon-box {
   background: rgba(255, 193, 7, 0.12);
-  border: 1px solid rgba(255, 193, 7, 0.25);
+  border: 1px solid var(--warning-border);
 }
 
 .stats-active .stats-icon,
 .stats-active .stats-sayi {
-  color: #ffc107;
+  color: var(--warning);
 }
 
-/* TAMAMLANMIŞ */
 .stats-completed {
-  background: rgba(40, 167, 69, 0.06);
-  border-color: rgba(40, 167, 69, 0.2);
+  background: var(--success-bg);
+  border-color: var(--success-border);
 }
 
 .stats-completed:hover {
-  background: rgba(40, 167, 69, 0.12);
-  border-color: rgba(40, 167, 69, 0.4);
+  background: rgba(40, 167, 69, 0.15);
+  border-color: var(--success);
 }
 
 .stats-completed .stats-icon-box {
   background: rgba(40, 167, 69, 0.12);
-  border: 1px solid rgba(40, 167, 69, 0.25);
+  border: 1px solid var(--success-border);
 }
 
 .stats-completed .stats-icon,
 .stats-completed .stats-sayi {
-  color: #5dd87a;
+  color: var(--success);
 }
 
-/* İKON QUTUSU */
 .stats-icon-box {
   width: 44px;
   height: 44px;
@@ -96,11 +91,8 @@
   flex-shrink: 0;
 }
 
-.stats-icon {
-  font-size: 20px;
-}
+.stats-icon { font-size: 20px; }
 
-/* MƏLUMAT */
 .stats-info {
   display: flex;
   flex-direction: column;
@@ -115,18 +107,15 @@
 
 .stats-ad {
   font-size: 12px;
-  color: #888888;
+  color: var(--text-secondary);
   font-weight: 500;
 }
 
-/* MODAL */
 .stats-modal-overlay {
   position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  background: rgba(0, 0, 0, 0.6);
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background: rgba(0, 0, 0, 0.5);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -137,13 +126,13 @@
 .stats-modal-box {
   width: 600px;
   max-height: 80vh;
-  background: #2D2D2D;
-  border: 1px solid #404040;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-primary);
   border-radius: 16px;
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
 }
 
 .stats-modal-header {
@@ -151,22 +140,21 @@
   justify-content: space-between;
   align-items: center;
   padding: 18px 25px;
-  background: #333333;
-  border-bottom: 1px solid #404040;
+  background: var(--bg-tertiary);
+  border-bottom: 1px solid var(--border-primary);
 }
 
 .stats-modal-header h3 {
   margin: 0;
-  color: #7B83EB;
+  color: var(--accent);
   font-size: 17px;
 }
 
 .stats-modal-close {
   background: none;
-  border: 1px solid #505050;
-  color: #888888;
-  width: 32px;
-  height: 32px;
+  border: 1px solid var(--border-hover);
+  color: var(--text-secondary);
+  width: 32px; height: 32px;
   border-radius: 50%;
   cursor: pointer;
   display: flex;
@@ -176,8 +164,8 @@
 }
 
 .stats-modal-close:hover {
-  background: #3D3D3D;
-  color: #E8E8E8;
+  background: var(--bg-hover);
+  color: var(--text-primary);
 }
 
 .stats-modal-body {
@@ -188,7 +176,7 @@
 
 .stats-bos {
   text-align: center;
-  color: #666666;
+  color: var(--text-muted);
   font-size: 14px;
   padding: 40px;
   font-style: italic;
@@ -208,13 +196,13 @@
 }
 
 .stats-task-item.aktiv {
-  background: rgba(255, 193, 7, 0.04);
-  border-color: rgba(255, 193, 7, 0.15);
+  background: var(--warning-bg);
+  border-color: var(--warning-border);
 }
 
 .stats-task-item.tamamlandi {
-  background: rgba(40, 167, 69, 0.04);
-  border-color: rgba(40, 167, 69, 0.15);
+  background: var(--success-bg);
+  border-color: var(--success-border);
 }
 
 .stats-task-header {
@@ -222,13 +210,13 @@
   align-items: center;
   gap: 10px;
   padding: 10px 14px;
-  border-bottom: 1px solid #404040;
+  border-bottom: 1px solid var(--border-primary);
 }
 
 .stats-task-no {
   font-size: 12px;
   font-weight: 700;
-  color: #888888;
+  color: var(--text-secondary);
   width: 20px;
 }
 
@@ -236,7 +224,7 @@
   flex: 1;
   font-weight: 600;
   font-size: 13px;
-  color: #E8E8E8;
+  color: var(--text-primary);
 }
 
 .stats-task-status {
@@ -248,14 +236,14 @@
 
 .status-active {
   background: rgba(255, 193, 7, 0.12);
-  color: #ffc107;
-  border: 1px solid rgba(255, 193, 7, 0.3);
+  color: var(--warning);
+  border: 1px solid var(--warning-border);
 }
 
 .status-done {
   background: rgba(40, 167, 69, 0.12);
-  color: #5dd87a;
-  border: 1px solid rgba(40, 167, 69, 0.3);
+  color: var(--success);
+  border: 1px solid var(--success-border);
 }
 
 .stats-task-details {
@@ -275,7 +263,7 @@
 .stats-task-label {
   font-size: 11px;
   font-weight: 600;
-  color: #888888;
+  color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.3px;
   min-width: 70px;
@@ -283,12 +271,12 @@
 
 .stats-task-value {
   font-size: 12px;
-  color: #E8E8E8;
+  color: var(--text-primary);
   opacity: 0.85;
 }
 
 .stats-task-value.green {
-  color: #5dd87a;
+  color: var(--success);
   opacity: 1;
   font-weight: 600;
 }
@@ -308,37 +296,23 @@
 }
 
 .stats-shexs.status-gozlenir {
-  background: rgba(255, 193, 7, 0.08);
-  color: #ffc107;
-  border-color: rgba(255, 193, 7, 0.25);
+  background: var(--warning-bg);
+  color: var(--warning);
+  border-color: var(--warning-border);
 }
 
 .stats-shexs.status-icrada {
   background: rgba(0, 123, 255, 0.08);
-  color: #4da6ff;
+  color: var(--info);
   border-color: rgba(0, 123, 255, 0.25);
 }
 
 .stats-shexs.status-tamamlandi {
-  background: rgba(40, 167, 69, 0.08);
-  color: #5dd87a;
-  border-color: rgba(40, 167, 69, 0.25);
+  background: var(--success-bg);
+  color: var(--success);
+  border-color: var(--success-border);
 }
 
-/* SCROLLBAR */
-.stats-modal-body::-webkit-scrollbar {
-  width: 4px;
-}
-
-.stats-modal-body::-webkit-scrollbar-track {
-  background: transparent;
-}
-
-.stats-modal-body::-webkit-scrollbar-thumb {
-  background: rgba(123, 131, 235, 0.25);
-  border-radius: 2px;
-}
-
-.stats-modal-body::-webkit-scrollbar-thumb:hover {
-  background: rgba(123, 131, 235, 0.5);
-}
+.stats-modal-body::-webkit-scrollbar { width: 4px; }
+.stats-modal-body::-webkit-scrollbar-track { background: var(--scrollbar-bg); }
+.stats-modal-body::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 2px; }

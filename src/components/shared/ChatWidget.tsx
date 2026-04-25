@@ -279,7 +279,7 @@ function ChatWidget({ currentUser }: ChatWidgetProps) {
             <FaSearch className="chat-search-icon" />
             <input
               type="text"
-              placeholder="Ad, login və ya rol axtar..."
+              placeholder="Ad Soyad axtar..."
               value={search}
               onChange={e => setSearch(e.target.value)}
             />
@@ -307,26 +307,35 @@ function ChatWidget({ currentUser }: ChatWidgetProps) {
               </>
             )}
 
-            {/* Axtarış nəticələri / Bütün istifadəçilər */}
-            <p className="chat-section-title">{search.trim() ? 'Axtarış nəticəsi' : 'Bütün istifadəçilər'}</p>
-            {filteredUsers.length === 0 ? (
-              <p className="chat-empty">İstifadəçi tapılmadı</p>
-            ) : (
-              filteredUsers.map(user => (
-                <div key={user.login} className="chat-user-item" onClick={() => openChat(user)}>
-                  <div className="chat-user-avatar">
-                    {user.adSoyad.charAt(0).toUpperCase()}
-                    <span className={`chat-user-dot ${isUserOnline(user.login) ? 'online' : 'offline'}`} />
-                  </div>
-                  <div className="chat-user-info">
-                    <span className="chat-user-name">{user.adSoyad}</span>
-                    <span className="chat-user-meta">{user.rol} • {getCompanyName(user.companyId)} {getBolmeName(user.bolmeId) && `• ${getBolmeName(user.bolmeId)}`}</span>
-                  </div>
-                  {getUnreadFromUser(currentUser.login, user.login) > 0 && (
-                    <span className="chat-user-unread">{getUnreadFromUser(currentUser.login, user.login)}</span>
-                  )}
-                </div>
-              ))
+           {/* Axtarış nəticələri - yalnız axtarış zamanı */}
+            {search.trim() && (
+              <>
+                <p className="chat-section-title">Axtarış nəticəsi</p>
+                {filteredUsers.length === 0 ? (
+                  <p className="chat-empty">İstifadəçi tapılmadı</p>
+                ) : (
+                  filteredUsers.map(user => (
+                    <div key={user.login} className="chat-user-item" onClick={() => openChat(user)}>
+                      <div className="chat-user-avatar">
+                        {user.adSoyad.charAt(0).toUpperCase()}
+                        <span className={`chat-user-dot ${isUserOnline(user.login) ? 'online' : 'offline'}`} />
+                      </div>
+                      <div className="chat-user-info">
+                        <span className="chat-user-name">{user.adSoyad}</span>
+                        <span className="chat-user-meta">{user.rol} • {getCompanyName(user.companyId)} {getBolmeName(user.bolmeId) && `• ${getBolmeName(user.bolmeId)}`}</span>
+                      </div>
+                      {getUnreadFromUser(currentUser.login, user.login) > 0 && (
+                        <span className="chat-user-unread">{getUnreadFromUser(currentUser.login, user.login)}</span>
+                      )}
+                    </div>
+                  ))
+                )}
+              </>
+            )}
+
+            {/* Axtarış yoxdursa və son yazışma da yoxdursa */}
+            {!search.trim() && getUsersWithChats().length === 0 && (
+              <p className="chat-empty">Hələ yazışma yoxdur. Axtarışdan istifadəçi tapın.</p>
             )}
           </div>
         </div>

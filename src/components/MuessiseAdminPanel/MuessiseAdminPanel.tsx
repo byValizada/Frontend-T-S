@@ -25,6 +25,7 @@ import StatsCards from "../shared/StatsCards";
 import PerformansPanel from "../shared/PerformansPanel";
 import ElanPanel from "../shared/ElanPanel";
 import { addLog } from "../shared/logHelper";
+import ThemeToggle from "../shared/ThemeToggle";
 interface Props {
   currentUser: User;
   onLogout: () => void;
@@ -235,7 +236,10 @@ function MuessiseAdminPanel({ currentUser, onLogout, onGoToDashboard }: Props) {
     <div className="map-container">
       {/* SIDEBAR */}
       <div className="map-sidebar">
-        <div className="map-logo">TİS</div>
+        <div className="map-logo-row">
+          <div className="map-logo">TİS</div>
+          <ThemeToggle />
+        </div>
         <div className="map-company-name">{company.ad}</div>
         <div className="map-logo-sub">Müəssisə Admin</div>
 

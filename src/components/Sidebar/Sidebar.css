@@ -17,6 +17,8 @@
   border-bottom: 1px solid var(--border-primary);
   display: flex;
   justify-content: center;
+  align-items: center;
+  gap: 12px;
 }
 
 .sidebar-logo-text {

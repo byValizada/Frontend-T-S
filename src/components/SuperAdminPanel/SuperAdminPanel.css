@@ -1,26 +1,27 @@
 .sa-container {
   display: flex;
   height: 100vh;
-  background: #1F1F1F;
+  background: var(--bg-primary);
   overflow: hidden;
+  transition: background 0.3s;
 }
 
-/* SIDEBAR */
 .sa-sidebar {
   width: 220px;
   flex-shrink: 0;
-  background: #2D2D2D;
-  border-right: 1px solid #404040;
+  background: var(--bg-secondary);
+  border-right: 1px solid var(--border-primary);
   display: flex;
   flex-direction: column;
   padding: 24px 16px;
   gap: 8px;
+  transition: background 0.3s;
 }
 
 .sa-logo {
   font-size: 28px;
   font-weight: 800;
-  color: #7B83EB;
+  color: var(--accent);
   letter-spacing: 2px;
   text-align: center;
   margin-bottom: 4px;
@@ -28,7 +29,7 @@
 
 .sa-logo-sub {
   font-size: 10px;
-  color: rgba(123, 131, 235, 0.4);
+  color: var(--text-muted);
   text-align: center;
   text-transform: uppercase;
   letter-spacing: 1.5px;
@@ -50,7 +51,7 @@
   background: none;
   border: 1px solid transparent;
   border-radius: 8px;
-  color: #888888;
+  color: var(--text-secondary);
   cursor: pointer;
   font-size: 13px;
   font-weight: 500;
@@ -60,15 +61,15 @@
 }
 
 .sa-nav-btn:hover {
-  background: #3D3D3D;
-  color: #E8E8E8;
-  border-color: #505050;
+  background: var(--bg-hover);
+  color: var(--text-primary);
+  border-color: var(--border-hover);
 }
 
 .sa-nav-btn.aktiv {
-  background: rgba(123, 131, 235, 0.12);
-  color: #7B83EB;
-  border-color: rgba(123, 131, 235, 0.25);
+  background: var(--accent-bg);
+  color: var(--accent);
+  border-color: var(--accent-border);
   font-weight: 700;
 }
 
@@ -77,10 +78,10 @@
   align-items: center;
   gap: 8px;
   padding: 10px 14px;
-  background: rgba(255, 107, 107, 0.06);
-  border: 1px solid rgba(255, 107, 107, 0.15);
+  background: var(--danger-bg);
+  border: 1px solid var(--danger-border);
   border-radius: 8px;
-  color: rgba(255, 107, 107, 0.6);
+  color: var(--danger);
   cursor: pointer;
   font-size: 13px;
   font-weight: 500;
@@ -90,11 +91,9 @@
 }
 
 .sa-logout:hover {
-  background: rgba(255, 107, 107, 0.12);
-  color: #ff6b6b;
+  background: rgba(255, 107, 107, 0.15);
 }
 
-/* MƏZMUN */
 .sa-content {
   flex: 1;
   overflow-y: auto;
@@ -111,30 +110,29 @@
   margin: 0;
   font-size: 18px;
   font-weight: 700;
-  color: #7B83EB;
+  color: var(--accent);
 }
 
-/* KART */
 .sa-card {
-  background: #2D2D2D;
-  border: 1px solid #404040;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-primary);
   border-radius: 12px;
   padding: 20px;
   display: flex;
   flex-direction: column;
   gap: 16px;
+  transition: background 0.3s;
 }
 
 .sa-card-title {
   margin: 0;
   font-size: 13px;
   font-weight: 700;
-  color: #888888;
+  color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.5px;
 }
 
-/* FORM */
 .sa-form-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
@@ -150,7 +148,7 @@
 .sa-form-group label {
   font-size: 11px;
   font-weight: 600;
-  color: #888888;
+  color: var(--text-secondary);
   text-transform: uppercase;
   letter-spacing: 0.4px;
 }
@@ -158,10 +156,10 @@
 .sa-form-group input,
 .sa-form-group select {
   padding: 9px 12px;
-  background: #333333;
-  border: 1px solid #404040;
+  background: var(--bg-input);
+  border: 1px solid var(--border-primary);
   border-radius: 8px;
-  color: #E8E8E8;
+  color: var(--text-primary);
   font-size: 13px;
   font-family: inherit;
   outline: none;
@@ -170,17 +168,17 @@
 
 .sa-form-group input:focus,
 .sa-form-group select:focus {
-  border-color: #7B83EB;
-  background: #3A3A3A;
+  border-color: var(--accent);
+  background: var(--bg-input-focus);
 }
 
 .sa-form-group input::placeholder {
-  color: #666666;
+  color: var(--text-muted);
 }
 
 .sa-form-group select option {
-  background: #2D2D2D;
-  color: #E8E8E8;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
 }
 
 .sa-form-group select:disabled {
@@ -188,15 +186,14 @@
   cursor: not-allowed;
 }
 
-/* DÜYMƏLƏR */
 .sa-btn-primary {
   display: flex;
   align-items: center;
   gap: 8px;
   padding: 10px 20px;
-  background: rgba(123, 131, 235, 0.12);
-  color: #7B83EB;
-  border: 1px solid rgba(123, 131, 235, 0.3);
+  background: var(--accent-bg);
+  color: var(--accent);
+  border: 1px solid var(--accent-border);
   border-radius: 8px;
   cursor: pointer;
   font-size: 13px;
@@ -207,14 +204,14 @@
 }
 
 .sa-btn-primary:hover {
-  background: rgba(123, 131, 235, 0.2);
-  border-color: rgba(123, 131, 235, 0.5);
+  background: var(--accent-bg-hover);
+  border-color: var(--accent);
 }
 
 .sa-btn-delete {
-  background: rgba(255, 107, 107, 0.06);
-  border: 1px solid rgba(255, 107, 107, 0.15);
-  color: rgba(255, 107, 107, 0.5);
+  background: var(--danger-bg);
+  border: 1px solid var(--danger-border);
+  color: var(--danger);
   width: 32px;
   height: 32px;
   border-radius: 8px;
@@ -228,12 +225,9 @@
 }
 
 .sa-btn-delete:hover {
-  background: rgba(255, 107, 107, 0.12);
-  color: #ff6b6b;
-  border-color: rgba(255, 107, 107, 0.3);
+  background: rgba(255, 107, 107, 0.15);
 }
 
-/* SİYAHI */
 .sa-list {
   display: flex;
   flex-direction: column;
@@ -245,16 +239,16 @@
   align-items: center;
   justify-content: space-between;
   padding: 12px 16px;
-  background: #2D2D2D;
-  border: 1px solid #404040;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-primary);
   border-radius: 10px;
   transition: all 0.2s;
   gap: 12px;
 }
 
 .sa-list-item:hover {
-  background: #333333;
-  border-color: #505050;
+  background: var(--bg-tertiary);
+  border-color: var(--border-hover);
 }
 
 .sa-list-item-info {
@@ -268,15 +262,14 @@
 .sa-list-item-ad {
   font-size: 14px;
   font-weight: 600;
-  color: #E8E8E8;
+  color: var(--text-primary);
 }
 
 .sa-list-item-meta {
   font-size: 11px;
-  color: #888888;
+  color: var(--text-secondary);
 }
 
-/* QRUP */
 .sa-group {
   display: flex;
   flex-direction: column;
@@ -288,75 +281,73 @@
   margin: 0;
   font-size: 11px;
   font-weight: 700;
-  color: rgba(123, 131, 235, 0.5);
+  color: var(--accent);
   text-transform: uppercase;
   letter-spacing: 1px;
   padding: 4px 0;
-  border-bottom: 1px solid #404040;
+  border-bottom: 1px solid var(--border-primary);
+  opacity: 0.6;
 }
 
-/* XƏTA / UĞURLU */
 .sa-xeta {
   margin: 0;
   font-size: 12px;
-  color: #ff6b6b;
+  color: var(--danger);
   padding: 8px 12px;
-  background: rgba(255, 107, 107, 0.08);
-  border: 1px solid rgba(255, 107, 107, 0.2);
+  background: var(--danger-bg);
+  border: 1px solid var(--danger-border);
   border-radius: 6px;
 }
 
 .sa-ugurlu {
   margin: 0;
   font-size: 12px;
-  color: #5dd87a;
+  color: var(--success);
   padding: 8px 12px;
-  background: rgba(40, 167, 69, 0.08);
-  border: 1px solid rgba(40, 167, 69, 0.2);
+  background: var(--success-bg);
+  border: 1px solid var(--success-border);
   border-radius: 6px;
 }
 
-/* BOŞ */
 .sa-bos {
   text-align: center;
-  color: #666666;
+  color: var(--text-muted);
   font-size: 13px;
   font-style: italic;
   padding: 20px 0;
   margin: 0;
 }
 
-/* SCROLLBAR */
 .sa-content::-webkit-scrollbar {
   width: 4px;
 }
 
 .sa-content::-webkit-scrollbar-track {
-  background: transparent;
+  background: var(--scrollbar-bg);
 }
 
 .sa-content::-webkit-scrollbar-thumb {
-  background: rgba(123, 131, 235, 0.2);
+  background: var(--scrollbar-thumb);
   border-radius: 2px;
 }
 
 .sa-content::-webkit-scrollbar-thumb:hover {
-  background: rgba(123, 131, 235, 0.4);
+  background: var(--scrollbar-thumb-hover);
 }
 
-/* PAROL STYLELARı */
+/* PAROL */
 .sa-list-item-parol {
   display: flex;
   align-items: center;
   gap: 8px;
   font-size: 13px;
-  color: #7B83EB;
+  color: var(--accent);
   margin-top: 4px;
   font-family: 'Courier New', monospace;
 }
 
 .parol-text {
-  background-color: rgba(123, 131, 235, 0.1);
+  background-color: var(--accent-bg);
   padding: 2px 8px;
   border-radius: 4px;
   min-width: 90px;
@@ -366,8 +357,8 @@
 
 .sa-btn-icon {
   background: transparent;
-  border: 1px solid rgba(123, 131, 235, 0.3);
-  color: #7B83EB;
+  border: 1px solid var(--accent-border);
+  color: var(--accent);
   padding: 4px 8px;
   border-radius: 4px;
   cursor: pointer;
@@ -379,9 +370,8 @@
 }
 
 .sa-btn-icon:hover {
-  background-color: rgba(123, 131, 235, 0.2);
-  border-color: #7B83EB;
-  color: #fff;
+  background-color: var(--accent-bg-hover);
+  color: var(--text-primary);
 }
 
 .parol-deyisdir-row {
@@ -394,17 +384,17 @@
 .parol-deyisdir-row input {
   flex: 1;
   padding: 6px 12px;
-  background-color: #333333;
-  border: 1px solid #404040;
+  background-color: var(--bg-input);
+  border: 1px solid var(--border-primary);
   border-radius: 6px;
-  color: #E8E8E8;
+  color: var(--text-primary);
   font-size: 13px;
   outline: none;
 }
 
 .parol-deyisdir-row input:focus {
-  border-color: #7B83EB;
-  background-color: #3A3A3A;
+  border-color: var(--accent);
+  background-color: var(--bg-input-focus);
 }
 
 .sa-btn-sm {
@@ -414,8 +404,8 @@
 
 .sa-btn-cancel {
   background-color: transparent;
-  color: #ff6b6b;
-  border: 1px solid #ff6b6b;
+  color: var(--danger);
+  border: 1px solid var(--danger);
   border-radius: 6px;
   cursor: pointer;
   padding: 6px 14px;
@@ -424,5 +414,11 @@
 }
 
 .sa-btn-cancel:hover {
-  background-color: rgba(255, 107, 107, 0.15);
+  background-color: var(--danger-bg);
+}
+.sa-logo-row {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
 }

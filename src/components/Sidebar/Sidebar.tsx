@@ -28,6 +28,7 @@ function Sidebar({
       {/* YUXARI - TİS */}
       <div className="sidebar-logo">
         <span className="sidebar-logo-text">TİS</span>
+        <ThemeToggle />
       </div>
 
       {/* NAVIQASIYA */}
@@ -66,8 +67,7 @@ function Sidebar({
             <span className="sidebar-user-rol">{currentUser.rol}</span>
           </div>
         </div>
-        <ThemeToggle />
-        <button className="sidebar-cixis-btn" onClick={onLogout}></button>
+        
         <button className="sidebar-cixis-btn" onClick={onLogout}>
           <FaSignOutAlt />
           <span>Çıxış</span>
