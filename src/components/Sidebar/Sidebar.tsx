@@ -1,24 +1,30 @@
-import { FaTasks, FaStickyNote, FaSignOutAlt } from 'react-icons/fa'
-import './Sidebar.css'
+import { FaTasks, FaStickyNote, FaSignOutAlt } from "react-icons/fa";
+import "./Sidebar.css";
+import ThemeToggle from "../shared/ThemeToggle";
 interface User {
-  login: string
-  parol: string
-  rol: string
-  adSoyad: string
+  login: string;
+  parol: string;
+  rol: string;
+  adSoyad: string;
 }
 
 interface SidebarProps {
-  currentUser: User
-  onLogout: () => void
-  activePage: 'tasks' | 'notes'
-  onPageChange: (page: 'tasks' | 'notes') => void
-  onGoToAdminPanel?: () => void
+  currentUser: User;
+  onLogout: () => void;
+  activePage: "tasks" | "notes";
+  onPageChange: (page: "tasks" | "notes") => void;
+  onGoToAdminPanel?: () => void;
 }
 
-function Sidebar({ currentUser, onLogout, activePage, onPageChange, onGoToAdminPanel }: SidebarProps) {
+function Sidebar({
+  currentUser,
+  onLogout,
+  activePage,
+  onPageChange,
+  onGoToAdminPanel,
+}: SidebarProps) {
   return (
     <div className="sidebar">
-
       {/* YUXARI - TİS */}
       <div className="sidebar-logo">
         <span className="sidebar-logo-text">TİS</span>
@@ -27,15 +33,15 @@ function Sidebar({ currentUser, onLogout, activePage, onPageChange, onGoToAdminP
       {/* NAVIQASIYA */}
       <nav className="sidebar-nav">
         <div
-          className={`sidebar-nav-item ${activePage === 'tasks' ? 'aktiv' : ''}`}
-          onClick={() => onPageChange('tasks')}
+          className={`sidebar-nav-item ${activePage === "tasks" ? "aktiv" : ""}`}
+          onClick={() => onPageChange("tasks")}
         >
           <FaTasks className="sidebar-nav-icon" />
           <span>Ümumi tapşırıqlar</span>
         </div>
         <div
-          className={`sidebar-nav-item ${activePage === 'notes' ? 'aktiv' : ''}`}
-          onClick={() => onPageChange('notes')}
+          className={`sidebar-nav-item ${activePage === "notes" ? "aktiv" : ""}`}
+          onClick={() => onPageChange("notes")}
         >
           <FaStickyNote className="sidebar-nav-icon" />
           <span>Şəxsi qeydlərim</span>
@@ -44,11 +50,12 @@ function Sidebar({ currentUser, onLogout, activePage, onPageChange, onGoToAdminP
 
       {/* AŞAĞI - İSTİFADƏÇİ */}
       <div className="sidebar-bottom">
-       {(currentUser.rol === 'Admin' || currentUser.rol === 'BolmeAdmin') && onGoToAdminPanel && (
-          <button className="sidebar-admin-btn" onClick={onGoToAdminPanel}>
-            İdarəetmə
-          </button>
-        )}
+        {(currentUser.rol === "Admin" || currentUser.rol === "BolmeAdmin") &&
+          onGoToAdminPanel && (
+            <button className="sidebar-admin-btn" onClick={onGoToAdminPanel}>
+              İdarəetmə
+            </button>
+          )}
 
         <div className="sidebar-user">
           <div className="sidebar-user-avatar">
@@ -59,15 +66,15 @@ function Sidebar({ currentUser, onLogout, activePage, onPageChange, onGoToAdminP
             <span className="sidebar-user-rol">{currentUser.rol}</span>
           </div>
         </div>
-
+        <ThemeToggle />
+        <button className="sidebar-cixis-btn" onClick={onLogout}></button>
         <button className="sidebar-cixis-btn" onClick={onLogout}>
           <FaSignOutAlt />
           <span>Çıxış</span>
         </button>
       </div>
-
     </div>
-  )
+  );
 }
 
-export default Sidebar
+export default Sidebar;

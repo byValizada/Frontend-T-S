@@ -2,19 +2,19 @@
   width: 220px;
   min-width: 220px;
   height: 100vh;
-  background: #2D2D2D;
+  background: var(--bg-secondary);
   display: flex;
   flex-direction: column;
-  border-right: 1px solid #404040;
+  border-right: 1px solid var(--border-primary);
   position: fixed;
   left: 0;
   top: 0;
+  transition: background 0.3s, border-color 0.3s;
 }
 
-/* LOGO */
 .sidebar-logo {
   padding: 24px 20px 20px;
-  border-bottom: 1px solid #404040;
+  border-bottom: 1px solid var(--border-primary);
   display: flex;
   justify-content: center;
 }
@@ -22,11 +22,10 @@
 .sidebar-logo-text {
   font-size: 24px;
   font-weight: 800;
-  color: #7B83EB;
+  color: var(--accent);
   letter-spacing: 3px;
 }
 
-/* NAVİQASİYA */
 .sidebar-nav {
   flex: 1;
   padding: 20px 12px;
@@ -42,7 +41,7 @@
   padding: 13px 16px;
   border-radius: 10px;
   cursor: pointer;
-  color: #888888;
+  color: var(--text-secondary);
   font-size: 13px;
   font-weight: 500;
   transition: all 0.25s;
@@ -50,15 +49,15 @@
 }
 
 .sidebar-nav-item:hover {
-  background: #3D3D3D;
-  color: #E8E8E8;
-  border-color: #505050;
+  background: var(--bg-hover);
+  color: var(--text-primary);
+  border-color: var(--border-hover);
   transform: translateX(3px);
 }
 
 .sidebar-nav-item.aktiv {
-  background: rgba(123, 131, 235, 0.12);
-  color: #7B83EB;
+  background: var(--accent-bg);
+  color: var(--accent);
   font-weight: 600;
 }
 
@@ -67,22 +66,20 @@
   flex-shrink: 0;
 }
 
-/* AŞAĞI */
 .sidebar-bottom {
   padding: 16px 12px;
   display: flex;
   flex-direction: column;
   gap: 10px;
-  border-top: 1px solid #404040;
+  border-top: 1px solid var(--border-primary);
 }
 
-/* ADMIN DÜYMƏSİ */
 .sidebar-admin-btn {
   width: 100%;
   padding: 9px;
-  background: rgba(123, 131, 235, 0.08);
-  color: #7B83EB;
-  border: 1px solid rgba(123, 131, 235, 0.2);
+  background: var(--accent-bg);
+  color: var(--accent);
+  border: 1px solid var(--accent-border);
   border-radius: 8px;
   cursor: pointer;
   font-size: 12px;
@@ -93,11 +90,10 @@
 }
 
 .sidebar-admin-btn:hover {
-  background: rgba(123, 131, 235, 0.15);
-  border-color: rgba(123, 131, 235, 0.35);
+  background: var(--accent-bg-hover);
+  border-color: var(--accent);
 }
 
-/* İSTİFADƏÇİ */
 .sidebar-user {
   display: flex;
   align-items: center;
@@ -109,14 +105,14 @@
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  background: rgba(123, 131, 235, 0.15);
-  border: 1px solid rgba(123, 131, 235, 0.3);
+  background: var(--accent-bg);
+  border: 1px solid var(--accent-border);
   display: flex;
   align-items: center;
   justify-content: center;
   font-size: 15px;
   font-weight: 700;
-  color: #7B83EB;
+  color: var(--accent);
   flex-shrink: 0;
 }
 
@@ -130,7 +126,7 @@
 .sidebar-user-name {
   font-size: 13px;
   font-weight: 600;
-  color: #E8E8E8;
+  color: var(--text-primary);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -138,10 +134,9 @@
 
 .sidebar-user-rol {
   font-size: 11px;
-  color: #888888;
+  color: var(--text-secondary);
 }
 
-/* ÇIXIŞ */
 .sidebar-cixis-btn {
   display: flex;
   align-items: center;
@@ -149,9 +144,9 @@
   gap: 8px;
   width: 100%;
   padding: 9px;
-  background: rgba(255, 107, 107, 0.06);
-  color: rgba(255, 107, 107, 0.7);
-  border: 1px solid rgba(255, 107, 107, 0.15);
+  background: var(--danger-bg);
+  color: var(--danger);
+  border: 1px solid var(--danger-border);
   border-radius: 8px;
   cursor: pointer;
   font-size: 12px;
@@ -161,7 +156,6 @@
 }
 
 .sidebar-cixis-btn:hover {
-  background: rgba(255, 107, 107, 0.12);
-  color: #ff6b6b;
-  border-color: rgba(255, 107, 107, 0.3);
+  background: rgba(255, 107, 107, 0.15);
+  color: var(--danger);
 }

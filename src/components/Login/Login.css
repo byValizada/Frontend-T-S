@@ -1,24 +1,18 @@
-/* ============================================
-   LOGIN SƏHİFƏSİ - Microsoft To Do Style
-   ============================================ */
-
 .login-page {
   width: 100vw;
   height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  background: #1F1F1F;
+  background: var(--bg-primary);
   overflow: hidden;
   position: fixed;
   top: 0;
   left: 0;
   font-family: 'Segoe UI', Tahoma, Arial, sans-serif;
+  transition: background 0.3s;
 }
 
-/* ============================================
-   ANİMASİYALI ARXA FON FİQURLARI
-   ============================================ */
 .login-bg-shapes {
   position: absolute;
   width: 100%;
@@ -38,16 +32,15 @@
 .login-shape-1 {
   width: 500px;
   height: 500px;
-  background: radial-gradient(circle, rgba(123, 131, 235, 0.3) 0%, transparent 70%);
+  background: radial-gradient(circle, var(--accent-bg-hover) 0%, transparent 70%);
   top: -150px;
   left: -150px;
-  animation-delay: 0s;
 }
 
 .login-shape-2 {
   width: 450px;
   height: 450px;
-  background: radial-gradient(circle, rgba(91, 95, 199, 0.25) 0%, transparent 70%);
+  background: radial-gradient(circle, var(--accent-bg-hover) 0%, transparent 70%);
   bottom: -100px;
   right: -100px;
   animation-delay: 5s;
@@ -56,7 +49,7 @@
 .login-shape-3 {
   width: 350px;
   height: 350px;
-  background: radial-gradient(circle, rgba(123, 131, 235, 0.15) 0%, transparent 70%);
+  background: radial-gradient(circle, var(--accent-bg) 0%, transparent 70%);
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
@@ -69,20 +62,18 @@
   66% { transform: translate(-30px, 40px) scale(0.95); }
 }
 
-/* ============================================
-   LOGIN QUTUSU
-   ============================================ */
 .login-box {
-  background: #2D2D2D;
-  border: 1px solid #404040;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-primary);
   border-radius: 24px;
   padding: 45px 45px 30px;
   width: 420px;
   max-width: 90vw;
-  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
   position: relative;
   z-index: 2;
   animation: fadeInUp 0.7s ease-out;
+  transition: background 0.3s, border-color 0.3s;
 }
 
 @keyframes fadeInUp {
@@ -90,9 +81,6 @@
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* ============================================
-   BAŞLIQ BÖLMƏSİ
-   ============================================ */
 .login-header {
   text-align: center;
   margin-bottom: 35px;
@@ -103,17 +91,17 @@
   height: 70px;
   margin: 0 auto 18px;
   border-radius: 18px;
-  background: linear-gradient(135deg, #7B83EB 0%, #5B5FC7 100%);
+  background: linear-gradient(135deg, var(--accent), var(--accent-hover));
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 8px 24px rgba(123, 131, 235, 0.35);
+  box-shadow: 0 8px 24px var(--accent-bg-hover);
   animation: pulse 3s ease-in-out infinite;
 }
 
 @keyframes pulse {
-  0%, 100% { box-shadow: 0 8px 24px rgba(123, 131, 235, 0.35); }
-  50% { box-shadow: 0 8px 32px rgba(123, 131, 235, 0.55); }
+  0%, 100% { box-shadow: 0 8px 24px var(--accent-bg-hover); }
+  50% { box-shadow: 0 8px 32px var(--accent-bg-hover); }
 }
 
 .login-icon {
@@ -122,28 +110,20 @@
 }
 
 .login-title {
-  color: #E8E8E8;
+  color: var(--accent);
   font-size: 32px;
   font-weight: 700;
   margin: 0 0 6px 0;
   letter-spacing: 2px;
-  background: linear-gradient(135deg, #7B83EB 0%, #A5AAFA 100%);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
 }
 
 .login-subtitle {
-  color: #888888;
+  color: var(--text-secondary);
   font-size: 13px;
   margin: 0;
   letter-spacing: 0.5px;
-  opacity: 0.8;
 }
 
-/* ============================================
-   FORMA
-   ============================================ */
 .login-form {
   display: flex;
   flex-direction: column;
@@ -157,7 +137,7 @@
 }
 
 .input-group label {
-  color: #888888;
+  color: var(--text-secondary);
   font-size: 12px;
   font-weight: 600;
   letter-spacing: 0.5px;
@@ -174,7 +154,7 @@
 .input-icon {
   position: absolute;
   left: 16px;
-  color: #666666;
+  color: var(--text-muted);
   font-size: 14px;
   pointer-events: none;
   transition: color 0.3s;
@@ -183,10 +163,10 @@
 .input-wrapper input {
   width: 100%;
   padding: 14px 16px 14px 44px;
-  border: 1px solid #404040;
+  border: 1px solid var(--border-primary);
   border-radius: 12px;
-  background-color: #333333;
-  color: #E8E8E8;
+  background-color: var(--bg-input);
+  color: var(--text-primary);
   font-size: 14px;
   outline: none;
   transition: all 0.3s ease;
@@ -195,27 +175,26 @@
 }
 
 .input-wrapper input::placeholder {
-  color: #666666;
+  color: var(--text-muted);
 }
 
 .input-wrapper input:focus {
-  border-color: #7B83EB;
-  background-color: #3A3A3A;
-  box-shadow: 0 0 0 4px rgba(123, 131, 235, 0.15);
+  border-color: var(--accent);
+  background-color: var(--bg-input-focus);
+  box-shadow: 0 0 0 4px var(--accent-bg);
 }
 
 .input-wrapper input:focus ~ .input-icon,
 .input-wrapper:focus-within .input-icon {
-  color: #7B83EB;
+  color: var(--accent);
 }
 
-/* PAROL GÖSTƏR/GİZLƏT */
 .toggle-parol {
   position: absolute;
   right: 12px;
   background: none;
   border: none;
-  color: #666666;
+  color: var(--text-muted);
   cursor: pointer;
   padding: 6px 8px;
   font-size: 14px;
@@ -227,20 +206,17 @@
 }
 
 .toggle-parol:hover {
-  color: #7B83EB;
-  background-color: rgba(123, 131, 235, 0.1);
+  color: var(--accent);
+  background-color: var(--accent-bg);
 }
 
-/* ============================================
-   XƏTA MESAJI
-   ============================================ */
 .error-message {
-  color: #ff8b8b;
+  color: var(--danger);
   font-size: 13px;
   margin: 0;
   padding: 11px 14px;
-  background-color: rgba(255, 107, 107, 0.08);
-  border: 1px solid rgba(255, 107, 107, 0.2);
+  background-color: var(--danger-bg);
+  border: 1px solid var(--danger-border);
   border-radius: 10px;
   display: flex;
   align-items: center;
@@ -252,8 +228,8 @@
   width: 8px;
   height: 8px;
   border-radius: 50%;
-  background: #ff6b6b;
-  box-shadow: 0 0 8px rgba(255, 107, 107, 0.6);
+  background: var(--danger);
+  box-shadow: 0 0 8px var(--danger);
   flex-shrink: 0;
 }
 
@@ -263,12 +239,9 @@
   75% { transform: translateX(6px); }
 }
 
-/* ============================================
-   GİRİŞ DÜYMƏSİ
-   ============================================ */
 .giris-btn {
   padding: 14px;
-  background: linear-gradient(135deg, #7B83EB 0%, #5B5FC7 100%);
+  background: linear-gradient(135deg, var(--accent), var(--accent-hover));
   color: #fff;
   border: none;
   border-radius: 12px;
@@ -279,7 +252,7 @@
   letter-spacing: 1px;
   text-transform: uppercase;
   transition: all 0.3s ease;
-  box-shadow: 0 6px 20px rgba(123, 131, 235, 0.3);
+  box-shadow: 0 6px 20px var(--accent-bg-hover);
   position: relative;
   overflow: hidden;
   min-height: 50px;
@@ -306,7 +279,7 @@
 
 .giris-btn:hover:not(:disabled) {
   transform: translateY(-2px);
-  box-shadow: 0 10px 28px rgba(123, 131, 235, 0.45);
+  box-shadow: 0 10px 28px var(--accent-bg-hover);
 }
 
 .giris-btn:active:not(:disabled) {
@@ -318,11 +291,6 @@
   opacity: 0.8;
 }
 
-.giris-btn.loading {
-  background: linear-gradient(135deg, #6B73DB 0%, #4B4FB7 100%);
-}
-
-/* LOADER */
 .btn-loader {
   width: 20px;
   height: 20px;
@@ -336,41 +304,40 @@
   to { transform: rotate(360deg); }
 }
 
-/* ============================================
-   FOOTER
-   ============================================ */
 .login-footer {
   margin-top: 28px;
   text-align: center;
   padding-top: 20px;
-  border-top: 1px solid #404040;
+  border-top: 1px solid var(--border-primary);
 }
 
 .login-footer p {
-  color: #666666;
+  color: var(--text-muted);
   font-size: 11px;
   margin: 0;
   letter-spacing: 0.3px;
 }
 
-/* ============================================
-   RESPONSIVE
-   ============================================ */
+/* THEME TOGGLE */
+.login-theme-toggle {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 10;
+}
+
 @media (max-width: 480px) {
   .login-box {
     padding: 35px 28px 25px;
     border-radius: 20px;
   }
-
   .login-title {
     font-size: 28px;
   }
-
   .login-icon-wrapper {
     width: 60px;
     height: 60px;
   }
-
   .login-icon {
     font-size: 26px;
   }

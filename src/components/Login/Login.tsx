@@ -3,6 +3,7 @@ import { FaUser, FaLock, FaEye, FaEyeSlash, FaTasks } from "react-icons/fa";
 import { isSuperAdmin } from "../../services/dataService";
 import { addLog } from "../shared/logHelper";
 import "./Login.css";
+import ThemeToggle from '../shared/ThemeToggle'
 import type { User } from "../../services/dataService";
 interface LoginProps {
   onLogin: (user: User) => void;
@@ -80,6 +81,9 @@ function Login({ onLogin }: LoginProps) {
 
   return (
     <div className="login-page">
+       <div className="login-theme-toggle">
+        <ThemeToggle />
+      </div>
       <div className="login-bg-shapes">
         <div className="login-shape login-shape-1"></div>
         <div className="login-shape login-shape-2"></div>
