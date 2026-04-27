@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react'
 import {
   FaComments, FaTimes, FaMinus, FaExpand, FaCompress,
   FaSearch, FaPaperPlane, FaArrowLeft, FaPaperclip, FaTrash,
-  FaCheck, FaCheckDouble, FaCircle
+  FaCheck, FaCheckDouble, FaCircle, FaPencilAlt
 } from 'react-icons/fa'
 import {
   getMessages, sendMessage, markAsRead, deleteMessage,
@@ -19,6 +19,8 @@ interface User {
   adSoyad: string
   companyId?: string
   bolmeId?: string
+  rutbe?: string
+  vezife?: string
 }
 
 interface ChatWidgetProps {
@@ -37,23 +39,17 @@ function ChatWidget({ currentUser }: ChatWidgetProps) {
   const [messages, setMessages] = useState<ChatMessage[]>([])
   const [newMessage, setNewMessage] = useState('')
   const [unreadTotal, setUnreadTotal] = useState(0)
+  const [editingMsgId, setEditingMsgId] = useState<string | null>(null)
   const messagesEndRef = useRef<HTMLDivElement>(null)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const msgInputRef = useRef<HTMLInputElement>(null)
 
-  // Online status güncelle
   useEffect(() => {
     setOnlineStatus(currentUser.login, true)
-    const interval = setInterval(() => {
-      setOnlineStatus(currentUser.login, true)
-    }, 30000)
-
-    return () => {
-      clearInterval(interval)
-      setOnlineStatus(currentUser.login, false)
-    }
+    const interval = setInterval(() => setOnlineStatus(currentUser.login, true), 30000)
+    return () => { clearInterval(interval); setOnlineStatus(currentUser.login, false) }
   }, [currentUser.login])
 
-  // İstifadəçiləri yüklə
   useEffect(() => {
     const data = localStorage.getItem('users')
     if (data) {
@@ -62,7 +58,6 @@ function ChatWidget({ currentUser }: ChatWidgetProps) {
     }
   }, [currentUser.login])
 
-  // Oxunmamış mesaj sayı
   useEffect(() => {
     const updateUnread = () => setUnreadTotal(getUnreadCount(currentUser.login))
     updateUnread()
@@ -70,7 +65,6 @@ function ChatWidget({ currentUser }: ChatWidgetProps) {
     return () => clearInterval(interval)
   }, [currentUser.login])
 
-  // Mesajları yenilə (seçili istifadəçi ilə)
   useEffect(() => {
     if (!selectedUser) return
     const updateMessages = () => {
@@ -83,12 +77,10 @@ function ChatWidget({ currentUser }: ChatWidgetProps) {
     return () => clearInterval(interval)
   }, [selectedUser, currentUser.login])
 
-  // Scroll to bottom
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' })
   }, [messages])
 
-  // SuperAdmin-i siyahıya əlavə et
   useEffect(() => {
     if (currentUser.rol !== 'SuperAdmin') {
       const data = localStorage.getItem('users')
@@ -97,78 +89,75 @@ function ChatWidget({ currentUser }: ChatWidgetProps) {
         const hasSuper = allUsers.some(u => u.login === 'Tural')
         if (!hasSuper) {
           const superAdmin = users.find(u => u.rol === 'SuperAdmin')
-          // SuperAdmin yoxdursa, hardcoded əlavə et
           if (!superAdmin) {
-            setAllUsers(prev => [...prev, {
-              login: 'Tural',
-              parol: '',
-              rol: 'SuperAdmin',
-              adSoyad: 'Tural Vəlizadə'
-            }])
+            setAllUsers(prev => [...prev, { login: 'Tural', parol: '', rol: 'SuperAdmin', adSoyad: 'Tural Vəlizadə' }])
           }
         }
       }
     }
   }, [currentUser.rol, allUsers])
 
-  // Axtarış
   const filteredUsers = allUsers.filter(u => {
     if (!search.trim()) return true
     const q = search.toLowerCase()
-    return u.adSoyad.toLowerCase().includes(q) ||
-      u.login.toLowerCase().includes(q) ||
-      u.rol.toLowerCase().includes(q)
+    return u.adSoyad.toLowerCase().includes(q) || u.login.toLowerCase().includes(q) || u.rol.toLowerCase().includes(q)
   })
 
-  // Son yazışmaları olan istifadəçilər (yuxarıda göstərmək üçün)
   const getUsersWithChats = () => {
     return allUsers
-      .map(u => ({
-        user: u,
-        lastMsg: getLastMessage(currentUser.login, u.login),
-        unread: getUnreadFromUser(currentUser.login, u.login)
-      }))
+      .map(u => ({ user: u, lastMsg: getLastMessage(currentUser.login, u.login), unread: getUnreadFromUser(currentUser.login, u.login) }))
       .filter(item => item.lastMsg !== null)
-      .sort((a, b) => {
-        const ta = new Date(a.lastMsg!.tarix).getTime()
-        const tb = new Date(b.lastMsg!.tarix).getTime()
-        return tb - ta
-      })
+      .sort((a, b) => new Date(b.lastMsg!.tarix).getTime() - new Date(a.lastMsg!.tarix).getTime())
   }
 
-  // Mesaj göndər
+  // Mesaj göndər / redaktəni saxla
   const handleSend = () => {
     if (!newMessage.trim() || !selectedUser) return
 
-    sendMessage({
-      gonderenLogin: currentUser.login,
-      gonderenAd: currentUser.adSoyad,
-      alanLogin: selectedUser.login,
-      alanAd: selectedUser.adSoyad,
-      metn: newMessage.trim()
-    })
-
-    setNewMessage('')
-    // Yenilə
-    const msgs = getMessages(currentUser.login, selectedUser.login)
-    setMessages(msgs)
+    if (editingMsgId) {
+      // Edit rejimi - chatService-dən mesajı yenilə
+      const allMsgs: ChatMessage[] = JSON.parse(localStorage.getItem('chat_messages') || '[]')
+      const updated = allMsgs.map(m =>
+        m.id === editingMsgId ? { ...m, metn: newMessage.trim(), redakte: true } : m
+      )
+      localStorage.setItem('chat_messages', JSON.stringify(updated))
+      setMessages(getMessages(currentUser.login, selectedUser.login))
+      setEditingMsgId(null)
+      setNewMessage('')
+    } else {
+      sendMessage({
+        gonderenLogin: currentUser.login,
+        gonderenAd: currentUser.adSoyad,
+        alanLogin: selectedUser.login,
+        alanAd: selectedUser.adSoyad,
+        metn: newMessage.trim()
+      })
+      setNewMessage('')
+      setMessages(getMessages(currentUser.login, selectedUser.login))
+    }
   }
 
-  // Fayl göndər
+  // Karandaş klikdə mesajı input-a at
+  const handleStartEdit = (msg: ChatMessage) => {
+    setEditingMsgId(msg.id)
+    setNewMessage(msg.metn)
+    setTimeout(() => msgInputRef.current?.focus(), 50)
+  }
+
+  const handleCancelEdit = () => {
+    setEditingMsgId(null)
+    setNewMessage('')
+  }
+
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0]
     if (!file || !selectedUser) return
-    if (file.size > 2 * 1024 * 1024) {
-      alert('Fayl 2MB-dan böyükdür')
-      return
-    }
-
+    if (file.size > 2 * 1024 * 1024) { alert('Fayl 2MB-dan böyükdür'); return }
     const base64 = await new Promise<string>((resolve) => {
       const reader = new FileReader()
       reader.onload = () => resolve(reader.result as string)
       reader.readAsDataURL(file)
     })
-
     sendMessage({
       gonderenLogin: currentUser.login,
       gonderenAd: currentUser.adSoyad,
@@ -177,44 +166,47 @@ function ChatWidget({ currentUser }: ChatWidgetProps) {
       metn: `📎 ${file.name}`,
       fayl: { name: file.name, type: file.type, base64 }
     })
-
     e.target.value = ''
-    const msgs = getMessages(currentUser.login, selectedUser.login)
-    setMessages(msgs)
+    setMessages(getMessages(currentUser.login, selectedUser.login))
   }
 
-  // Mesaj sil
   const handleDelete = (msgId: string) => {
     deleteMessage(msgId)
-    const msgs = getMessages(currentUser.login, selectedUser!.login)
-    setMessages(msgs)
+    setMessages(getMessages(currentUser.login, selectedUser!.login))
   }
 
-  // Müəssisə/bölmə adını tap
   const getCompanyName = (companyId?: string) => {
     if (!companyId) return ''
-    const data = localStorage.getItem('companies')
-    if (!data) return ''
-    const companies = JSON.parse(data)
-    return companies.find((c: any) => c.id === companyId)?.ad || ''
+    try { return JSON.parse(localStorage.getItem('companies') || '[]').find((c: any) => c.id === companyId)?.ad || '' } catch { return '' }
   }
 
   const getBolmeName = (bolmeId?: string) => {
     if (!bolmeId) return ''
-    const data = localStorage.getItem('bolmeler')
-    if (!data) return ''
-    const bolmeler = JSON.parse(data)
-    return bolmeler.find((b: any) => b.id === bolmeId)?.ad || ''
+    try { return JSON.parse(localStorage.getItem('bolmeler') || '[]').find((b: any) => b.id === bolmeId)?.ad || '' } catch { return '' }
   }
 
-  // İstifadəçi seç
+  const getUserLine1 = (user: User) => {
+    const parts = [user.rol]
+    if (user.rutbe) parts.push(user.rutbe)
+    if (user.vezife) parts.push(user.vezife)
+    return parts.join(' • ')
+  }
+
+  const getUserLine2 = (user: User) => {
+    const parts = []
+    const company = getCompanyName(user.companyId)
+    const bolme = getBolmeName(user.bolmeId)
+    if (company) parts.push(company)
+    if (bolme) parts.push(bolme)
+    return parts.join(' • ')
+  }
+
   const openChat = (user: User) => {
     setSelectedUser(user)
     setView('chat')
     markAsRead(currentUser.login, user.login)
   }
 
-  // BAĞLI - yalnız ikon
   if (view === 'closed') {
     return (
       <div className="chat-fab" onClick={() => setView('list')}>
@@ -224,7 +216,6 @@ function ChatWidget({ currentUser }: ChatWidgetProps) {
     )
   }
 
-  // MİNİMİZE - kiçik bar
   if (size === 'minimized') {
     return (
       <div className="chat-minimized" onClick={() => setSize('normal')}>
@@ -240,11 +231,12 @@ function ChatWidget({ currentUser }: ChatWidgetProps) {
 
   return (
     <div className={`chat-widget ${size === 'maximized' ? 'chat-maximized' : 'chat-normal'}`}>
+
       {/* BAŞLIQ */}
       <div className="chat-header">
         <div className="chat-header-left">
           {view === 'chat' && (
-            <button className="chat-back-btn" onClick={() => { setView('list'); setSelectedUser(null) }}>
+            <button className="chat-back-btn" onClick={() => { setView('list'); setSelectedUser(null); setEditingMsgId(null); setNewMessage('') }}>
               <FaArrowLeft />
             </button>
           )}
@@ -252,11 +244,10 @@ function ChatWidget({ currentUser }: ChatWidgetProps) {
             <div className="chat-header-user">
               <span className="chat-header-name">{selectedUser.adSoyad}</span>
               <span className="chat-header-status">
-                {isUserOnline(selectedUser.login) ? (
-                  <><FaCircle className="online-dot" /> Online</>
-                ) : (
-                  <><FaCircle className="offline-dot" /> Offline</>
-                )}
+                {isUserOnline(selectedUser.login)
+                  ? <><FaCircle className="online-dot" /> Online</>
+                  : <><FaCircle className="offline-dot" /> Offline</>
+                }
               </span>
             </div>
           ) : (
@@ -268,7 +259,9 @@ function ChatWidget({ currentUser }: ChatWidgetProps) {
           <button onClick={() => setSize(size === 'maximized' ? 'normal' : 'maximized')} title={size === 'maximized' ? 'Normal' : 'Tam ekran'}>
             {size === 'maximized' ? <FaCompress /> : <FaExpand />}
           </button>
-          <button onClick={() => { setView('closed'); setSize('normal'); setSelectedUser(null) }} title="Bağla"><FaTimes /></button>
+          <button onClick={() => { setView('closed'); setSize('normal'); setSelectedUser(null); setEditingMsgId(null); setNewMessage('') }} title="Bağla">
+            <FaTimes />
+          </button>
         </div>
       </div>
 
@@ -277,16 +270,10 @@ function ChatWidget({ currentUser }: ChatWidgetProps) {
         <div className="chat-body">
           <div className="chat-search">
             <FaSearch className="chat-search-icon" />
-            <input
-              type="text"
-              placeholder="Ad Soyad axtar..."
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-            />
+            <input type="text" placeholder="Ad Soyad axtar..." value={search} onChange={e => setSearch(e.target.value)} />
           </div>
 
           <div className="chat-user-list">
-            {/* Son yazışmalar */}
             {!search.trim() && getUsersWithChats().length > 0 && (
               <>
                 <p className="chat-section-title">Son yazışmalar</p>
@@ -298,7 +285,8 @@ function ChatWidget({ currentUser }: ChatWidgetProps) {
                     </div>
                     <div className="chat-user-info">
                       <span className="chat-user-name">{user.adSoyad}</span>
-                      <span className="chat-user-meta">{user.rol} • {getCompanyName(user.companyId)} {getBolmeName(user.bolmeId) && `• ${getBolmeName(user.bolmeId)}`}</span>
+                      <span className="chat-user-meta">{getUserLine1(user)}</span>
+                      {getUserLine2(user) && <span className="chat-user-meta">{getUserLine2(user)}</span>}
                       <span className="chat-user-last">{lastMsg?.metn}</span>
                     </div>
                     {unread > 0 && <span className="chat-user-unread">{unread}</span>}
@@ -307,7 +295,6 @@ function ChatWidget({ currentUser }: ChatWidgetProps) {
               </>
             )}
 
-           {/* Axtarış nəticələri - yalnız axtarış zamanı */}
             {search.trim() && (
               <>
                 <p className="chat-section-title">Axtarış nəticəsi</p>
@@ -322,7 +309,8 @@ function ChatWidget({ currentUser }: ChatWidgetProps) {
                       </div>
                       <div className="chat-user-info">
                         <span className="chat-user-name">{user.adSoyad}</span>
-                        <span className="chat-user-meta">{user.rol} • {getCompanyName(user.companyId)} {getBolmeName(user.bolmeId) && `• ${getBolmeName(user.bolmeId)}`}</span>
+                        <span className="chat-user-meta">{getUserLine1(user)}</span>
+                        {getUserLine2(user) && <span className="chat-user-meta">{getUserLine2(user)}</span>}
                       </div>
                       {getUnreadFromUser(currentUser.login, user.login) > 0 && (
                         <span className="chat-user-unread">{getUnreadFromUser(currentUser.login, user.login)}</span>
@@ -333,7 +321,6 @@ function ChatWidget({ currentUser }: ChatWidgetProps) {
               </>
             )}
 
-            {/* Axtarış yoxdursa və son yazışma da yoxdursa */}
             {!search.trim() && getUsersWithChats().length === 0 && (
               <p className="chat-empty">Hələ yazışma yoxdur. Axtarışdan istifadəçi tapın.</p>
             )}
@@ -360,20 +347,28 @@ function ChatWidget({ currentUser }: ChatWidgetProps) {
                       📎 {msg.fayl.name}
                     </a>
                   ) : (
-                    <span className="chat-msg-text">{msg.metn}</span>
+                    <div className="chat-msg-metn-row">
+                      <span className="chat-msg-text">
+                        {msg.metn}
+                        {(msg as any).redakte && <span className="chat-msg-redakte"> ✎</span>}
+                      </span>
+                      {msg.gonderenLogin === currentUser.login && (
+                        <button
+                          className="chat-msg-edit-btn"
+                          onClick={() => handleStartEdit(msg)}
+                          title="Redaktə et"
+                        >
+                          <FaPencilAlt />
+                        </button>
+                      )}
+                    </div>
                   )}
                   <div className="chat-msg-footer">
                     <span className="chat-msg-time">{msg.tarix}</span>
                     {msg.gonderenLogin === currentUser.login && (
                       <>
-                        {msg.oxundu ? (
-                          <FaCheckDouble className="chat-msg-read" />
-                        ) : (
-                          <FaCheck className="chat-msg-unread" />
-                        )}
-                        <button className="chat-msg-del" onClick={() => handleDelete(msg.id)}>
-                          <FaTrash />
-                        </button>
+                        {msg.oxundu ? <FaCheckDouble className="chat-msg-read" /> : <FaCheck className="chat-msg-unread" />}
+                        <button className="chat-msg-del" onClick={() => handleDelete(msg.id)}><FaTrash /></button>
                       </>
                     )}
                   </div>
@@ -383,27 +378,35 @@ function ChatWidget({ currentUser }: ChatWidgetProps) {
             <div ref={messagesEndRef} />
           </div>
 
-          <div className="chat-input-bar">
-            <button className="chat-attach-btn" onClick={() => fileInputRef.current?.click()}>
-              <FaPaperclip />
-            </button>
-            <input
-              ref={fileInputRef}
-              type="file"
-              style={{ display: 'none' }}
-              onChange={handleFileSelect}
-            />
-            <input
-              type="text"
-              className="chat-input"
-              placeholder="Mesaj yazın..."
-              value={newMessage}
-              onChange={e => setNewMessage(e.target.value)}
-              onKeyDown={e => e.key === 'Enter' && handleSend()}
-            />
-            <button className="chat-send-btn" onClick={handleSend}>
-              <FaPaperPlane />
-            </button>
+          {/* INPUT */}
+          <div className={`chat-input-bar${editingMsgId ? ' editing' : ''}`}>
+            {editingMsgId && (
+              <div className="chat-edit-indicator">
+                <span>✎ Redaktə rejimi</span>
+                <button onClick={handleCancelEdit}><FaTimes /></button>
+              </div>
+            )}
+            <div className="chat-input-row">
+              {!editingMsgId && (
+                <>
+                  <button className="chat-attach-btn" onClick={() => fileInputRef.current?.click()}><FaPaperclip /></button>
+                  <input ref={fileInputRef} type="file" style={{ display: 'none' }} onChange={handleFileSelect} />
+                </>
+              )}
+              <input
+                ref={msgInputRef}
+                type="text"
+                className="chat-input"
+                placeholder={editingMsgId ? "Mesajı düzəldin..." : "Mesaj yazın..."}
+                value={newMessage}
+                onChange={e => setNewMessage(e.target.value)}
+                onKeyDown={e => {
+                  if (e.key === 'Enter') handleSend()
+                  if (e.key === 'Escape' && editingMsgId) handleCancelEdit()
+                }}
+              />
+              <button className="chat-send-btn" onClick={handleSend}><FaPaperPlane /></button>
+            </div>
           </div>
         </>
       )}

@@ -1,157 +1,130 @@
 import { useState, useEffect } from 'react'
-import { FaTimes, FaBullhorn, FaCheck } from 'react-icons/fa'
+import { FaBullhorn, FaCheck } from 'react-icons/fa'
+import './ElanBildirisi.css'
 
-interface Elan {
+interface User {
+  login: string
+  rol: string
+  adSoyad: string
+  companyId?: string
+  bolmeId?: string
+}
+
+export interface Elan {
   id: string
   baslig: string
   metn: string
   yaranmaTarixi: string
   oxuyanlar: string[]
   alicilar: string[] | 'hamisi'
+  gonderenLogin: string
+  gonderenAd: string
+  gonderenRol: string
+  companyId?: string
+  bolmeId?: string
 }
 
-interface User {
-  login: string
-  parol: string
-  rol: string
-  adSoyad: string
-}
-
-interface ElanBildirisiProps {
+interface Props {
   currentUser: User
 }
 
-function ElanBildirisi({ currentUser }: ElanBildirisiProps) {
-  const [elanlar, setElanlar] = useState<Elan[]>([])
-  const [activeIndex, setActiveIndex] = useState(0)
+function ElanBildirisi({ currentUser }: Props) {
+  const [oxunmamisElanlar, setOxunmamisElanlar] = useState<Elan[]>([])
+  const [aktifIndex, setAktifIndex] = useState(0)
+
+  const getOxunmamisElanlar = (): Elan[] => {
+    try {
+      const data = localStorage.getItem('elanlar')
+      if (!data) return []
+      const all: Elan[] = JSON.parse(data)
+      return all.filter(e => {
+        if (e.gonderenLogin === currentUser.login) return false
+        const menimUcun = e.alicilar === 'hamisi' ||
+          (Array.isArray(e.alicilar) && e.alicilar.includes(currentUser.login))
+        if (!menimUcun) return false
+        return !e.oxuyanlar.includes(currentUser.login)
+      })
+    } catch { return [] }
+  }
 
   useEffect(() => {
-    loadElanlar()
-  }, [])
+    const check = () => setOxunmamisElanlar(getOxunmamisElanlar())
+    check()
+    const interval = setInterval(check, 3000)
+    return () => clearInterval(interval)
+  }, [currentUser.login])
 
-  const loadElanlar = () => {
-    const data = localStorage.getItem('elanlar')
-    if (!data) return
+  const handleOxudum = () => {
+    const elan = oxunmamisElanlar[aktifIndex]
+    if (!elan) return
 
-    const allElanlar: Elan[] = JSON.parse(data)
+    try {
+      const data = localStorage.getItem('elanlar')
+      const all: Elan[] = data ? JSON.parse(data) : []
+      const updated = all.map(e =>
+        e.id === elan.id
+          ? { ...e, oxuyanlar: [...e.oxuyanlar, currentUser.login] }
+          : e
+      )
+      localStorage.setItem('elanlar', JSON.stringify(updated))
+    } catch {}
 
-    // Yalnız bu istifadəçiyə aid və oxunmamış elanlar
-    const myElanlar = allElanlar.filter(elan => {
-      const alici = elan.alicilar === 'hamisi' ||
-        (Array.isArray(elan.alicilar) && elan.alicilar.includes(currentUser.login))
-      const oxunmamis = !elan.oxuyanlar.includes(currentUser.login)
-      return alici && oxunmamis
-    })
-
-    setElanlar(myElanlar)
-    setActiveIndex(0)
+    const yeniOxunmamislar = oxunmamisElanlar.filter(e => e.id !== elan.id)
+    setOxunmamisElanlar(yeniOxunmamislar)
+    setAktifIndex(0)
   }
 
-  const handleOxudum = (elanId: string) => {
-    // Elanı oxunmuş kimi işarələ
-    const data = localStorage.getItem('elanlar')
-    if (!data) return
+  if (oxunmamisElanlar.length === 0) return null
 
-    const allElanlar: Elan[] = JSON.parse(data)
-    const updated = allElanlar.map(e => {
-      if (e.id === elanId) {
-        return {
-          ...e,
-          oxuyanlar: [...e.oxuyanlar, currentUser.login]
-        }
-      }
-      return e
-    })
-
-    localStorage.setItem('elanlar', JSON.stringify(updated))
-
-    // Elanı siyahıdan çıxar
-    const newElanlar = elanlar.filter(e => e.id !== elanId)
-    setElanlar(newElanlar)
-    setActiveIndex(0)
-  }
-
-  const handleHamisiniOxudum = () => {
-    const data = localStorage.getItem('elanlar')
-    if (!data) return
-
-    const allElanlar: Elan[] = JSON.parse(data)
-    const updated = allElanlar.map(e => {
-      const alici = e.alicilar === 'hamisi' ||
-        (Array.isArray(e.alicilar) && e.alicilar.includes(currentUser.login))
-      if (alici && !e.oxuyanlar.includes(currentUser.login)) {
-        return { ...e, oxuyanlar: [...e.oxuyanlar, currentUser.login] }
-      }
-      return e
-    })
-
-    localStorage.setItem('elanlar', JSON.stringify(updated))
-    setElanlar([])
-  }
-
-  if (elanlar.length === 0) return null
-
-  const activeElan = elanlar[activeIndex]
+  const elan = oxunmamisElanlar[aktifIndex]
 
   return (
     <div className="elan-bildirisi-overlay">
-      <div className="elan-bildirisi-box">
+      <div className="elan-bildirisi-modal">
 
         {/* BAŞLIQ */}
         <div className="elan-bildirisi-header">
-          <div className="elan-bildirisi-header-left">
-            <FaBullhorn className="elan-bildirisi-ikon" />
-            <span>Yeni Elan</span>
-            {elanlar.length > 1 && (
-              <span className="elan-sayi-badge">{elanlar.length} elan</span>
-            )}
+          <div className="elan-bildirisi-icon">
+            <FaBullhorn />
           </div>
+          <div>
+            <span className="elan-bildirisi-label">Yeni Elan</span>
+            <p className="elan-bildirisi-gonderen">{elan.gonderenAd}</p>
+          </div>
+          {oxunmamisElanlar.length > 1 && (
+            <span className="elan-bildirisi-say">{aktifIndex + 1}/{oxunmamisElanlar.length}</span>
+          )}
         </div>
 
-        {/* ELAN MƏTNİ */}
+        {/* MƏZMUN */}
         <div className="elan-bildirisi-body">
-          <h3 className="elan-bildirisi-baslig">{activeElan.baslig}</h3>
-          <p className="elan-bildirisi-metn">{activeElan.metn}</p>
-          <span className="elan-bildirisi-tarix">{activeElan.yaranmaTarixi}</span>
+          <h2 className="elan-bildirisi-baslig">{elan.baslig}</h2>
+          <p className="elan-bildirisi-metn">{elan.metn}</p>
+          <span className="elan-bildirisi-tarix">{elan.yaranmaTarixi}</span>
         </div>
 
-        {/* NAVİQASİYA (birdən çox elan varsa) */}
-        {elanlar.length > 1 && (
-          <div className="elan-nav">
-            {elanlar.map((_, i) => (
+        {/* XƏBƏRDARLIQ */}
+        <div className="elan-bildirisi-xeberdarlig">
+          ⚠️ Bu elanı oxuyana qədər tapşırıqlara daxil ola bilməzsiniz
+        </div>
+
+        {/* DÜYMƏ */}
+        <button className="elan-bildirisi-btn" onClick={handleOxudum}>
+          <FaCheck /> Oxudum, bağla
+        </button>
+
+        {/* ÇOXLU ELAN NAVİGASİYASI */}
+        {oxunmamisElanlar.length > 1 && (
+          <div className="elan-bildirisi-nav">
+            {oxunmamisElanlar.map((_, i) => (
               <div
                 key={i}
-                className={`elan-nav-nokta ${i === activeIndex ? 'aktiv' : ''}`}
-                onClick={() => setActiveIndex(i)}
+                className={`elan-bildirisi-dot${i === aktifIndex ? ' aktiv' : ''}`}
+                onClick={() => setAktifIndex(i)}
               />
             ))}
           </div>
         )}
-
-        {/* DÜYMƏLƏr */}
-        <div className="elan-bildirisi-footer">
-          {elanlar.length > 1 && (
-            <button className="elan-hamisi-btn" onClick={handleHamisiniOxudum}>
-              <FaCheck /> Hamısını oxudum
-            </button>
-          )}
-          <div className="elan-bildirisi-footer-right">
-            {elanlar.length > 1 && activeIndex < elanlar.length - 1 && (
-              <button
-                className="elan-novbeti-btn"
-                onClick={() => setActiveIndex(activeIndex + 1)}
-              >
-                Növbəti →
-              </button>
-            )}
-            <button
-              className="elan-oxudum-btn"
-              onClick={() => handleOxudum(activeElan.id)}
-            >
-              <FaTimes /> Oxudum, bağla
-            </button>
-          </div>
-        </div>
 
       </div>
     </div>

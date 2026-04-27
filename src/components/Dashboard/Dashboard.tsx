@@ -24,6 +24,7 @@ interface User {
   adSoyad: string;
 }
 
+
 interface DashboardProps {
   currentUser: User;
   onLogout: () => void;

@@ -1,6 +1,6 @@
 .chat-fab {
   position: fixed;
-  bottom: 25px;
+  bottom: 100px;
   right: 25px;
   width: 56px;
   height: 56px;
@@ -39,7 +39,7 @@
 
 .chat-minimized {
   position: fixed;
-  bottom: 25px;
+  bottom: 100px;
   right: 25px;
   background: linear-gradient(135deg, var(--accent), var(--accent-hover));
   color: #fff;
@@ -474,3 +474,77 @@
 .chat-messages::-webkit-scrollbar-track { background: var(--scrollbar-bg); }
 .chat-user-list::-webkit-scrollbar-thumb,
 .chat-messages::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 2px; }
+/* MESAJ METN ROW */
+.chat-msg-metn-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+/* KARANDAŞ - yalnız hover-da */
+.chat-msg-edit-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 10px;
+  padding: 2px 3px;
+  border-radius: 3px;
+  flex-shrink: 0;
+  visibility: hidden;
+  line-height: 1;
+  transition: color 0.15s;
+}
+
+.chat-msg-mine:hover .chat-msg-edit-btn {
+  visibility: visible;
+}
+
+.chat-msg-edit-btn:hover {
+  color: var(--accent);
+  background: var(--accent-bg);
+}
+
+/* REDAKTƏ EDİLİB */
+.chat-msg-redakte {
+  font-size: 10px;
+  color: var(--text-muted);
+  font-style: italic;
+}
+
+/* EDİT REJİMİ INPUT BAR */
+.chat-input-bar.editing {
+  border-top: 2px solid var(--accent);
+}
+
+.chat-edit-indicator {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--accent);
+  font-weight: 600;
+  padding: 4px 0 6px;
+}
+
+.chat-edit-indicator button {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 11px;
+  padding: 2px 4px;
+  border-radius: 3px;
+  display: flex;
+  align-items: center;
+}
+
+.chat-edit-indicator button:hover { color: var(--danger); }
+
+.chat-input-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.chat-input-row .chat-input { flex: 1; }
