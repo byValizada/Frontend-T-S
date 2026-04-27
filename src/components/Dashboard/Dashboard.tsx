@@ -4,16 +4,13 @@ import {
   FaInfoCircle,
   FaRegCircle,
   FaCheckCircle,
-  FaEdit,
   FaTrash,
   FaCircle,
 } from "react-icons/fa";
 import Sidebar from "../Sidebar/Sidebar";
 import TaskModal from "../TaskModal/TaskModal";
 import type { NewTask } from "../TaskModal/TaskModal";
-import TaskDetailModal from "../TaskDetailModal/TaskDetailModal";
-import EditTaskModal from "../EditTaskModal/EditTaskModal";
-import CompletedModal from "../CompletedModal/CompletedModal";
+import TaskSidePanel from "../shared/TaskSidePanel";
 import CompletedNotesModal from "../CompletedModal/CompletedNotesModal";
 import NoteDetailModal from "../TaskDetailModal/NoteDetailModal";
 import ElanBildirisi from "./ElanBildirisi";
@@ -45,18 +42,12 @@ interface Note {
   saat?: string;
 }
 
-function Dashboard({
-  currentUser,
-  onLogout,
-  onGoToAdminPanel,
-}: DashboardProps) {
+function Dashboard({ currentUser, onLogout, onGoToAdminPanel }: DashboardProps) {
   const [activePage, setActivePage] = useState<"tasks" | "notes">("tasks");
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
   const [tasks, setTasks] = useState<NewTask[]>([]);
-  const [selectedTask, setSelectedTask] = useState<NewTask | null>(null);
-  const [isDetailOpen, setIsDetailOpen] = useState(false);
-  const [isEditOpen, setIsEditOpen] = useState(false);
-  const [isCompletedOpen, setIsCompletedOpen] = useState(false);
+  const [sidePanelTask, setSidePanelTask] = useState<NewTask | null>(null);
+  const [completedOpen, setCompletedOpen] = useState(false);
   const [checkingTaskId, setCheckingTaskId] = useState<string | null>(null);
   const [notes, setNotes] = useState<Note[]>([]);
   const [yeniQeyd, setYeniQeyd] = useState("");
@@ -64,82 +55,56 @@ function Dashboard({
   const [selectedNote, setSelectedNote] = useState<Note | null>(null);
   const [isNoteDetailOpen, setIsNoteDetailOpen] = useState(false);
   const [fadingNoteId, setFadingNoteId] = useState<string | null>(null);
-  const [yeniTapsirig, setYeniTapsirig] = useState('')
+  const [yeniTapsirig, setYeniTapsirig] = useState("");
+
   useEffect(() => {
     const data = localStorage.getItem("tasks");
     if (data) setTasks(JSON.parse(data));
     const notesData = localStorage.getItem(`notes_${currentUser.login}`);
     if (notesData) setNotes(JSON.parse(notesData));
   }, [currentUser.login]);
-const handleQuickAddTask = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter' && yeniTapsirig.trim()) {
+
+  const handleQuickAddTask = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === "Enter" && yeniTapsirig.trim()) {
       const newTask: NewTask = {
         id: Date.now().toString(),
         tapsirigAdi: yeniTapsirig.trim(),
-        qeyd: '',
+        qeyd: "",
         veren: currentUser.adSoyad,
         verenLogin: currentUser.login,
-        secilmisShexsler: [{
-          login: currentUser.login,
-          adSoyad: currentUser.adSoyad,
-          icraEdilib: false
-        }],
-        deadline: '',
+        secilmisShexsler: [],
+        deadline: "",
         fayllar: [],
-        tarix: new Date().toLocaleString('az-AZ'),
-        tamamlanib: false
-      }
-      const updatedTasks = [...tasks, newTask]
-      setTasks(updatedTasks)
-      localStorage.setItem('tasks', JSON.stringify(updatedTasks))
-      addLog('tapsirig_yarat', currentUser.adSoyad, currentUser.login, `"${newTask.tapsirigAdi}" tapşırığını yaratdı`)
-      setYeniTapsirig('')
+        tarix: new Date().toLocaleString("az-AZ"),
+        tamamlanib: false,
+      };
+      const updatedTasks = [...tasks, newTask];
+      setTasks(updatedTasks);
+      localStorage.setItem("tasks", JSON.stringify(updatedTasks));
+      addLog("tapsirig_yarat", currentUser.adSoyad, currentUser.login, `"${newTask.tapsirigAdi}" tapşırığını yaratdı`);
+      setYeniTapsirig("");
     }
-  }
+  };
+
   const handleSaveTask = (task: NewTask) => {
     const updatedTasks = [...tasks, task];
     setTasks(updatedTasks);
     localStorage.setItem("tasks", JSON.stringify(updatedTasks));
-    addLog(
-      "tapsirig_yarat",
-      currentUser.adSoyad,
-      currentUser.login,
-      `"${task.tapsirigAdi}" tapşırığını yaratdı`,
-    );
+    addLog("tapsirig_yarat", currentUser.adSoyad, currentUser.login, `"${task.tapsirigAdi}" tapşırığını yaratdı`);
   };
 
   const handleUpdateTask = (updatedTask: NewTask) => {
-    const updatedTasks = tasks.map((t) =>
-      t.id === updatedTask.id ? updatedTask : t,
-    );
+    const updatedTasks = tasks.map((t) => t.id === updatedTask.id ? updatedTask : t);
     setTasks(updatedTasks);
     localStorage.setItem("tasks", JSON.stringify(updatedTasks));
-    setSelectedTask(updatedTask);
+    setSidePanelTask(updatedTask);
   };
 
-  const openDetail = (task: NewTask) => {
-    setSelectedTask(task);
-    setIsDetailOpen(true);
-  };
-
-  const openEdit = (e: React.MouseEvent, task: NewTask) => {
-    e.stopPropagation();
-    setSelectedTask(task);
-    setIsEditOpen(true);
-  };
-
-  const handleEditSave = (updatedTask: NewTask) => {
-    const updatedTasks = tasks.map((t) =>
-      t.id === updatedTask.id ? updatedTask : t,
-    );
+  const handleDeleteTask = (taskId: string) => {
+    const updatedTasks = tasks.filter((t) => t.id !== taskId);
     setTasks(updatedTasks);
     localStorage.setItem("tasks", JSON.stringify(updatedTasks));
-    addLog(
-      "tapsirig_redakte",
-      currentUser.adSoyad,
-      currentUser.login,
-      `"${updatedTask.tapsirigAdi}" tapşırığını redaktə etdi`,
-    );
+    addLog("tapsirig_sil", currentUser.adSoyad, currentUser.login, "Tapşırıq silindi");
   };
 
   const handleCheckboxClick = (e: React.MouseEvent, task: NewTask) => {
@@ -150,24 +115,15 @@ const handleQuickAddTask = (e: React.KeyboardEvent<HTMLInputElement>) => {
     setTimeout(() => {
       const updatedTasks = tasks.map((t) => {
         if (t.id === task.id) {
-          return {
-            ...t,
-            tamamlanib: true,
-            tamamlanmaTarixi: new Date().toLocaleDateString("az-AZ"),
-          };
+          return { ...t, tamamlanib: true, tamamlanmaTarixi: new Date().toLocaleDateString("az-AZ") };
         }
         return t;
       });
       setTasks(updatedTasks);
       localStorage.setItem("tasks", JSON.stringify(updatedTasks));
-      addLog(
-        "tapsirig_tamamla",
-        currentUser.adSoyad,
-        currentUser.login,
-        `"${task.tapsirigAdi}" tapşırığını tamamladı`,
-      );
+      addLog("tapsirig_tamamla", currentUser.adSoyad, currentUser.login, `"${task.tapsirigAdi}" tapşırığını tamamladı`);
       setCheckingTaskId(null);
-    }, 1500);
+    }, 800);
   };
 
   const handleToggleNote = (id: string) => {
@@ -176,28 +132,18 @@ const handleQuickAddTask = (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (!note.tamamlanib) {
       setFadingNoteId(id);
       setTimeout(() => {
-        const updatedNotes = notes.map((n) =>
-          n.id === id ? { ...n, tamamlanib: true } : n,
-        );
+        const updatedNotes = notes.map((n) => n.id === id ? { ...n, tamamlanib: true } : n);
         setNotes(updatedNotes);
-        localStorage.setItem(
-          `notes_${currentUser.login}`,
-          JSON.stringify(updatedNotes),
-        );
+        localStorage.setItem(`notes_${currentUser.login}`, JSON.stringify(updatedNotes));
         setFadingNoteId(null);
-      },500);
+      }, 500);
     }
   };
 
   const handleRestoreNote = (id: string) => {
-    const updatedNotes = notes.map((n) =>
-      n.id === id ? { ...n, tamamlanib: false } : n,
-    );
+    const updatedNotes = notes.map((n) => n.id === id ? { ...n, tamamlanib: false } : n);
     setNotes(updatedNotes);
-    localStorage.setItem(
-      `notes_${currentUser.login}`,
-      JSON.stringify(updatedNotes),
-    );
+    localStorage.setItem(`notes_${currentUser.login}`, JSON.stringify(updatedNotes));
   };
 
   const handleAddNote = (e: React.KeyboardEvent<HTMLInputElement>) => {
@@ -211,30 +157,20 @@ const handleQuickAddTask = (e: React.KeyboardEvent<HTMLInputElement>) => {
       };
       const updatedNotes = [newNote, ...notes];
       setNotes(updatedNotes);
-      localStorage.setItem(
-        `notes_${currentUser.login}`,
-        JSON.stringify(updatedNotes),
-      );
+      localStorage.setItem(`notes_${currentUser.login}`, JSON.stringify(updatedNotes));
       setYeniQeyd("");
     }
   };
 
   const handleNoteSave = (updatedNote: Note) => {
-    const updatedNotes = notes.map((n) =>
-      n.id === updatedNote.id ? updatedNote : n,
-    );
+    const updatedNotes = notes.map((n) => n.id === updatedNote.id ? updatedNote : n);
     setNotes(updatedNotes);
-    localStorage.setItem(
-      `notes_${currentUser.login}`,
-      JSON.stringify(updatedNotes),
-    );
+    localStorage.setItem(`notes_${currentUser.login}`, JSON.stringify(updatedNotes));
   };
 
   const myActiveTasks = tasks
     .filter((task) => {
-      const meneQoyulan = task.secilmisShexsler.some(
-        (s) => s.login === currentUser.login,
-      );
+      const meneQoyulan = task.secilmisShexsler.some((s) => s.login === currentUser.login);
       const menimQoydugum = task.verenLogin === currentUser.login;
       return (meneQoyulan || menimQoydugum) && !task.tamamlanib;
     })
@@ -245,31 +181,13 @@ const handleQuickAddTask = (e: React.KeyboardEvent<HTMLInputElement>) => {
     });
 
   const myCompletedTasks = tasks.filter((task) => {
-    const meneQoyulan = task.secilmisShexsler.some(
-      (s) => s.login === currentUser.login,
-    );
+    const meneQoyulan = task.secilmisShexsler.some((s) => s.login === currentUser.login);
     const menimQoydugum = task.verenLogin === currentUser.login;
     return (meneQoyulan || menimQoydugum) && task.tamamlanib;
   });
 
   const activeNotes = notes.filter((n) => !n.tamamlanib);
   const completedNotes = notes.filter((n) => n.tamamlanib);
-
-  // const getEtiket = (task: NewTask): string => {
-  //   const meneQoyulan = task.secilmisShexsler.some(s => s.login === currentUser.login)
-  //   const menimQoydugum = task.verenLogin === currentUser.login
-  //   if (meneQoyulan && menimQoydugum) return 'Özünə qoymusan'
-  //   if (meneQoyulan) return 'Sənə qoyulub'
-  //   return 'Sən qoymusan'
-  // }
-
-  // const getEtiketClass = (task: NewTask): string => {
-  //   const meneQoyulan = task.secilmisShexsler.some(s => s.login === currentUser.login)
-  //   const menimQoydugum = task.verenLogin === currentUser.login
-  //   if (meneQoyulan && menimQoydugum) return 'etiket-ozune'
-  //   if (meneQoyulan) return 'etiket-sene'
-  //   return 'etiket-sen'
-  // }
 
   return (
     <div className="dashboard">
@@ -282,23 +200,28 @@ const handleQuickAddTask = (e: React.KeyboardEvent<HTMLInputElement>) => {
       />
 
       <main className="main-content">
+
         {/* ÜMUMİ TAPŞIRIQLAR */}
         {activePage === "tasks" && (
           <section className="bolme">
             <div className="baslig-sira">
               <h2>Ümumi tapşırıqlar</h2>
+              {myActiveTasks.length > 0 && (
+                <span className="baslig-say">{myActiveTasks.length}</span>
+              )}
             </div>
 
-            
-
             <div className="content">
+
+              {/* AKTİV TAPŞIRIQLAR */}
               {myActiveTasks.length === 0 ? (
                 <p className="empty-message">Hələ tapşırıq yoxdur</p>
               ) : (
                 myActiveTasks.map((task) => (
                   <div
-                    className={`task-item ${checkingTaskId === task.id ? "checking" : ""} ${task.tecili ? "tecili" : ""}`}
                     key={task.id}
+                    className={`task-item${checkingTaskId === task.id ? " checking" : ""}${task.tecili ? " tecili" : ""}`}
+                    onClick={() => setSidePanelTask(task)}
                   >
                     <div className="task-header">
                       <div
@@ -309,53 +232,95 @@ const handleQuickAddTask = (e: React.KeyboardEvent<HTMLInputElement>) => {
                           <FaCheckCircle className="checkbox-icon checking-anim" />
                         ) : (
                           <FaRegCircle
-                            className={`checkbox-icon ${task.verenLogin === currentUser.login ? "clickable-check" : ""}`}
+                            className={`checkbox-icon${task.verenLogin === currentUser.login ? " clickable-check" : ""}`}
                           />
                         )}
                       </div>
 
-                      <span className="task-title">{task.tapsirigAdi}</span>
-
-                      <div className="task-header-etiket">
-                        <span className="task-deadline-kvadrat">{task.deadline}</span>
-                        <span className="task-veren-kvadrat">{task.veren}</span>
-                        <button
-                          className="info-task-btn"
-                          onClick={() => openDetail(task)}
-                        >
-                          Məlumat
-                        </button>
+                      <div className="task-main">
+                        <span className="task-title">{task.tapsirigAdi}</span>
+                        {task.secilmisShexsler.length > 0 && (
+                          <div className="task-icracilar">
+                            {task.secilmisShexsler.map((s) => (
+                              <span
+                                key={s.login}
+                                className={`task-icraci-tag status-${s.status || "gozlenir"}`}
+                              >
+                                {s.adSoyad}
+                              </span>
+                            ))}
+                          </div>
+                        )}
                       </div>
 
-                    
-                        
-                    </div>
-
-                    <div className="task-body">
-                      <div className="task-meta-row">
-                       {task.secilmisShexsler.map((s) => (
-                          <div key={s.login} className={`shexs-kvadrat status-${s.status || 'gozlenir'}`}>
-                            {s.adSoyad}
-                          </div>
-                        ))}
-                        <div className="task-action-btns">
-                          {task.verenLogin === currentUser.login && (
-                            <button
-                              className="edit-task-btn"
-                              onClick={(e) => openEdit(e, task)}
-                            >
-                              Redaktə et
-                            </button>
-                          )}
-                        </div>
+                      <div className="task-header-right">
+                        {task.deadline && (
+                          <span className="task-deadline-badge">{task.deadline}</span>
+                        )}
+                        <span
+                          className={`task-star${task.tecili ? " aktiv" : ""}${task.verenLogin !== currentUser.login ? " disabled" : ""}`}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            if (task.verenLogin !== currentUser.login) return;
+                            const updated = tasks.map((t) =>
+                              t.id === task.id ? { ...t, tecili: !t.tecili } : t
+                            );
+                            setTasks(updated);
+                            localStorage.setItem("tasks", JSON.stringify(updated));
+                          }}
+                        >
+                          {task.tecili ? "★" : "☆"}
+                        </span>
                       </div>
                     </div>
                   </div>
                 ))
               )}
+
+              {/* TAMAMLANMIŞ BÖLMƏ */}
+              {myCompletedTasks.length > 0 && (
+                <div className="completed-section">
+                  <div
+                    className="completed-toggle"
+                    onClick={() => setCompletedOpen(!completedOpen)}
+                  >
+                    <span className="completed-arrow">{completedOpen ? "▼" : "▶"}</span>
+                    <span>Tamamlanmış</span>
+                    <span className="completed-badge">{myCompletedTasks.length}</span>
+                  </div>
+                  {completedOpen && (
+                    <div className="completed-list">
+                      {myCompletedTasks.map((task) => (
+                        <div
+                          key={task.id}
+                          className="task-item completed"
+                          onClick={() => setSidePanelTask(task)}
+                        >
+                          <div className="task-header">
+                            <div className="checkbox-wrapper">
+                              <FaRegCircle className="checkbox-icon done" />
+                            </div>
+                            <div className="task-main">
+                              <span className="task-title completed-title">{task.tapsirigAdi}</span>
+                            </div>
+                            <div className="task-header-right">
+                              {task.tamamlanmaTarixi && (
+                                <span className="completed-date">{task.tamamlanmaTarixi}</span>
+                              )}
+                              <span className="task-star disabled">☆</span>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
+
             </div>
 
-          <div className="footer">
+            {/* FOOTER */}
+            <div className="footer">
               <div className="quick-add-row">
                 <FaPlus className="quick-add-icon" />
                 <input
@@ -363,7 +328,7 @@ const handleQuickAddTask = (e: React.KeyboardEvent<HTMLInputElement>) => {
                   className="quick-add-input"
                   placeholder="Tapşırıq əlavə et..."
                   value={yeniTapsirig}
-                  onChange={e => setYeniTapsirig(e.target.value)}
+                  onChange={(e) => setYeniTapsirig(e.target.value)}
                   onKeyDown={handleQuickAddTask}
                 />
               </div>
@@ -394,12 +359,9 @@ const handleQuickAddTask = (e: React.KeyboardEvent<HTMLInputElement>) => {
               {activeNotes.map((note) => (
                 <div
                   key={note.id}
-                  className={`note-item ${fadingNoteId === note.id ? "fading" : ""}`}
+                  className={`note-item${fadingNoteId === note.id ? " fading" : ""}`}
                 >
-                  <div
-                    className="note-check"
-                    onClick={() => handleToggleNote(note.id)}
-                  >
+                  <div className="note-check" onClick={() => handleToggleNote(note.id)}>
                     <FaRegCircle className="note-circle" />
                   </div>
                   <span className="note-metn">{note.metn}</span>
@@ -414,14 +376,9 @@ const handleQuickAddTask = (e: React.KeyboardEvent<HTMLInputElement>) => {
                     <FaTrash
                       className="note-delete-icon"
                       onClick={() => {
-                        const updatedNotes = notes.filter(
-                          (n) => n.id !== note.id,
-                        );
+                        const updatedNotes = notes.filter((n) => n.id !== note.id);
                         setNotes(updatedNotes);
-                        localStorage.setItem(
-                          `notes_${currentUser.login}`,
-                          JSON.stringify(updatedNotes),
-                        );
+                        localStorage.setItem(`notes_${currentUser.login}`, JSON.stringify(updatedNotes));
                       }}
                     />
                   </div>
@@ -430,20 +387,16 @@ const handleQuickAddTask = (e: React.KeyboardEvent<HTMLInputElement>) => {
             </div>
 
             <div className="footer">
-              <button
-                className="tamamlanmis-btn"
-                onClick={() => setIsCompletedNotesOpen(true)}
-              >
+              <button className="tamamlanmis-btn" onClick={() => setIsCompletedNotesOpen(true)}>
                 tamamlanmış qeydlər
                 {completedNotes.length > 0 && (
-                  <span className="completed-count">
-                    {completedNotes.length}
-                  </span>
+                  <span className="completed-count">{completedNotes.length}</span>
                 )}
               </button>
             </div>
           </section>
         )}
+
       </main>
 
       <ElanBildirisi currentUser={currentUser} />
@@ -455,39 +408,15 @@ const handleQuickAddTask = (e: React.KeyboardEvent<HTMLInputElement>) => {
         onSave={handleSaveTask}
       />
 
-      <TaskDetailModal
-        isOpen={isDetailOpen}
-        onClose={() => {
-          setIsDetailOpen(false);
-          setSelectedTask(null);
-        }}
-        task={selectedTask}
-        currentUser={currentUser}
-        onUpdateTask={handleUpdateTask}
-      />
-
-      <EditTaskModal
-        isOpen={isEditOpen}
-        onClose={() => {
-          setIsEditOpen(false);
-          setSelectedTask(null);
-        }}
-        task={selectedTask}
-        currentUser={currentUser}
-        onSave={handleEditSave}
-      />
-
-      <CompletedModal
-        isOpen={isCompletedOpen}
-        onClose={() => setIsCompletedOpen(false)}
-        completedTasks={myCompletedTasks}
-        currentUser={currentUser}
-        onTaskClick={(task) => {
-          setIsCompletedOpen(false);
-          setSelectedTask(task);
-          setIsDetailOpen(true);
-        }}
-      />
+      {sidePanelTask && (
+        <TaskSidePanel
+          task={sidePanelTask}
+          currentUser={currentUser as any}
+          onClose={() => setSidePanelTask(null)}
+          onUpdateTask={handleUpdateTask}
+          onDeleteTask={handleDeleteTask}
+        />
+      )}
 
       <CompletedNotesModal
         isOpen={isCompletedNotesOpen}

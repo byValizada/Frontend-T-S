@@ -422,3 +422,8 @@
   justify-content: center;
   gap: 12px;
 }
+.sa-rutbe-badge {
+  font-size: 11px;
+  color: var(--accent);
+  font-weight: 500;
+}

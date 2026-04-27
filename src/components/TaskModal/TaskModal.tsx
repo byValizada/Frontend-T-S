@@ -37,11 +37,18 @@ export interface Mesaj {
   yazanAd: string
   metn: string
   tarix: string
-  redakteOlunub?: boolean
-  fayllar?: {name: string, base64: string, type: string}[]
-  isLink?: boolean
+  fayl?: {
+    name: string
+    size: number
+    type: string
+    base64: string
+  }
 }
-
+export interface SubTask {
+  id: string
+  ad: string
+  tamamlanib: boolean
+}
 export interface NewTask {
   id: string
   tapsirigAdi: string
@@ -56,6 +63,7 @@ export interface NewTask {
   tamamlanmaTarixi?: string
   mesajlar?: Mesaj[]
   tecili?: boolean
+  altTapsiriglar?: SubTask[]
 }
 
 const fileToBase64 = (file: File): Promise<string> => {

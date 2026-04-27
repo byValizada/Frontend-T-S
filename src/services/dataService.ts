@@ -21,6 +21,9 @@ export interface User {
   adSoyad: string;
   companyId?: string;
   bolmeId?: string;
+  ataAdi?: string;
+  rutbe?: string;
+  vezife?: string;
 }
 
 // OXUMA
