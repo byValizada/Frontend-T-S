@@ -1,29 +1,25 @@
 import { useState, useEffect } from "react";
 import {
-  FaPlus,
-  FaInfoCircle,
-  FaRegCircle,
-  FaCheckCircle,
-  FaTrash,
-  FaCircle,
+  FaPlus, FaRegCircle, FaCheckCircle, FaTrash, FaCircle,
 } from "react-icons/fa";
 import Sidebar from "../Sidebar/Sidebar";
 import TaskModal from "../TaskModal/TaskModal";
 import type { NewTask } from "../TaskModal/TaskModal";
 import TaskSidePanel from "../shared/TaskSidePanel";
-import CompletedNotesModal from "../CompletedModal/CompletedNotesModal";
 import NoteDetailModal from "../TaskDetailModal/NoteDetailModal";
 import ElanBildirisi from "./ElanBildirisi";
 import { addLog } from "../shared/logHelper";
 import "./Dashboard.css";
-import ThemeToggle from '../shared/ThemeToggle'
+import ThemeToggle from '../shared/ThemeToggle';
+
 interface User {
   login: string;
   parol: string;
   rol: string;
   adSoyad: string;
+  companyId?: string;
+  bolmeId?: string;
 }
-
 
 interface DashboardProps {
   currentUser: User;
@@ -43,10 +39,21 @@ interface Note {
   saat?: string;
 }
 
+const getAllTasks = (): NewTask[] => {
+  try {
+    const data = localStorage.getItem("tasks");
+    return data ? JSON.parse(data) : [];
+  } catch { return []; }
+};
+
+const saveAllTasks = (tasks: NewTask[]) => {
+  localStorage.setItem("tasks", JSON.stringify(tasks));
+};
+
 function Dashboard({ currentUser, onLogout, onGoToAdminPanel }: DashboardProps) {
   const [activePage, setActivePage] = useState<"tasks" | "notes">("tasks");
   const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
-  const [tasks, setTasks] = useState<NewTask[]>([]);
+  const [myTasks, setMyTasks] = useState<NewTask[]>([]);
   const [sidePanelTask, setSidePanelTask] = useState<NewTask | null>(null);
   const [completedOpen, setCompletedOpen] = useState(false);
   const [checkingTaskId, setCheckingTaskId] = useState<string | null>(null);
@@ -58,9 +65,18 @@ function Dashboard({ currentUser, onLogout, onGoToAdminPanel }: DashboardProps) 
   const [fadingNoteId, setFadingNoteId] = useState<string | null>(null);
   const [yeniTapsirig, setYeniTapsirig] = useState("");
 
+  const loadMyTasks = () => {
+    const all = getAllTasks();
+    const mine = all.filter(task => {
+      const meneQoyulan = task.secilmisShexsler.some(s => s.login === currentUser.login);
+      const menimQoydugum = task.verenLogin === currentUser.login;
+      return meneQoyulan || menimQoydugum;
+    });
+    setMyTasks(mine);
+  };
+
   useEffect(() => {
-    const data = localStorage.getItem("tasks");
-    if (data) setTasks(JSON.parse(data));
+    loadMyTasks();
     const notesData = localStorage.getItem(`notes_${currentUser.login}`);
     if (notesData) setNotes(JSON.parse(notesData));
   }, [currentUser.login]);
@@ -79,32 +95,32 @@ function Dashboard({ currentUser, onLogout, onGoToAdminPanel }: DashboardProps) 
         tarix: new Date().toLocaleString("az-AZ"),
         tamamlanib: false,
       };
-      const updatedTasks = [...tasks, newTask];
-      setTasks(updatedTasks);
-      localStorage.setItem("tasks", JSON.stringify(updatedTasks));
+      const all = getAllTasks();
+      saveAllTasks([...all, newTask]);
+      setMyTasks(prev => [...prev, newTask]);
       addLog("tapsirig_yarat", currentUser.adSoyad, currentUser.login, `"${newTask.tapsirigAdi}" tapşırığını yaratdı`);
       setYeniTapsirig("");
     }
   };
 
   const handleSaveTask = (task: NewTask) => {
-    const updatedTasks = [...tasks, task];
-    setTasks(updatedTasks);
-    localStorage.setItem("tasks", JSON.stringify(updatedTasks));
+    const all = getAllTasks();
+    saveAllTasks([...all, task]);
+    setMyTasks(prev => [...prev, task]);
     addLog("tapsirig_yarat", currentUser.adSoyad, currentUser.login, `"${task.tapsirigAdi}" tapşırığını yaratdı`);
   };
 
   const handleUpdateTask = (updatedTask: NewTask) => {
-    const updatedTasks = tasks.map((t) => t.id === updatedTask.id ? updatedTask : t);
-    setTasks(updatedTasks);
-    localStorage.setItem("tasks", JSON.stringify(updatedTasks));
+    const all = getAllTasks();
+    saveAllTasks(all.map(t => t.id === updatedTask.id ? updatedTask : t));
+    setMyTasks(prev => prev.map(t => t.id === updatedTask.id ? updatedTask : t));
     setSidePanelTask(updatedTask);
   };
 
   const handleDeleteTask = (taskId: string) => {
-    const updatedTasks = tasks.filter((t) => t.id !== taskId);
-    setTasks(updatedTasks);
-    localStorage.setItem("tasks", JSON.stringify(updatedTasks));
+    const all = getAllTasks();
+    saveAllTasks(all.filter(t => t.id !== taskId));
+    setMyTasks(prev => prev.filter(t => t.id !== taskId));
     addLog("tapsirig_sil", currentUser.adSoyad, currentUser.login, "Tapşırıq silindi");
   };
 
@@ -114,31 +130,24 @@ function Dashboard({ currentUser, onLogout, onGoToAdminPanel }: DashboardProps) 
     if (task.tamamlanib) return;
     setCheckingTaskId(task.id);
     setTimeout(() => {
-      const updatedTasks = tasks.map((t) => {
-        if (t.id === task.id) {
-          return { ...t, tamamlanib: true, tamamlanmaTarixi: new Date().toLocaleDateString("az-AZ") };
-        }
-        return t;
-      });
-      setTasks(updatedTasks);
-      localStorage.setItem("tasks", JSON.stringify(updatedTasks));
+      const updatedTask = { ...task, tamamlanib: true, tamamlanmaTarixi: new Date().toLocaleDateString("az-AZ") };
+      handleUpdateTask(updatedTask);
       addLog("tapsirig_tamamla", currentUser.adSoyad, currentUser.login, `"${task.tapsirigAdi}" tapşırığını tamamladı`);
       setCheckingTaskId(null);
     }, 800);
   };
 
-  const handleToggleNote = (id: string) => {
+  const handleToggleNote = (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
     const note = notes.find((n) => n.id === id);
-    if (!note) return;
-    if (!note.tamamlanib) {
-      setFadingNoteId(id);
-      setTimeout(() => {
-        const updatedNotes = notes.map((n) => n.id === id ? { ...n, tamamlanib: true } : n);
-        setNotes(updatedNotes);
-        localStorage.setItem(`notes_${currentUser.login}`, JSON.stringify(updatedNotes));
-        setFadingNoteId(null);
-      }, 500);
-    }
+    if (!note || note.tamamlanib) return;
+    setFadingNoteId(id);
+    setTimeout(() => {
+      const updatedNotes = notes.map((n) => n.id === id ? { ...n, tamamlanib: true } : n);
+      setNotes(updatedNotes);
+      localStorage.setItem(`notes_${currentUser.login}`, JSON.stringify(updatedNotes));
+      setFadingNoteId(null);
+    }, 500);
   };
 
   const handleRestoreNote = (id: string) => {
@@ -169,24 +178,27 @@ function Dashboard({ currentUser, onLogout, onGoToAdminPanel }: DashboardProps) 
     localStorage.setItem(`notes_${currentUser.login}`, JSON.stringify(updatedNotes));
   };
 
-  const myActiveTasks = tasks
-    .filter((task) => {
-      const meneQoyulan = task.secilmisShexsler.some((s) => s.login === currentUser.login);
-      const menimQoydugum = task.verenLogin === currentUser.login;
-      return (meneQoyulan || menimQoydugum) && !task.tamamlanib;
-    })
+  const handleNoteClick = (note: Note) => {
+    setSelectedNote(note);
+    setIsNoteDetailOpen(true);
+  };
+
+  const handleNoteDelete = (e: React.MouseEvent, id: string) => {
+    e.stopPropagation();
+    const updatedNotes = notes.filter((n) => n.id !== id);
+    setNotes(updatedNotes);
+    localStorage.setItem(`notes_${currentUser.login}`, JSON.stringify(updatedNotes));
+  };
+
+  const myActiveTasks = myTasks
+    .filter(task => !task.tamamlanib)
     .sort((a, b) => {
       if (a.tecili && !b.tecili) return -1;
       if (!a.tecili && b.tecili) return 1;
       return Number(b.id) - Number(a.id);
     });
 
-  const myCompletedTasks = tasks.filter((task) => {
-    const meneQoyulan = task.secilmisShexsler.some((s) => s.login === currentUser.login);
-    const menimQoydugum = task.verenLogin === currentUser.login;
-    return (meneQoyulan || menimQoydugum) && task.tamamlanib;
-  });
-
+  const myCompletedTasks = myTasks.filter(task => task.tamamlanib);
   const activeNotes = notes.filter((n) => !n.tamamlanib);
   const completedNotes = notes.filter((n) => n.tamamlanib);
 
@@ -216,8 +228,6 @@ function Dashboard({ currentUser, onLogout, onGoToAdminPanel }: DashboardProps) 
             </div>
 
             <div className="content">
-
-              {/* AKTİV TAPŞIRIQLAR */}
               {myActiveTasks.length === 0 ? (
                 <p className="empty-message">Hələ tapşırıq yoxdur</p>
               ) : (
@@ -228,35 +238,25 @@ function Dashboard({ currentUser, onLogout, onGoToAdminPanel }: DashboardProps) 
                     onClick={() => setSidePanelTask(task)}
                   >
                     <div className="task-header">
-                      <div
-                        className="checkbox-wrapper"
-                        onClick={(e) => handleCheckboxClick(e, task)}
-                      >
+                      <div className="checkbox-wrapper" onClick={(e) => handleCheckboxClick(e, task)}>
                         {checkingTaskId === task.id ? (
                           <FaCheckCircle className="checkbox-icon checking-anim" />
                         ) : (
-                          <FaRegCircle
-                            className={`checkbox-icon${task.verenLogin === currentUser.login ? " clickable-check" : ""}`}
-                          />
+                          <FaRegCircle className={`checkbox-icon${task.verenLogin === currentUser.login ? " clickable-check" : ""}`} />
                         )}
                       </div>
-
                       <div className="task-main">
                         <span className="task-title">{task.tapsirigAdi}</span>
                         {task.secilmisShexsler.length > 0 && (
                           <div className="task-icracilar">
                             {task.secilmisShexsler.map((s) => (
-                              <span
-                                key={s.login}
-                                className={`task-icraci-tag status-${s.status || "gozlenir"}`}
-                              >
+                              <span key={s.login} className={`task-icraci-tag status-${(s as any).status || "gozlenir"}`}>
                                 {s.adSoyad}
                               </span>
                             ))}
                           </div>
                         )}
                       </div>
-
                       <div className="task-header-right">
                         {task.deadline && (
                           <span className="task-deadline-badge">{task.deadline}</span>
@@ -266,11 +266,7 @@ function Dashboard({ currentUser, onLogout, onGoToAdminPanel }: DashboardProps) 
                           onClick={(e) => {
                             e.stopPropagation();
                             if (task.verenLogin !== currentUser.login) return;
-                            const updated = tasks.map((t) =>
-                              t.id === task.id ? { ...t, tecili: !t.tecili } : t
-                            );
-                            setTasks(updated);
-                            localStorage.setItem("tasks", JSON.stringify(updated));
+                            handleUpdateTask({ ...task, tecili: !task.tecili });
                           }}
                         >
                           {task.tecili ? "★" : "☆"}
@@ -281,13 +277,10 @@ function Dashboard({ currentUser, onLogout, onGoToAdminPanel }: DashboardProps) 
                 ))
               )}
 
-              {/* TAMAMLANMIŞ BÖLMƏ */}
+              {/* TAMAMLANMIŞ */}
               {myCompletedTasks.length > 0 && (
                 <div className="completed-section">
-                  <div
-                    className="completed-toggle"
-                    onClick={() => setCompletedOpen(!completedOpen)}
-                  >
+                  <div className="completed-toggle" onClick={() => setCompletedOpen(!completedOpen)}>
                     <span className="completed-arrow">{completedOpen ? "▼" : "▶"}</span>
                     <span>Tamamlanmış</span>
                     <span className="completed-badge">{myCompletedTasks.length}</span>
@@ -295,11 +288,7 @@ function Dashboard({ currentUser, onLogout, onGoToAdminPanel }: DashboardProps) 
                   {completedOpen && (
                     <div className="completed-list">
                       {myCompletedTasks.map((task) => (
-                        <div
-                          key={task.id}
-                          className="task-item completed"
-                          onClick={() => setSidePanelTask(task)}
-                        >
+                        <div key={task.id} className="task-item completed" onClick={() => setSidePanelTask(task)}>
                           <div className="task-header">
                             <div className="checkbox-wrapper">
                               <FaRegCircle className="checkbox-icon done" />
@@ -320,10 +309,8 @@ function Dashboard({ currentUser, onLogout, onGoToAdminPanel }: DashboardProps) 
                   )}
                 </div>
               )}
-
             </div>
 
-            {/* FOOTER */}
             <div className="footer">
               <div className="quick-add-row">
                 <FaPlus className="quick-add-icon" />
@@ -361,42 +348,62 @@ function Dashboard({ currentUser, onLogout, onGoToAdminPanel }: DashboardProps) 
               </div>
 
               {activeNotes.map((note) => (
+                
                 <div
                   key={note.id}
                   className={`note-item${fadingNoteId === note.id ? " fading" : ""}`}
+                  onClick={() => handleNoteClick(note)}
                 >
-                  <div className="note-check" onClick={() => handleToggleNote(note.id)}>
+                  <div className="note-check" onClick={(e) => handleToggleNote(e, note.id)}>
                     <FaRegCircle className="note-circle" />
                   </div>
                   <span className="note-metn">{note.metn}</span>
                   <div className="note-item-actions">
-                    <FaInfoCircle
-                      className="note-info-icon"
-                      onClick={() => {
-                        setSelectedNote(note);
-                        setIsNoteDetailOpen(true);
-                      }}
-                    />
                     <FaTrash
                       className="note-delete-icon"
-                      onClick={() => {
-                        const updatedNotes = notes.filter((n) => n.id !== note.id);
-                        setNotes(updatedNotes);
-                        localStorage.setItem(`notes_${currentUser.login}`, JSON.stringify(updatedNotes));
-                      }}
+                      onClick={(e) => handleNoteDelete(e, note.id)}
                     />
                   </div>
                 </div>
               ))}
+              {/* TAMAMLANMIŞ QEYDLƏR */}
+              {completedNotes.length > 0 && (
+                <div className="completed-section">
+                  <div className="completed-toggle" onClick={() => setIsCompletedNotesOpen(!isCompletedNotesOpen)}>
+                    <span className="completed-arrow">{isCompletedNotesOpen ? "▼" : "▶"}</span>
+                    <span>Tamamlanmış</span>
+                    <span className="completed-badge">{completedNotes.length}</span>
+                  </div>
+                  {isCompletedNotesOpen && (
+                    <div className="completed-list">
+                      {completedNotes.map((note) => (
+                        <div
+                          key={note.id}
+                          className="note-item completed"
+                          onClick={() => handleNoteClick(note)}
+                        >
+                          <div className="note-check">
+                            <FaCheckCircle className="note-circle done" />
+                          </div>
+                          <span className="note-metn completed-title">{note.metn}</span>
+                          <div className="note-item-actions">
+                            <FaTrash
+                              className="note-delete-icon"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleNoteDelete(e, note.id);
+                              }}
+                            />
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
             </div>
 
             <div className="footer">
-              <button className="tamamlanmis-btn" onClick={() => setIsCompletedNotesOpen(true)}>
-                tamamlanmış qeydlər
-                {completedNotes.length > 0 && (
-                  <span className="completed-count">{completedNotes.length}</span>
-                )}
-              </button>
             </div>
           </section>
         )}
@@ -422,19 +429,11 @@ function Dashboard({ currentUser, onLogout, onGoToAdminPanel }: DashboardProps) 
         />
       )}
 
-      <CompletedNotesModal
-        isOpen={isCompletedNotesOpen}
-        onClose={() => setIsCompletedNotesOpen(false)}
-        notes={completedNotes}
-        onRestore={handleRestoreNote}
-      />
+     
 
       <NoteDetailModal
         isOpen={isNoteDetailOpen}
-        onClose={() => {
-          setIsNoteDetailOpen(false);
-          setSelectedNote(null);
-        }}
+        onClose={() => { setIsNoteDetailOpen(false); setSelectedNote(null); }}
         note={selectedNote}
         onSave={handleNoteSave}
       />

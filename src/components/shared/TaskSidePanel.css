@@ -378,3 +378,250 @@
 .tsp-col-scroll::-webkit-scrollbar-thumb,
 .tsp-col-messages::-webkit-scrollbar-thumb,
 .tsp-user-list::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 2px; }
+
+/* İCRAÇI READONLY QEYD */
+.tsp-icraci-qeyd {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin: 6px 0 0;
+  padding: 8px 10px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-primary);
+  border-radius: 6px;
+}
+
+/* İCRAÇI QEYD */
+.tsp-icraci-qeyd {
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin: 6px 0 0;
+  padding: 8px 10px;
+  background: var(--bg-input);
+  border: 1px solid var(--border-primary);
+  border-radius: 6px;
+}
+
+/* İCRAÇI STATUS RƏNGLƏRI */
+.tsp-icraci.status-gozlenir {
+  background: rgba(255, 193, 7, 0.1);
+  border-color: rgba(255, 193, 7, 0.35);
+  color: var(--warning);
+}
+
+.tsp-icraci.status-icrada {
+  background: rgba(0, 123, 255, 0.1);
+  border-color: rgba(0, 123, 255, 0.3);
+  color: var(--info);
+}
+
+.tsp-icraci.status-tamamlandi {
+  background: rgba(40, 167, 69, 0.1);
+  border-color: rgba(40, 167, 69, 0.3);
+  color: var(--success);
+  text-decoration: line-through;
+  opacity: 0.8;
+}
+
+/* İCRA DÜYMƏ */
+.tsp-icra-btn {
+  font-size: 22px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  transition: all 0.2s;
+  user-select: none;
+}
+
+.tsp-icra-btn.gozlenir {
+  color: var(--warning);
+}
+
+.tsp-icra-btn.gozlenir:hover {
+  color: #e6a800;
+  transform: scale(1.1);
+}
+
+.tsp-icra-btn.icrada {
+  color: var(--info);
+}
+
+.tsp-icra-btn.icrada:hover {
+  color: var(--success);
+  transform: scale(1.1);
+}
+
+.tsp-icra-btn.tamamlandi {
+  color: var(--success);
+  cursor: default;
+}
+
+/* İCRA MODAL */
+.tsp-icra-modal-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+  border-radius: inherit;
+}
+
+.tsp-icra-modal {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-primary);
+  border-radius: 16px;
+  padding: 28px;
+  width: 380px;
+  max-width: 90%;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+  animation: tspSlideIn 0.2s ease;
+}
+
+.tsp-icra-modal-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.tsp-icra-modal-icon {
+  font-size: 28px;
+}
+
+.tsp-icra-modal-icon.icra { color: var(--info); }
+.tsp-icra-modal-icon.tamamla { color: var(--success); }
+
+.tsp-icra-modal-header h3 {
+  margin: 0;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.tsp-icra-modal-metn {
+  margin: 0;
+  font-size: 13px;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* FAYL YÜKLƏMƏ */
+.tsp-icra-modal-fayl {
+  background: var(--bg-primary);
+  border: 1px dashed var(--border-primary);
+  border-radius: 10px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.tsp-icra-modal-fayl-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.tsp-icra-optional {
+  font-weight: 400;
+  color: var(--text-muted);
+  font-size: 11px;
+}
+
+.tsp-icra-fayl-btn {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  background: var(--accent-bg);
+  border: 1px solid var(--accent-border);
+  border-radius: 8px;
+  color: var(--accent);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+  align-self: flex-start;
+}
+
+.tsp-icra-fayl-btn:hover { background: var(--accent-bg-hover); }
+
+.tsp-icra-fayl-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-primary);
+  border-radius: 6px;
+  font-size: 12px;
+  color: var(--text-primary);
+}
+
+.tsp-icra-fayl-size { color: var(--text-muted); font-size: 10px; margin-left: auto; }
+
+.tsp-icra-fayl-item button {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  font-size: 11px;
+  padding: 2px;
+}
+
+.tsp-icra-fayl-item button:hover { color: var(--danger); }
+
+/* MODAL DÜYMƏLƏR */
+.tsp-icra-modal-btns {
+  display: flex;
+  gap: 10px;
+}
+
+.tsp-icra-modal-cancel {
+  flex: 1;
+  padding: 10px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-primary);
+  border-radius: 8px;
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.tsp-icra-modal-cancel:hover { background: var(--bg-hover); }
+
+.tsp-icra-modal-confirm {
+  flex: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 10px;
+  border: none;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-family: inherit;
+  color: #fff;
+}
+
+.tsp-icra-modal-confirm.icra { background: linear-gradient(135deg, #007bff, #0056b3); }
+.tsp-icra-modal-confirm.tamamla { background: linear-gradient(135deg, #28a745, #1e7e34); }
+.tsp-icra-modal-confirm:hover { transform: translateY(-1px); opacity: 0.9; }

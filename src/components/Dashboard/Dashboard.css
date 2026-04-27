@@ -589,3 +589,19 @@
   top: 50%;
   transform: translateY(-50%);
 }
+.note-circle.done {
+  color: var(--accent);
+}
+
+.note-item.completed {
+  opacity: 0.6;
+  cursor: pointer;
+}
+
+.note-item.completed:hover {
+  opacity: 0.85;
+}
+.completed-list .note-item {
+  border-radius: 0 !important;
+  margin: 0 !important;
+}

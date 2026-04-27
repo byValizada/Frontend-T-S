@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { FaTasks, FaCheckCircle, FaSpinner, FaTimes } from 'react-icons/fa'
+import { FaTasks, FaCheckCircle, FaSpinner, FaTimes, FaRegCircle } from 'react-icons/fa'
 import './StatsCards.css'
 
 interface User {
@@ -28,11 +28,11 @@ interface NewTask {
   deadline: string
   tamamlanib: boolean
   tamamlanmaTarixi?: string
+  tecili?: boolean
 }
 
 interface StatsCardsProps {
   currentUser: User
-  // Hansı şəxslərin tapşırıqları hesablansın. Əgər boş keçilsə, bütün sistem.
   allowedLogins?: string[]
 }
 
@@ -45,18 +45,13 @@ function StatsCards({ currentUser, allowedLogins }: StatsCardsProps) {
     if (data) setTasks(JSON.parse(data))
   }, [])
 
-  // ROL-a görə filter
   const filteredTasks = tasks.filter(task => {
-    // SuperAdmin bütün tapşırıqları görür
     if (currentUser.rol === 'SuperAdmin') return true
-
-    // Əgər allowedLogins verilibsə, yalnız o şəxslərin tapşırıqları
     if (allowedLogins && allowedLogins.length > 0) {
       const verendir = allowedLogins.includes(task.verenLogin)
       const icracidir = task.secilmisShexsler.some(s => allowedLogins.includes(s.login))
       return verendir || icracidir
     }
-
     return false
   })
 
@@ -115,8 +110,9 @@ function StatsCards({ currentUser, allowedLogins }: StatsCardsProps) {
       {activeModal && (
         <div className="stats-modal-overlay" onClick={() => setActiveModal(null)}>
           <div className="stats-modal-box" onClick={e => e.stopPropagation()}>
+
             <div className="stats-modal-header">
-              <h3>{getModalTitle()} ({getModalTasks().length})</h3>
+              <h3>{getModalTitle()} <span className="stats-modal-say">({getModalTasks().length})</span></h3>
               <button className="stats-modal-close" onClick={() => setActiveModal(null)}>
                 <FaTimes />
               </button>
@@ -126,47 +122,57 @@ function StatsCards({ currentUser, allowedLogins }: StatsCardsProps) {
               {getModalTasks().length === 0 ? (
                 <p className="stats-bos">Tapşırıq yoxdur</p>
               ) : (
-                <div className="stats-task-list">
-                  {getModalTasks().map((task, index) => (
-                    <div key={task.id} className={`stats-task-item ${task.tamamlanib ? 'tamamlandi' : 'aktiv'}`}>
-                      <div className="stats-task-header">
-                        <span className="stats-task-no">{index + 1}</span>
-                        <span className="stats-task-ad">{task.tapsirigAdi}</span>
-                        <span className={`stats-task-status ${task.tamamlanib ? 'status-done' : 'status-active'}`}>
-                          {task.tamamlanib ? 'Tamamlandı' : 'Aktiv'}
-                        </span>
+                getModalTasks().map(task => (
+                  <div
+                    key={task.id}
+                    className={`stats-task-item${task.tecili ? ' tecili' : ''}${task.tamamlanib ? ' completed' : ''}`}
+                  >
+                    {/* TASK HEADER - Dashboard kimi */}
+                    <div className="stats-task-row-main">
+                      <div className="stats-task-checkbox">
+                        {task.tamamlanib
+                          ? <FaCheckCircle className="stats-check-icon done" />
+                          : <FaRegCircle className="stats-check-icon" />
+                        }
                       </div>
-                      <div className="stats-task-details">
-                        <div className="stats-task-row">
-                          <span className="stats-task-label">Verən:</span>
-                          <span className="stats-task-value">{task.veren}</span>
-                        </div>
-                        <div className="stats-task-row">
-                          <span className="stats-task-label">Son tarix:</span>
-                          <span className="stats-task-value">{task.deadline}</span>
-                        </div>
-                        <div className="stats-task-row">
-                          <span className="stats-task-label">İcraçılar:</span>
-                          <div className="stats-shexsler">
+
+                      <div className="stats-task-main">
+                        <span className={`stats-task-ad${task.tamamlanib ? ' done' : ''}`}>
+                          {task.tapsirigAdi}
+                        </span>
+                        {task.secilmisShexsler.length > 0 && (
+                          <div className="stats-icracilar">
                             {task.secilmisShexsler.map(s => (
-                              <span key={s.login} className={`stats-shexs status-${s.status || 'gozlenir'}`}>
+                              <span key={s.login} className={`stats-icraci-tag status-${s.status || 'gozlenir'}`}>
                                 {s.adSoyad}
                               </span>
                             ))}
                           </div>
-                        </div>
-                        {task.tamamlanmaTarixi && (
-                          <div className="stats-task-row">
-                            <span className="stats-task-label">Tamamlandı:</span>
-                            <span className="stats-task-value green">{task.tamamlanmaTarixi}</span>
-                          </div>
                         )}
                       </div>
+
+                      <div className="stats-task-right">
+                        {task.deadline && (
+                          <span className="stats-deadline">{task.deadline}</span>
+                        )}
+                        {task.tamamlanmaTarixi && (
+                          <span className="stats-tamamlanma">{task.tamamlanmaTarixi}</span>
+                        )}
+                        <span className={`stats-task-star${task.tecili ? ' aktiv' : ''}`}>
+                          {task.tecili ? '★' : '☆'}
+                        </span>
+                      </div>
                     </div>
-                  ))}
-                </div>
+
+                    {/* VERƏN */}
+                    <div className="stats-task-veren">
+                      Verən: <strong>{task.veren}</strong>
+                    </div>
+                  </div>
+                ))
               )}
             </div>
+
           </div>
         </div>
       )}
