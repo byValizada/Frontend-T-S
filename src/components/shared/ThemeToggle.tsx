@@ -1,17 +1,11 @@
 import { useState, useEffect } from 'react'
-import { FaSun, FaMoon } from 'react-icons/fa'
 import './ThemeToggle.css'
 
 function ThemeToggle() {
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
-    // 1. LocalStorage-dən yoxla
     const saved = localStorage.getItem('theme')
     if (saved === 'light' || saved === 'dark') return saved
-
-    // 2. Brauzer parametrinə bax
     if (window.matchMedia('(prefers-color-scheme: light)').matches) return 'light'
-
-    // 3. Default dark
     return 'dark'
   })
 
@@ -25,9 +19,13 @@ function ThemeToggle() {
   }
 
   return (
-    <button className="theme-toggle" onClick={toggleTheme} title={theme === 'dark' ? 'Açıq rejim' : 'Tünd rejim'}>
-      {theme === 'dark' ? <FaSun /> : <FaMoon />}
-    </button>
+    <div
+      className={`theme-switch ${theme === 'light' ? 'light' : ''}`}
+      onClick={toggleTheme}
+      title={theme === 'dark' ? 'Açıq rejim' : 'Tünd rejim'}
+    >
+      <div className="theme-switch-thumb" />
+    </div>
   )
 }
 

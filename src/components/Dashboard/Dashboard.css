@@ -583,3 +583,9 @@
   font-weight: 700;
   margin-left: 10px;
 }
+.baslig-toggle {
+  position: absolute;
+  right: 16px;
+  top: 50%;
+  transform: translateY(-50%);
+}

@@ -23,8 +23,7 @@ import StatsCards from "../shared/StatsCards";
 import PerformansPanel from "../shared/PerformansPanel";
 import ElanPanel from "../shared/ElanPanel";
 import { addLog } from "../shared/logHelper";
-import ThemeToggle from "../shared/ThemeToggle";
-
+import ThemeToggle from "../shared/ThemeToggle"
 interface Props {
   currentUser: User;
   onLogout: () => void;
@@ -172,10 +171,8 @@ function BolmeAdminPanel({ currentUser, onLogout, onGoToDashboard }: Props) {
     <div className="bap-container">
       {/* SIDEBAR */}
       <div className="bap-sidebar">
-        <div className="bap-logo-row">
           <div className="bap-logo">TİS</div>
-          <ThemeToggle />
-        </div>
+          
         {company && <div className="bap-company-name">{company.ad}</div>}
         <div className="bap-bolme-name">{bolme.ad}</div>
         <div className="bap-logo-sub">Bölmə Admin</div>
@@ -203,6 +200,9 @@ function BolmeAdminPanel({ currentUser, onLogout, onGoToDashboard }: Props) {
 
       {/* MƏZMUN */}
       <div className="bap-content">
+        <div className="panel-toggle-row">
+          <ThemeToggle />
+        </div>
 
         {/* İŞÇİLƏR */}
         {activePage === "users" && (

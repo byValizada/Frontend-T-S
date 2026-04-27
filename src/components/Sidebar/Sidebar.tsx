@@ -1,6 +1,5 @@
 import { FaTasks, FaStickyNote, FaSignOutAlt } from "react-icons/fa";
 import "./Sidebar.css";
-import ThemeToggle from "../shared/ThemeToggle";
 interface User {
   login: string;
   parol: string;
@@ -28,7 +27,6 @@ function Sidebar({
       {/* YUXARI - TİS */}
       <div className="sidebar-logo">
         <span className="sidebar-logo-text">TİS</span>
-        <ThemeToggle />
       </div>
 
       {/* NAVIQASIYA */}

@@ -16,7 +16,7 @@ import NoteDetailModal from "../TaskDetailModal/NoteDetailModal";
 import ElanBildirisi from "./ElanBildirisi";
 import { addLog } from "../shared/logHelper";
 import "./Dashboard.css";
-
+import ThemeToggle from '../shared/ThemeToggle'
 interface User {
   login: string;
   parol: string;
@@ -209,6 +209,9 @@ function Dashboard({ currentUser, onLogout, onGoToAdminPanel }: DashboardProps) 
               {myActiveTasks.length > 0 && (
                 <span className="baslig-say">{myActiveTasks.length}</span>
               )}
+              <div className="baslig-toggle">
+                <ThemeToggle />
+              </div>
             </div>
 
             <div className="content">

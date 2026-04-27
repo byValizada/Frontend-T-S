@@ -427,3 +427,9 @@
   color: var(--accent);
   font-weight: 500;
 }
+.panel-toggle-row {
+  position: fixed;
+  top: 16px;
+  right: 24px;
+  z-index: 100;
+}
