@@ -110,11 +110,12 @@ function Dashboard({ currentUser, onLogout, onGoToAdminPanel }: DashboardProps) 
     addLog("tapsirig_yarat", currentUser.adSoyad, currentUser.login, `"${task.tapsirigAdi}" tapşırığını yaratdı`);
   };
 
-  const handleUpdateTask = (updatedTask: NewTask) => {
+  const handleUpdateTask = (updatedTask: NewTask, openPanel = false) => {
     const all = getAllTasks();
     saveAllTasks(all.map(t => t.id === updatedTask.id ? updatedTask : t));
     setMyTasks(prev => prev.map(t => t.id === updatedTask.id ? updatedTask : t));
-    setSidePanelTask(updatedTask);
+    if (openPanel) setSidePanelTask(updatedTask);
+    else if (sidePanelTask?.id === updatedTask.id) setSidePanelTask(updatedTask);
   };
 
   const handleDeleteTask = (taskId: string) => {
@@ -235,10 +236,10 @@ function Dashboard({ currentUser, onLogout, onGoToAdminPanel }: DashboardProps) 
                   <div
                     key={task.id}
                     className={`task-item${checkingTaskId === task.id ? " checking" : ""}${task.tecili ? " tecili" : ""}`}
-                    onClick={() => setSidePanelTask(task)}
+                    onDoubleClick={() => setSidePanelTask(task)}
                   >
                     <div className="task-header">
-                      <div className="checkbox-wrapper" onClick={(e) => handleCheckboxClick(e, task)}>
+                      <div className="checkbox-wrapper" onClick={(e) => handleCheckboxClick(e, task)} onDoubleClick={(e) => e.stopPropagation()}>
                         {checkingTaskId === task.id ? (
                           <FaCheckCircle className="checkbox-icon checking-anim" />
                         ) : (
@@ -268,6 +269,7 @@ function Dashboard({ currentUser, onLogout, onGoToAdminPanel }: DashboardProps) 
                             if (task.verenLogin !== currentUser.login) return;
                             handleUpdateTask({ ...task, tecili: !task.tecili });
                           }}
+                          onDoubleClick={(e) => e.stopPropagation()}
                         >
                           {task.tecili ? "★" : "☆"}
                         </span>
@@ -288,10 +290,19 @@ function Dashboard({ currentUser, onLogout, onGoToAdminPanel }: DashboardProps) 
                   {completedOpen && (
                     <div className="completed-list">
                       {myCompletedTasks.map((task) => (
-                        <div key={task.id} className="task-item completed" onClick={() => setSidePanelTask(task)}>
+                        <div key={task.id} className="task-item completed" onDoubleClick={() => setSidePanelTask(task)}>
                           <div className="task-header">
-                            <div className="checkbox-wrapper">
-                              <FaRegCircle className="checkbox-icon done" />
+                            <div
+                              className="checkbox-wrapper"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (task.verenLogin !== currentUser.login) return;
+                                const restored = { ...task, tamamlanib: false, tamamlanmaTarixi: undefined };
+                                handleUpdateTask(restored);
+                              }}
+                              onDoubleClick={(e) => e.stopPropagation()}
+                            >
+                              <FaCheckCircle className="checkbox-icon done" />
                             </div>
                             <div className="task-main">
                               <span className="task-title completed-title">{task.tapsirigAdi}</span>

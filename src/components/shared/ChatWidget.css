@@ -1,11 +1,11 @@
 .chat-fab {
   position: fixed;
-  bottom: 100px;
+  bottom: 24px;
   right: 25px;
   width: 56px;
   height: 56px;
   border-radius: 50%;
-  background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+  background: linear-gradient(135deg, #E53935, #C62828);
   color: #fff;
   display: flex;
   align-items: center;
@@ -37,7 +37,7 @@
 
 .chat-minimized {
   position: fixed;
-  bottom: 100px;
+  bottom: 25px;;
   right: 25px;
   background: linear-gradient(135deg, var(--accent), var(--accent-hover));
   color: #fff;
@@ -420,7 +420,7 @@
 .chat-input::placeholder { color: var(--text-muted); }
 
 .chat-send-btn {
-  background: linear-gradient(135deg, var(--accent), var(--accent-hover));
+  background: linear-gradient(135deg, #25D366, #128C7E);
   border: none;
   color: #fff;
   width: 36px;

@@ -40,6 +40,7 @@ function TaskSidePanel({ task, currentUser, onClose, onUpdateTask, onDeleteTask 
   const [allUsers, setAllUsers] = useState<User[]>([]);
   const [editingMsgId, setEditingMsgId] = useState<string | null>(null);
   const [icraModal, setIcraModal] = useState(false);
+  const [icraModalTip, setIcraModalTip] = useState<'icra' | 'tamamla'>('icra');
   const [icraFayl, setIcraFayl] = useState<{ name: string; size: number; type: string; base64: string } | null>(null);
   const icraFileRef = useRef<HTMLInputElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -134,7 +135,7 @@ function TaskSidePanel({ task, currentUser, onClose, onUpdateTask, onDeleteTask 
   };
 
   const handleIcraTesdiq = () => {
-    const yeniStatus = myStatus === 'gozlenir' ? 'icrada' : 'tamamlandi';
+    const yeniStatus: 'gozlenir' | 'icrada' | 'tamamlandi' = icraModalTip === 'tamamla' ? 'tamamlandi' : 'icrada';
     const updatedShexsler: ShexsStatus[] = task.secilmisShexsler.map(s =>
       s.login === currentUser.login
         ? { ...s, status: yeniStatus as 'gozlenir' | 'icrada' | 'tamamlandi' }
@@ -256,7 +257,7 @@ function TaskSidePanel({ task, currentUser, onClose, onUpdateTask, onDeleteTask 
     try { return JSON.parse(localStorage.getItem("bolmeler") || "[]").find((b: any) => b.id === bolmeId)?.ad || ""; } catch { return ""; }
   };
 
-  // YALNIZ OXUMA MESAJLAR (input yoxdur)
+  // YALNIZ OXUMA MESAJLAR
   const renderReadonlyMessages = () => (
     <div className="tsp-col-right">
       <div className="tsp-col-header">💬 Mesajlar</div>
@@ -284,7 +285,7 @@ function TaskSidePanel({ task, currentUser, onClose, onUpdateTask, onDeleteTask 
     </div>
   );
 
-  // YAZILA BİLƏN MESAJLAR (input var)
+  // YAZILA BİLƏN MESAJLAR
   const renderMessages = () => (
     <div className="tsp-col-right">
       <div className="tsp-col-header">💬 Mesajlar</div>
@@ -357,7 +358,7 @@ function TaskSidePanel({ task, currentUser, onClose, onUpdateTask, onDeleteTask 
   // İCRA MODAL
   const renderIcraModal = () => {
     if (!icraModal) return null;
-    const isIcrada = myStatus === 'icrada';
+    const isIcrada = icraModalTip === 'tamamla';
     return (
       <div className="tsp-icra-modal-overlay" onClick={() => setIcraModal(false)}>
         <div className="tsp-icra-modal" onClick={(e) => e.stopPropagation()}>
@@ -398,16 +399,8 @@ function TaskSidePanel({ task, currentUser, onClose, onUpdateTask, onDeleteTask 
     );
   };
 
-  // İCRA İKONU
-  const renderIcraIcon = () => {
-    if (!isIcraci || isOwner) return null;
-    if (myStatus === 'tamamlandi') return <span className="tsp-icra-btn tamamlandi" title="Tamamlandı"><FaCheckDouble /></span>;
-    if (myStatus === 'icrada') return <span className="tsp-icra-btn icrada" title="Tamamla" onClick={() => setIcraModal(true)}><FaPlayCircle /></span>;
-    return <span className="tsp-icra-btn gozlenir" title="İcraya götür" onClick={() => setIcraModal(true)}><FaPlayCircle /></span>;
-  };
-
   // ============================================
-  // 1. TAMAMLANMIŞ - ən əvvəl yoxla (hamı üçün)
+  // 1. TAMAMLANMIŞ
   // ============================================
   if (task.tamamlanib) {
     return (
@@ -494,6 +487,11 @@ function TaskSidePanel({ task, currentUser, onClose, onUpdateTask, onDeleteTask 
               <span>Tapşırığı verən: <strong>{task.veren}</strong></span>
               <span>Yaranma: {task.tarix}</span>
             </div>
+            {isOwner && (
+              <button className="tsp-delete-btn" onClick={handleDelete}>
+                <FaTrash /> Sil
+              </button>
+            )}
           </div>
         </div>
       </div>
@@ -516,7 +514,23 @@ function TaskSidePanel({ task, currentUser, onClose, onUpdateTask, onDeleteTask 
               <h3 className="tsp-name">{task.tapsirigAdi}</h3>
             </div>
             <div className="tsp-header-right">
-              {renderIcraIcon()}
+
+              {/* HƏMİŞƏ İKİ DÜYMƏ YAN YANA */}
+              <div className="tsp-icra-header-btns">
+                <button
+                  className={`tsp-icra-header-btn${myStatus === 'gozlenir' ? ' icra' : ' passiv'}`}
+                  onClick={() => { if (myStatus === 'gozlenir') { setIcraModalTip('icra'); setIcraModal(true); } }}
+                >
+                  <FaPlayCircle /> İcraya götür
+                </button>
+                <button
+                  className={`tsp-icra-header-btn${myStatus === 'tamamlandi' ? ' done' : ' tamamla'}`}
+                  onClick={() => { if (myStatus !== 'tamamlandi') { setIcraModalTip('tamamla'); setIcraModal(true); } }}
+                >
+                  <FaCheckDouble /> Tamamladım
+                </button>
+              </div>
+
               <span className={`tsp-star${task.tecili ? " aktiv" : ""} disabled`}>{task.tecili ? "★" : "☆"}</span>
               <button className="tsp-close" onClick={onClose}><FaTimes /></button>
             </div>

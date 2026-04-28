@@ -59,7 +59,7 @@
 }
 
 /* ============================================
-   CONTENT - TAPŞIRIQ SİYAHISI
+   CONTENT
    ============================================ */
 .content {
   flex: 1;
@@ -70,16 +70,19 @@
 }
 
 /* ============================================
-   TAPŞIRIQ İTEM - MİCROSOFT TO DO STİLİ
+   TAPŞIRIQ İTEM - MAX 2 SƏTİR
    ============================================ */
 .task-item {
   display: flex;
   align-items: center;
   min-height: 52px;
+  max-height: 76px;
+  overflow: hidden;
   padding: 0 16px !important;
   background: var(--bg-primary) !important;
   border: none !important;
   border-bottom: 1px solid var(--border-primary) !important;
+  border-left: 4px solid var(--bg-primary) !important;
   border-radius: 0 !important;
   cursor: pointer;
   transition: background 0.15s;
@@ -149,29 +152,31 @@
   pointer-events: none;
 }
 
-.checkbox-wrapper:hover::after {
-  opacity: 1;
-}
+.checkbox-wrapper:hover::after { opacity: 1; }
+.clickable-check { cursor: pointer; }
+.checking-anim { color: var(--accent) !important; }
+.checkbox-icon.done { color: var(--accent) !important; }
 
-.clickable-check {
-  cursor: pointer;
-}
-
-.checking-anim {
-  color: var(--accent) !important;
-}
-
-.checkbox-icon.done {
-  color: var(--accent) !important;
+/* TASK MAIN */
+.task-main {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+  overflow: hidden;
 }
 
 /* TASK TITLE */
 .task-title {
   flex: 1;
-  font-weight: 400;
+  font-weight: 700;
   font-size: 14px;
   color: var(--text-primary);
   min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .completed-title {
@@ -179,7 +184,48 @@
   color: var(--text-muted) !important;
 }
 
-/* TASK SAĞ TƏRƏFİ */
+/* İCRAÇI TAQ-LAR */
+.task-icracilar {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 4px;
+  overflow: hidden;
+  max-width: 100%;
+}
+
+.task-icraci-tag {
+  font-size: 10px;
+  font-weight: 500;
+  padding: 1px 6px;
+  border-radius: 3px;
+  border: 1px solid;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 130px;
+}
+
+.task-icraci-tag.status-gozlenir {
+  background: rgba(255, 193, 7, 0.08);
+  color: var(--warning);
+  border-color: rgba(255, 193, 7, 0.3);
+}
+
+.task-icraci-tag.status-icrada {
+  background: rgba(0, 123, 255, 0.08);
+  color: var(--info);
+  border-color: rgba(0, 123, 255, 0.3);
+}
+
+.task-icraci-tag.status-tamamlandi {
+  background: rgba(40, 167, 69, 0.08);
+  color: var(--success);
+  border-color: rgba(40, 167, 69, 0.25);
+  text-decoration: line-through;
+  opacity: 0.7;
+}
+
+/* SAĞ TƏRƏFİ */
 .task-header-right {
   display: flex;
   align-items: center;
@@ -194,7 +240,6 @@
   font-weight: 400;
 }
 
-/* ULDUZ */
 .task-star {
   font-size: 20px;
   color: var(--text-muted);
@@ -204,22 +249,10 @@
   line-height: 1;
 }
 
-.task-star:hover {
-  color: var(--warning);
-}
-
-.task-star.aktiv {
-  color: var(--warning);
-}
-
-.task-star.disabled {
-  cursor: default;
-  opacity: 0.35;
-}
-
-.task-star.disabled:hover {
-  color: var(--text-muted) !important;
-}
+.task-star:hover { color: var(--warning); }
+.task-star.aktiv { color: var(--warning); }
+.task-star.disabled { cursor: default; opacity: 0.35; }
+.task-star.disabled:hover { color: var(--text-muted) !important; }
 
 /* ANİMASİYA */
 .task-item.checking {
@@ -268,10 +301,7 @@
   margin: 0;
 }
 
-.completed-arrow {
-  font-size: 10px;
-  width: 14px;
-}
+.completed-arrow { font-size: 10px; width: 14px; }
 
 .completed-badge {
   background: var(--accent-bg);
@@ -284,8 +314,6 @@
   margin-left: 2px;
 }
 
-
-
 .completed-date {
   font-size: 11px;
   color: var(--text-muted);
@@ -294,7 +322,7 @@
 }
 
 /* ============================================
-   FOOTER - TAPŞIRIQ ƏLAVƏ ET
+   FOOTER
    ============================================ */
 .footer {
   display: flex;
@@ -316,9 +344,7 @@
   width: 100%;
 }
 
-.quick-add-row:focus-within {
-  background: var(--bg-tertiary);
-}
+.quick-add-row:focus-within { background: var(--bg-tertiary); }
 
 .quick-add-icon {
   color: var(--accent);
@@ -370,11 +396,7 @@
   margin-bottom: 4px;
 }
 
-.note-input-icon {
-  font-size: 9px;
-  color: var(--text-muted);
-  flex-shrink: 0;
-}
+.note-input-icon { font-size: 9px; color: var(--text-muted); flex-shrink: 0; }
 
 .note-input {
   flex: 1;
@@ -386,9 +408,7 @@
   font-family: inherit;
 }
 
-.note-input::placeholder {
-  color: var(--text-muted);
-}
+.note-input::placeholder { color: var(--text-muted); }
 
 .note-item {
   display: flex;
@@ -403,27 +423,13 @@
   cursor: pointer;
 }
 
-.note-item:hover {
-  background: var(--bg-tertiary);
-  border-color: var(--border-hover);
-}
+.note-item:hover { background: var(--bg-tertiary); border-color: var(--border-hover); }
 
-.note-check {
-  display: flex;
-  align-items: center;
-  cursor: pointer;
-  flex-shrink: 0;
-}
+.note-check { display: flex; align-items: center; cursor: pointer; flex-shrink: 0; }
 
-.note-circle {
-  font-size: 15px;
-  color: var(--text-muted);
-  transition: all 0.2s;
-}
-
-.note-check:hover .note-circle {
-  color: var(--accent);
-}
+.note-circle { font-size: 15px; color: var(--text-muted); transition: all 0.2s; }
+.note-check:hover .note-circle { color: var(--accent); }
+.note-circle.done { color: var(--accent); }
 
 .note-metn {
   flex: 1;
@@ -432,34 +438,13 @@
   line-height: 1.4;
 }
 
-.note-item-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  flex-shrink: 0;
-}
+.note-item-actions { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
 
-.note-info-icon {
-  font-size: 14px;
-  color: var(--text-muted);
-  cursor: pointer;
-  transition: all 0.2s;
-}
+.note-info-icon { font-size: 14px; color: var(--text-muted); cursor: pointer; transition: all 0.2s; }
+.note-info-icon:hover { color: var(--accent); }
 
-.note-info-icon:hover {
-  color: var(--accent);
-}
-
-.note-delete-icon {
-  font-size: 13px;
-  color: rgba(255, 107, 107, 0.3);
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.note-delete-icon:hover {
-  color: var(--danger);
-}
+.note-delete-icon { font-size: 13px; color: rgba(255, 107, 107, 0.3); cursor: pointer; transition: all 0.2s; }
+.note-delete-icon:hover { color: var(--danger); }
 
 .note-item.fading {
   animation: noteFade 0.8s ease-in-out forwards;
@@ -471,7 +456,6 @@
   100% { opacity: 0; }
 }
 
-/* TAMAMLANMIŞ QEYD DÜYMƏSİ */
 .tamamlanmis-btn {
   display: flex;
   align-items: center;
@@ -490,11 +474,7 @@
   font-family: inherit;
 }
 
-.tamamlanmis-btn:hover {
-  background: var(--accent-bg-hover);
-  border-color: var(--accent);
-  transform: translateY(-1px);
-}
+.tamamlanmis-btn:hover { background: var(--accent-bg-hover); border-color: var(--accent); transform: translateY(-1px); }
 
 .completed-count {
   background: var(--accent-bg);
@@ -510,68 +490,14 @@
    SCROLLBAR
    ============================================ */
 .content::-webkit-scrollbar,
-.main-content::-webkit-scrollbar {
-  width: 3px;
-}
+.main-content::-webkit-scrollbar { width: 3px; }
 
 .content::-webkit-scrollbar-track,
-.main-content::-webkit-scrollbar-track {
-  background: var(--scrollbar-bg);
-}
+.main-content::-webkit-scrollbar-track { background: var(--scrollbar-bg); }
 
 .content::-webkit-scrollbar-thumb,
-.main-content::-webkit-scrollbar-thumb {
-  background: var(--scrollbar-thumb);
-  border-radius: 2px;
-}
+.main-content::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 2px; }
 
-/* TAPŞIRIQ ƏSAS HISSƏ */
-.task-main {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-  min-width: 0;
-}
-
-/* İCRAÇI TAQ-LAR */
-.task-icracilar {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 4px;
-}
-
-.task-icraci-tag {
-  font-size: 10px;
-  font-weight: 500;
-  padding: 1px 6px;
-  border-radius: 3px;
-  border: 1px solid;
-  white-space: nowrap;
-}
-
-/* GÖZLƏNIR - SARI */
-.task-icraci-tag.status-gozlenir {
-  background: rgba(255, 193, 7, 0.08);
-  color: var(--warning);
-  border-color: rgba(255, 193, 7, 0.3);
-}
-
-/* İCRADA - GÖY */
-.task-icraci-tag.status-icrada {
-  background: rgba(0, 123, 255, 0.08);
-  color: var(--info);
-  border-color: rgba(0, 123, 255, 0.3);
-}
-
-/* TAMAMLANDI - YAŞİL */
-.task-icraci-tag.status-tamamlandi {
-  background: rgba(40, 167, 69, 0.08);
-  color: var(--success);
-  border-color: rgba(40, 167, 69, 0.25);
-  text-decoration: line-through;
-  opacity: 0.7;
-}
 /* BAŞLIQDA SAY */
 .baslig-say {
   background: var(--accent-bg);
@@ -583,24 +509,17 @@
   font-weight: 700;
   margin-left: 10px;
 }
+
 .baslig-toggle {
   position: absolute;
   right: 16px;
   top: 50%;
   transform: translateY(-50%);
 }
-.note-circle.done {
-  color: var(--accent);
-}
 
-.note-item.completed {
-  opacity: 0.6;
-  cursor: pointer;
-}
+.note-item.completed { opacity: 0.6; cursor: pointer; }
+.note-item.completed:hover { opacity: 0.85; }
 
-.note-item.completed:hover {
-  opacity: 0.85;
-}
 .completed-list .note-item {
   border-radius: 0 !important;
   margin: 0 !important;
