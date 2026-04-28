@@ -22,6 +22,7 @@ export interface ShexsStatus {
   adSoyad: string
   icraEdilib: boolean
   status?: 'gozlenir' | 'icrada' | 'tamamlandi'
+  nezaretci?: boolean
 }
 
 export interface FileData {

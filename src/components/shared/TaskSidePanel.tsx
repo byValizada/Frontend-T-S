@@ -50,6 +50,7 @@ function TaskSidePanel({ task, currentUser, onClose, onUpdateTask, onDeleteTask 
 
   const isOwner = task.verenLogin === currentUser.login;
   const isIcraci = task.secilmisShexsler.some(s => s.login === currentUser.login);
+  const isNezaretci = task.secilmisShexsler.some(s => s.login === currentUser.login && (s as any).nezaretci);
   const myStatus = getMyStatus(task, currentUser.login);
 
   useEffect(() => {
@@ -501,6 +502,79 @@ function TaskSidePanel({ task, currentUser, onClose, onUpdateTask, onDeleteTask 
   // ============================================
   // 2. İCRAÇI GÖRÜNÜŞÜ
   // ============================================
+  if (isNezaretci && !isOwner) {
+    return (
+      <div className="tsp-overlay" onClick={onClose}>
+        <div className="tsp-panel" onClick={(e) => e.stopPropagation()}>
+          {renderIcraModal()}
+          <div className="tsp-header">
+            <div className="tsp-header-left">
+              <div className="tsp-checkbox">
+                <FaRegCircle className="tsp-check-icon" />
+              </div>
+              <h3 className="tsp-name">{task.tapsirigAdi}</h3>
+            </div>
+            <div className="tsp-header-right">
+              <span className={`tsp-star${task.tecili ? " aktiv" : ""} disabled`}>{task.tecili ? "★" : "☆"}</span>
+              <button className="tsp-close" onClick={onClose}><FaTimes /></button>
+            </div>
+          </div>
+          <div className="tsp-columns">
+            <div className="tsp-col-left">
+              <div className="tsp-col-scroll">
+                <div className="tsp-section">
+                  <div className="tsp-section-header"><span>👤 İcraçılar ({task.secilmisShexsler.length})</span></div>
+                  {task.secilmisShexsler.length > 0 && (
+                    <div className="tsp-icracilar">
+                      {task.secilmisShexsler.map((s) => (
+                        <div key={s.login} className={`tsp-icraci status-${(s as any).status || 'gozlenir'}${(s as any).nezaretci ? ' nezaretci' : ''}`}>
+                          {(s as any).nezaretci && <span className="tsp-nezaretci-n">N</span>}
+                          <span className="tsp-icraci-ad">{s.adSoyad}</span>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                {deadline && (
+                  <div className="tsp-section">
+                    <div className="tsp-section-header"><FaCalendarAlt className="tsp-section-icon" /><span>Son tarix</span></div>
+                    <span className="tsp-date-text">{deadline}</span>
+                  </div>
+                )}
+                {task.fayllar.length > 0 && (
+                  <div className="tsp-section">
+                    <div className="tsp-section-header"><FaPaperclip className="tsp-section-icon" /><span>Fayllar</span></div>
+                    <div className="tsp-files">
+                      {task.fayllar.map((f, i) => (
+                        <div key={i} className="tsp-file-item">
+                          <a href={f.base64} download={f.name} className="tsp-file-name">📎 {f.name}</a>
+                          <span className="tsp-file-size">{formatFileSize(f.size)}</span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
+                {task.qeyd && (
+                  <div className="tsp-section">
+                    <div className="tsp-section-header"><span>📝 Qeyd</span></div>
+                    <p className="tsp-icraci-qeyd">{task.qeyd}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+            {renderMessages()}
+          </div>
+          <div className="tsp-footer">
+            <div className="tsp-footer-info">
+              <span>Tapşırığı verən: <strong>{task.veren}</strong></span>
+              <span>Yaranma: {task.tarix}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   if (isIcraci && !isOwner) {
     return (
       <div className="tsp-overlay" onClick={onClose}>
@@ -654,8 +728,20 @@ function TaskSidePanel({ task, currentUser, onClose, onUpdateTask, onDeleteTask 
                 {task.secilmisShexsler.length > 0 && (
                   <div className="tsp-icracilar">
                     {task.secilmisShexsler.map((s) => (
-                      <div key={s.login} className={`tsp-icraci status-${(s as any).status || 'gozlenir'}`}>
-                        <span className="tsp-icraci-ad">{s.adSoyad}</span>
+                      <div key={s.login} className={`tsp-icraci status-${(s as any).status || 'gozlenir'}${(s as any).nezaretci ? ' nezaretci' : ''}`}>
+                        {(s as any).nezaretci && <span className="tsp-nezaretci-n">N</span>}
+                        <span
+                          className="tsp-icraci-ad"
+                          onClick={() => {
+                            const updated = task.secilmisShexsler.map(x =>
+                              x.login === s.login ? { ...x, nezaretci: !(x as any).nezaretci } : x
+                            );
+                            onUpdateTask({ ...task, secilmisShexsler: updated });
+                          }}
+                          title={(s as any).nezaretci ? "Nəzarətçilikdən çıxart" : "Nəzarətçi təyin et"}
+                        >
+                          {s.adSoyad}
+                        </span>
                         <FaTimes className="tsp-icraci-sil" onClick={() => onUpdateTask({ ...task, secilmisShexsler: task.secilmisShexsler.filter((x) => x.login !== s.login) })} />
                       </div>
                     ))}

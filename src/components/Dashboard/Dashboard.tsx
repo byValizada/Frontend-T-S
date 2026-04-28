@@ -12,6 +12,7 @@ import { addLog } from "../shared/logHelper";
 import "./Dashboard.css";
 import ThemeToggle from '../shared/ThemeToggle';
 import ChatWidget from '../shared/ChatWidget'
+
 interface User {
   login: string;
   parol: string;
@@ -64,13 +65,15 @@ function Dashboard({ currentUser, onLogout, onGoToAdminPanel }: DashboardProps) 
   const [isNoteDetailOpen, setIsNoteDetailOpen] = useState(false);
   const [fadingNoteId, setFadingNoteId] = useState<string | null>(null);
   const [yeniTapsirig, setYeniTapsirig] = useState("");
+  const [activeTasksOpen, setActiveTasksOpen] = useState(true);
 
   const loadMyTasks = () => {
     const all = getAllTasks();
     const mine = all.filter(task => {
       const meneQoyulan = task.secilmisShexsler.some(s => s.login === currentUser.login);
       const menimQoydugum = task.verenLogin === currentUser.login;
-      return meneQoyulan || menimQoydugum;
+      const nezaretciyem = task.secilmisShexsler.some(s => s.login === currentUser.login && s.nezaretci);
+      return meneQoyulan || menimQoydugum || nezaretciyem;
     });
     setMyTasks(mine);
   };
@@ -219,7 +222,9 @@ function Dashboard({ currentUser, onLogout, onGoToAdminPanel }: DashboardProps) 
         {activePage === "tasks" && (
           <section className="bolme">
             <div className="baslig-sira">
-              <h2>Ümumi tapşırıqlar</h2>
+              <h2 style={{ cursor: 'pointer' }} onClick={() => setActiveTasksOpen(!activeTasksOpen)}>
+                {activeTasksOpen ? "▼" : "▶"} Ümumi tapşırıqlar
+              </h2>
               {myActiveTasks.length > 0 && (
                 <span className="baslig-say">{myActiveTasks.length}</span>
               )}
@@ -229,57 +234,60 @@ function Dashboard({ currentUser, onLogout, onGoToAdminPanel }: DashboardProps) 
             </div>
 
             <div className="content">
-              {myActiveTasks.length === 0 ? (
-                <p className="empty-message">Hələ tapşırıq yoxdur</p>
-              ) : (
-                myActiveTasks.map((task) => (
-                  <div
-                    key={task.id}
-                    className={`task-item${checkingTaskId === task.id ? " checking" : ""}${task.tecili ? " tecili" : ""}`}
-                    onDoubleClick={() => setSidePanelTask(task)}
-                  >
-                    <div className="task-header">
-                      <div className="checkbox-wrapper" onClick={(e) => handleCheckboxClick(e, task)} onDoubleClick={(e) => e.stopPropagation()}>
-                        {checkingTaskId === task.id ? (
-                          <FaCheckCircle className="checkbox-icon checking-anim" />
-                        ) : (
-                          <FaRegCircle className={`checkbox-icon${task.verenLogin === currentUser.login ? " clickable-check" : ""}`} />
-                        )}
-                      </div>
-                      <div className="task-main">
-                        <span className="task-title">{task.tapsirigAdi}</span>
-                        {task.secilmisShexsler.length > 0 && (
-                          <div className="task-icracilar">
-                            {task.secilmisShexsler.map((s) => (
-                              <span key={s.login} className={`task-icraci-tag status-${(s as any).status || "gozlenir"}`}>
+
+              {/* YALNIZ AKTİV TAPŞIRIQLAR SCROLL OLUR */}
+              <div className="tasks-scroll">
+                {activeTasksOpen && (myActiveTasks.length === 0 ? (
+                  <p className="empty-message">Hələ tapşırıq yoxdur</p>
+                ) : (
+                  myActiveTasks.map((task) => (
+                    <div
+                      key={task.id}
+                      className={`task-item${checkingTaskId === task.id ? " checking" : ""}${task.tecili ? " tecili" : ""}`}
+                      onDoubleClick={() => setSidePanelTask(task)}
+                    >
+                      <div className="task-header">
+                        <div className="checkbox-wrapper" onClick={(e) => handleCheckboxClick(e, task)} onDoubleClick={(e) => e.stopPropagation()}>
+                          {checkingTaskId === task.id ? (
+                            <FaCheckCircle className="checkbox-icon checking-anim" />
+                          ) : (
+                            <FaRegCircle className={`checkbox-icon${task.verenLogin === currentUser.login ? " clickable-check" : ""}`} />
+                          )}
+                        </div>
+                        <div className="task-main">
+                          <span className="task-title">{task.tapsirigAdi}</span>
+                          {task.secilmisShexsler.length > 0 && (
+                            <div className="task-icracilar">
+                              {task.secilmisShexsler.map((s) => (
+                              <span key={s.login} className={`task-icraci-tag status-${(s as any).status || "gozlenir"}${(s as any).nezaretci ? " nezaretci" : ""}`}>
+                                {(s as any).nezaretci && <span className="nezaretci-n">N</span>}
                                 {s.adSoyad}
                               </span>
                             ))}
-                          </div>
-                        )}
-                      </div>
-                      <div className="task-header-right">
-                        {task.deadline && (
-                          <span className="task-deadline-badge">{task.deadline}</span>
-                        )}
-                        <span
-                          className={`task-star${task.tecili ? " aktiv" : ""}${task.verenLogin !== currentUser.login ? " disabled" : ""}`}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            if (task.verenLogin !== currentUser.login) return;
-                            handleUpdateTask({ ...task, tecili: !task.tecili });
-                          }}
-                          onDoubleClick={(e) => e.stopPropagation()}
-                        >
-                          {task.tecili ? "★" : "☆"}
-                        </span>
+                            </div>
+                          )}
+                        </div>
+                        <div className="task-header-right">
+                          {task.deadline && (
+                            <span className="task-deadline-badge">{task.deadline}</span>
+                          )}
+                          <span
+                            className={`task-star${task.tecili ? " aktiv" : ""}${task.verenLogin !== currentUser.login ? " disabled" : ""}`}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              if (task.verenLogin !== currentUser.login) return;
+                              handleUpdateTask({ ...task, tecili: !task.tecili });
+                            }}
+                            onDoubleClick={(e) => e.stopPropagation()}
+                          >
+                            {task.tecili ? "★" : "☆"}
+                          </span>
+                        </div>
                       </div>
                     </div>
-                  </div>
-                ))
-              )}
-
-              {/* TAMAMLANMIŞ */}
+                  )))
+                )}
+              {/* TAMAMLANMIŞ - SABİT QALIR */}
               {myCompletedTasks.length > 0 && (
                 <div className="completed-section">
                   <div className="completed-toggle" onClick={() => setCompletedOpen(!completedOpen)}>
@@ -320,6 +328,10 @@ function Dashboard({ currentUser, onLogout, onGoToAdminPanel }: DashboardProps) 
                   )}
                 </div>
               )}
+              </div>
+
+              
+
             </div>
 
             <div className="footer">
@@ -359,7 +371,6 @@ function Dashboard({ currentUser, onLogout, onGoToAdminPanel }: DashboardProps) 
               </div>
 
               {activeNotes.map((note) => (
-                
                 <div
                   key={note.id}
                   className={`note-item${fadingNoteId === note.id ? " fading" : ""}`}
@@ -377,6 +388,7 @@ function Dashboard({ currentUser, onLogout, onGoToAdminPanel }: DashboardProps) 
                   </div>
                 </div>
               ))}
+
               {/* TAMAMLANMIŞ QEYDLƏR */}
               {completedNotes.length > 0 && (
                 <div className="completed-section">
@@ -414,17 +426,15 @@ function Dashboard({ currentUser, onLogout, onGoToAdminPanel }: DashboardProps) 
               )}
             </div>
 
-            <div className="footer">
-            </div>
+            <div className="footer" />
           </section>
         )}
 
       </main>
 
       <ElanBildirisi currentUser={currentUser} />
+      <ChatWidget currentUser={currentUser as any} hidden={!!sidePanelTask} />
 
-<ElanBildirisi currentUser={currentUser} />
-<ChatWidget currentUser={currentUser as any} hidden={!!sidePanelTask} />
       <TaskModal
         isOpen={isTaskModalOpen}
         onClose={() => setIsTaskModalOpen(false)}
@@ -441,8 +451,6 @@ function Dashboard({ currentUser, onLogout, onGoToAdminPanel }: DashboardProps) 
           onDeleteTask={handleDeleteTask}
         />
       )}
-
-     
 
       <NoteDetailModal
         isOpen={isNoteDetailOpen}

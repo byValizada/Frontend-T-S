@@ -204,7 +204,7 @@
 .tsp-msg-attach:hover { background: var(--accent-bg); color: var(--accent); border-color: var(--accent-border); }
 
 .tsp-msg-send-btn {
-  background: linear-gradient(135deg, #25D366, #128C7E);
+  background: linear-gradient(135deg, var(--accent), var(--accent-hover));
   border: none;
   color: #fff;
   width: 36px;
@@ -591,6 +591,9 @@
 
 .tsp-icra-modal-cancel {
   flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   padding: 10px;
   background: var(--bg-primary);
   border: 1px solid var(--border-primary);
@@ -606,7 +609,7 @@
 .tsp-icra-modal-cancel:hover { background: var(--bg-hover); }
 
 .tsp-icra-modal-confirm {
-  flex: 2;
+  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -682,4 +685,30 @@
   color: var(--text-muted);
   opacity: 0.35;
   cursor: default;
+}
+/* NƏZARƏTÇİ */
+.tsp-icraci.nezaretci {
+  background: rgba(255, 107, 107, 0.1);
+  border-color: rgba(255, 107, 107, 0.4);
+  color: var(--danger);
+}
+
+.tsp-nezaretci-n {
+  font-size: 9px;
+  font-weight: 900;
+  background: var(--danger);
+  color: #fff;
+  border-radius: 3px;
+  padding: 0 3px;
+  margin-right: 3px;
+  line-height: 1.4;
+}
+
+.tsp-icraci-ad {
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+
+.tsp-icraci-ad:hover {
+  opacity: 0.7;
 }
