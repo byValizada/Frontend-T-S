@@ -25,7 +25,7 @@ function App() {
     }
   }
 
- const handleLogout = () => {
+  const handleLogout = () => {
     localStorage.removeItem('currentUser')
     setCurrentUser(null)
     setAdminInDashboard(false)
@@ -35,8 +35,7 @@ function App() {
     return <Login onLogin={handleLogin} />
   }
 
-  // Chat hər yerdə görünür
-const renderPanel = () => {
+  const renderPanel = () => {
     if (currentUser.rol === 'SuperAdmin') {
       return (
         <SuperAdminPanel
@@ -93,10 +92,17 @@ const renderPanel = () => {
     )
   }
 
+  // Dashboard açıq olanda ChatWidget Dashboard.tsx-in içindən render olunur
+  // Admin panellərdə isə buradakı ChatWidget işləyir
+  const isInDashboard =
+    currentUser.rol === 'İşçi' ||
+    currentUser.rol === 'Müavin' ||
+    ((currentUser.rol === 'Admin' || currentUser.rol === 'BolmeAdmin') && adminInDashboard)
+
   return (
     <>
       {renderPanel()}
-      <ChatWidget currentUser={currentUser as any} />
+      {!isInDashboard && <ChatWidget currentUser={currentUser as any} />}
     </>
   )
 }

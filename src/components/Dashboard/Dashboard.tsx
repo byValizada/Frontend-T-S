@@ -11,7 +11,7 @@ import ElanBildirisi from "./ElanBildirisi";
 import { addLog } from "../shared/logHelper";
 import "./Dashboard.css";
 import ThemeToggle from '../shared/ThemeToggle';
-
+import ChatWidget from '../shared/ChatWidget'
 interface User {
   login: string;
   parol: string;
@@ -412,6 +412,8 @@ function Dashboard({ currentUser, onLogout, onGoToAdminPanel }: DashboardProps) 
 
       <ElanBildirisi currentUser={currentUser} />
 
+<ElanBildirisi currentUser={currentUser} />
+<ChatWidget currentUser={currentUser as any} hidden={!!sidePanelTask} />
       <TaskModal
         isOpen={isTaskModalOpen}
         onClose={() => setIsTaskModalOpen(false)}
