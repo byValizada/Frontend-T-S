@@ -1,5 +1,5 @@
-import { useState, useEffect } from 'react'
-import './ThemeToggle.css'
+import { useEffect, useState } from 'react'
+import Switch from '@mui/material/Switch'
 
 function ThemeToggle() {
   const [theme, setTheme] = useState<'dark' | 'light'>(() => {
@@ -19,13 +19,11 @@ function ThemeToggle() {
   }
 
   return (
-    <div
-      className={`theme-switch ${theme === 'light' ? 'light' : ''}`}
-      onClick={toggleTheme}
+    <Switch
+      checked={theme === 'light'}
+      onChange={toggleTheme}
       title={theme === 'dark' ? 'Açıq rejim' : 'Tünd rejim'}
-    >
-      <div className="theme-switch-thumb" />
-    </div>
+    />
   )
 }
 

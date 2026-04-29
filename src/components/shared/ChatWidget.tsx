@@ -50,6 +50,9 @@ type ChatSize = "normal" | "minimized" | "maximized";
 
 function ChatWidget({ currentUser, hidden}: ChatWidgetProps) {
   const [view, setView] = useState<ChatView>("closed");
+ const [pos, setPos] = useState({ x: window.innerWidth - 25 - 56, y: window.innerHeight - 24 - 56 });
+const isDragging = useRef(false);
+const hasDragged = useRef(false);
   const [size, setSize] = useState<ChatSize>("normal");
   const [search, setSearch] = useState("");
   const [allUsers, setAllUsers] = useState<User[]>([]);
@@ -279,17 +282,56 @@ function ChatWidget({ currentUser, hidden}: ChatWidgetProps) {
     markAsRead(currentUser.login, user.login);
   };
 
-  if (view === "closed") {
-    if (hidden) return null
-    return (
-      <div className="chat-fab" onClick={() => setView("list")}>
-        <FaComments />
-        {unreadTotal > 0 && (
-          <span className="chat-fab-badge">{unreadTotal}</span>
-        )}
-      </div>
-    );
-  }
+if (view === "closed") {
+  if (hidden) return null
+  return (
+    <div
+      className="chat-fab"
+      style={{ left: pos.x, top: pos.y, right: 'auto', bottom: 'auto' }}
+      onMouseDown={(e) => {
+        e.preventDefault();
+        isDragging.current = false;
+        hasDragged.current = false;
+
+        const startX = e.clientX;
+        const startY = e.clientY;
+
+        const onMouseMove = (me: MouseEvent) => {
+          const dx = Math.abs(me.clientX - startX);
+          const dy = Math.abs(me.clientY - startY);
+          if (dx > 5 || dy > 5) {
+            isDragging.current = true;
+            hasDragged.current = true;
+          }
+          if (isDragging.current) {
+           setPos({
+  x: me.clientX - 28,
+  y: me.clientY - 28,
+});
+          }
+        };
+
+        const onMouseUp = () => {
+          isDragging.current = false;
+          window.removeEventListener("mousemove", onMouseMove);
+          window.removeEventListener("mouseup", onMouseUp);
+        };
+
+        window.addEventListener("mousemove", onMouseMove);
+        window.addEventListener("mouseup", onMouseUp);
+      }}
+      onClick={() => {
+        if (!hasDragged.current) setView("list");
+        hasDragged.current = false;
+      }}
+    >
+      <FaComments />
+      {unreadTotal > 0 && (
+        <span className="chat-fab-badge">{unreadTotal}</span>
+      )}
+    </div>
+  );
+}
 
   if (size === "minimized") {
     return (

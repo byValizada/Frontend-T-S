@@ -65,6 +65,7 @@ export interface NewTask {
   mesajlar?: Mesaj[]
   tecili?: boolean
   altTapsiriglar?: SubTask[]
+  yeniMesaj?: boolean
 }
 
 const fileToBase64 = (file: File): Promise<string> => {

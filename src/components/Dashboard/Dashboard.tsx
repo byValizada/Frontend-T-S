@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import {
-  FaPlus, FaRegCircle, FaCheckCircle, FaTrash, FaCircle,
+  FaPlus, FaRegCircle, FaCheckCircle, FaTrash, FaCircle, FaSearch,FaComments,
 } from "react-icons/fa";
 import Sidebar from "../Sidebar/Sidebar";
 import TaskModal from "../TaskModal/TaskModal";
@@ -66,6 +66,8 @@ function Dashboard({ currentUser, onLogout, onGoToAdminPanel }: DashboardProps) 
   const [fadingNoteId, setFadingNoteId] = useState<string | null>(null);
   const [yeniTapsirig, setYeniTapsirig] = useState("");
   const [activeTasksOpen, setActiveTasksOpen] = useState(true);
+  const [activeSearch, setActiveSearch] = useState("");
+  const [completedSearch, setCompletedSearch] = useState("");
 
   const loadMyTasks = () => {
     const all = getAllTasks();
@@ -194,15 +196,26 @@ function Dashboard({ currentUser, onLogout, onGoToAdminPanel }: DashboardProps) 
     localStorage.setItem(`notes_${currentUser.login}`, JSON.stringify(updatedNotes));
   };
 
-  const myActiveTasks = myTasks
-    .filter(task => !task.tamamlanib)
-    .sort((a, b) => {
-      if (a.tecili && !b.tecili) return -1;
-      if (!a.tecili && b.tecili) return 1;
-      return Number(b.id) - Number(a.id);
-    });
+  const sortByDeadline = (a: NewTask, b: NewTask) => {
+  if (!a.deadline && !b.deadline) return Number(b.id) - Number(a.id);
+  if (!a.deadline) return 1;
+  if (!b.deadline) return -1;
+  return new Date(a.deadline).getTime() - new Date(b.deadline).getTime();
+};
 
-  const myCompletedTasks = myTasks.filter(task => task.tamamlanib);
+const myActiveTasks = myTasks
+  .filter(task => !task.tamamlanib)
+  .filter(task => task.tapsirigAdi.toLowerCase().includes(activeSearch.toLowerCase()))
+  .sort((a, b) => {
+    if (a.tecili && !b.tecili) return -1;
+    if (!a.tecili && b.tecili) return 1;
+    return sortByDeadline(a, b);
+  });
+
+const myCompletedTasks = myTasks.filter(task => task.tamamlanib);
+
+const filteredCompletedTasks = myCompletedTasks
+  .filter(task => task.tapsirigAdi.toLowerCase().includes(completedSearch.toLowerCase()));
   const activeNotes = notes.filter((n) => !n.tamamlanib);
   const completedNotes = notes.filter((n) => n.tamamlanib);
 
@@ -221,17 +234,27 @@ function Dashboard({ currentUser, onLogout, onGoToAdminPanel }: DashboardProps) 
         {/* ÜMUMİ TAPŞIRIQLAR */}
         {activePage === "tasks" && (
           <section className="bolme">
-            <div className="baslig-sira">
-              <h2 style={{ cursor: 'pointer' }} onClick={() => setActiveTasksOpen(!activeTasksOpen)}>
-                {activeTasksOpen ? "▼" : "▶"} Ümumi tapşırıqlar
-              </h2>
-              {myActiveTasks.length > 0 && (
-                <span className="baslig-say">{myActiveTasks.length}</span>
-              )}
-              <div className="baslig-toggle">
-                <ThemeToggle />
-              </div>
-            </div>
+          <div className="baslig-sira">
+  <h2 style={{ cursor: 'pointer' }} onClick={() => setActiveTasksOpen(!activeTasksOpen)}>
+    {activeTasksOpen ? "▼" : "▶"} Tapşırıqlar
+  </h2>
+  {myActiveTasks.length > 0 && (
+    <span className="baslig-say">{myActiveTasks.length}</span>
+  )}
+ <div className="baslig-search-wrapper">
+  <FaSearch className="baslig-search-icon" />
+  <input
+    className="baslig-search"
+    type="text"
+    placeholder="Axtar..."
+    value={activeSearch}
+    onChange={(e) => setActiveSearch(e.target.value)}
+  />
+</div>
+  <div className="baslig-toggle">
+    <ThemeToggle />
+  </div>
+</div>
 
             <div className="content">
 
@@ -259,18 +282,21 @@ function Dashboard({ currentUser, onLogout, onGoToAdminPanel }: DashboardProps) 
                           {task.secilmisShexsler.length > 0 && (
                             <div className="task-icracilar">
                               {task.secilmisShexsler.map((s) => (
-                              <span key={s.login} className={`task-icraci-tag status-${(s as any).status || "gozlenir"}${(s as any).nezaretci ? " nezaretci" : ""}`}>
-                                {(s as any).nezaretci && <span className="nezaretci-n">N</span>}
-                                {s.adSoyad}
-                              </span>
+                              <span key={s.login} className={`task-icraci-tag status-${(s as any).status || "gozlenir"}`}>
+  {(s as any).nezaretci && <span className="nezaretci-n">N</span>}
+  {s.adSoyad}
+</span>
                             ))}
                             </div>
                           )}
                         </div>
-                        <div className="task-header-right">
-                          {task.deadline && (
-                            <span className="task-deadline-badge">{task.deadline}</span>
-                          )}
+                       <div className="task-header-right">
+{task.yeniMesaj && (
+  <FaComments className="task-yeni-mesaj-badge" />
+)}
+  {task.deadline && (
+    <span className="task-deadline-badge">{task.deadline}</span>
+  )}
                           <span
                             className={`task-star${task.tecili ? " aktiv" : ""}${task.verenLogin !== currentUser.login ? " disabled" : ""}`}
                             onClick={(e) => {
@@ -290,14 +316,27 @@ function Dashboard({ currentUser, onLogout, onGoToAdminPanel }: DashboardProps) 
               {/* TAMAMLANMIŞ - SABİT QALIR */}
               {myCompletedTasks.length > 0 && (
                 <div className="completed-section">
-                  <div className="completed-toggle" onClick={() => setCompletedOpen(!completedOpen)}>
-                    <span className="completed-arrow">{completedOpen ? "▼" : "▶"}</span>
-                    <span>Tamamlanmış</span>
-                    <span className="completed-badge">{myCompletedTasks.length}</span>
-                  </div>
+                  <div className="completed-toggle">
+  <span className="completed-arrow" onClick={() => setCompletedOpen(!completedOpen)}>{completedOpen ? "▼" : "▶"}</span>
+  <span onClick={() => setCompletedOpen(!completedOpen)}>Tamamlanmış</span>
+  <span className="completed-badge">{myCompletedTasks.length}</span>
+  <div className="baslig-search-wrapper" onClick={(e) => e.stopPropagation()}>
+  <FaSearch className="baslig-search-icon" />
+  <input
+    className="baslig-search"
+    type="text"
+    placeholder="Axtar..."
+    value={completedSearch}
+    onChange={(e) => {
+      setCompletedSearch(e.target.value);
+      if (!completedOpen) setCompletedOpen(true);
+    }}
+  />
+</div>
+</div>
                   {completedOpen && (
                     <div className="completed-list">
-                      {myCompletedTasks.map((task) => (
+                      {filteredCompletedTasks.map((task) => (
                         <div key={task.id} className="task-item completed" onDoubleClick={() => setSidePanelTask(task)}>
                           <div className="task-header">
                             <div
@@ -312,9 +351,19 @@ function Dashboard({ currentUser, onLogout, onGoToAdminPanel }: DashboardProps) 
                             >
                               <FaCheckCircle className="checkbox-icon done" />
                             </div>
-                            <div className="task-main">
-                              <span className="task-title completed-title">{task.tapsirigAdi}</span>
-                            </div>
+                           <div className="task-main">
+  <span className="task-title completed-title">{task.tapsirigAdi}</span>
+  {task.secilmisShexsler.length > 0 && (
+    <div className="task-icracilar">
+      {task.secilmisShexsler.map((s) => (
+        <span key={s.login} className={`task-icraci-tag status-${(s as any).status || "gozlenir"}`}>
+          {(s as any).nezaretci && <span className="nezaretci-n">N</span>}
+          {s.adSoyad}
+        </span>
+      ))}
+    </div>
+  )}
+</div>
                             <div className="task-header-right">
                               {task.tamamlanmaTarixi && (
                                 <span className="completed-date">{task.tamamlanmaTarixi}</span>
