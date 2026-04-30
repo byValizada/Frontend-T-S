@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react'
 import { FaTimes, FaCloudUploadAlt, FaTrash, FaCalendarAlt } from 'react-icons/fa'
 import type { NewTask, FileData, ShexsStatus } from '../TaskModal/TaskModal'
+import { usersAPI, mapUserDto } from '../../services/api'
 import './EditTaskModal.css'
 
 interface User {
@@ -45,12 +46,10 @@ function EditTaskModal({ isOpen, onClose, task, currentUser, onSave }: EditTaskM
       setEditFayllar([...task.fayllar])
       setEditShexsler([...task.secilmisShexsler])
       setXeta('')
-      const data = localStorage.getItem('users')
-      if (data) {
-        const users: User[] = JSON.parse(data)
-        const others = users.filter(u => u.login !== currentUser.login)
-        setAllUsers(others)
-      }
+      usersAPI.getAll().then((data: any[]) => {
+        const others = (data || []).map(mapUserDto).filter((u: any) => u.login !== currentUser.login)
+        setAllUsers(others as User[])
+      }).catch(() => setAllUsers([]))
     }
   }, [isOpen, task, currentUser.login])
 

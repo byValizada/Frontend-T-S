@@ -1,4 +1,6 @@
-import { FaChartBar, FaTrophy } from 'react-icons/fa'
+import { useState, useEffect } from 'react'
+import { FaTrophy } from 'react-icons/fa'
+import { tasksAPI } from '../../services/api'
 import './PerformansPanel.css'
 
 interface User {
@@ -16,11 +18,13 @@ interface PerformansPanelProps {
 }
 
 function PerformansPanel({ users, currentUser }: PerformansPanelProps) {
-  const getPerformans = () => {
-    const data = localStorage.getItem('tasks')
-    const allTasks = data ? JSON.parse(data) : []
+  const [allTasks, setAllTasks] = useState<any[]>([])
 
-    // Admin özünü siyahıya əlavə et
+  useEffect(() => {
+    tasksAPI.getAll().then(data => setAllTasks(data || [])).catch(() => setAllTasks([]))
+  }, [currentUser.login])
+
+  const getPerformans = () => {
     const allUsers = users.some(u => u.login === currentUser.login)
       ? users
       : [...users, currentUser]
@@ -36,16 +40,7 @@ function PerformansPanel({ users, currentUser }: PerformansPanelProps) {
         const tamamlandi = userTasks.filter((t: any) => t.tamamlanib).length
         const umumi = userTasks.length
         const faiz = umumi > 0 ? Math.round((tamamlandi / umumi) * 100) : 0
-
-        return {
-          login: user.login,
-          adSoyad: user.adSoyad,
-          rol: user.rol,
-          umumi,
-          aktiv,
-          tamamlandi,
-          faiz
-        }
+        return { login: user.login, adSoyad: user.adSoyad, rol: user.rol, umumi, aktiv, tamamlandi, faiz }
       })
       .sort((a, b) => b.faiz - a.faiz)
   }

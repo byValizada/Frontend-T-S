@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
-import { FaHistory, FaSignInAlt, FaPlus, FaCheck, FaEdit, FaTrash, FaBullhorn, FaUserPlus, FaUserMinus } from 'react-icons/fa'
+import { FaSignInAlt, FaPlus, FaCheck, FaEdit, FaTrash, FaBullhorn, FaUserPlus, FaUserMinus } from 'react-icons/fa'
+import { logsAPI } from '../../services/api'
 import type { LogItem } from './logHelper'
 import './ActivityLog.css'
 
@@ -11,10 +12,18 @@ function ActivityLog({}: ActivityLogProps) {
   const [filter, setFilter] = useState<string>('hamisi')
 
   useEffect(() => {
-    const data = localStorage.getItem('activityLog')
-    if (data) {
-      setLogs(JSON.parse(data).reverse())
-    }
+    logsAPI.getAll().then((data: any[]) => {
+      setLogs((data || []).map((l: any) => ({
+        id: (l.Id || l.id || '').toString(),
+        tip: (l.Type || l.type || 'giris') as LogItem['tip'],
+        adSoyad: l.UserFullName || l.userFullName || '',
+        login: l.UserLogin || l.userLogin || '',
+        metn: l.Description || l.description || '',
+        tarix: (l.CreatedAt || l.createdAt)
+          ? new Date(l.CreatedAt || l.createdAt).toLocaleString('az-AZ')
+          : '',
+      })))
+    }).catch(() => {})
   }, [])
 
   const getIcon = (tip: LogItem['tip']) => {

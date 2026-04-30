@@ -11,13 +11,11 @@ import {
   FaChartBar,
   FaBullhorn
 } from "react-icons/fa";
-import {
-  getBolmeByAdminLogin,
-  getCompanies,
-  getUsers,
-  saveUsers,
-} from "../../services/dataService";
 import type { Bolme, User, Company } from "../../services/dataService";
+import {
+  bolmelerAPI, usersAPI, authAPI,
+  mapBolmeDto, mapUserDto,
+} from "../../services/api";
 import "./BolmeAdminPanel.css";
 import StatsCards from "../shared/StatsCards";
 import PerformansPanel from "../shared/PerformansPanel";
@@ -72,17 +70,25 @@ function BolmeAdminPanel({ currentUser, onLogout, onGoToDashboard }: Props) {
   const [parolDeyisenLogin, setParolDeyisenLogin] = useState<string | null>(null);
   const [yeniParol, setYeniParol] = useState("");
 
-  useEffect(() => {
-    const b = getBolmeByAdminLogin(currentUser.login);
-    if (b) {
-      setBolme(b);
-      const companies = getCompanies();
-      const c = companies.find((c) => c.id === b.companyId);
-      if (c) setCompany(c);
-      const allUsers = getUsers();
-      setUsers(allUsers.filter((u) => u.bolmeId === b.id));
-    }
-  }, [currentUser.login]);
+  const loadData = async () => {
+    try {
+      const bolmeId = currentUser.bolmeId;
+      const companyId = currentUser.companyId;
+      const uData = await usersAPI.getAll();
+      const allUsers = (uData || []).map(mapUserDto) as User[];
+      setUsers(bolmeId ? allUsers.filter(u => u.bolmeId === bolmeId) : allUsers);
+      if (bolmeId) {
+        try {
+          const bData = await bolmelerAPI.getAll(companyId);
+          const found = (bData || []).map(mapBolmeDto).find((b: any) => b.id === bolmeId);
+          if (found) setBolme(found as Bolme);
+          else setBolme({ id: bolmeId, ad: currentUser.adSoyad + ' bölməsi', companyId: companyId || '', adminLogin: currentUser.login });
+        } catch { setBolme({ id: bolmeId, ad: 'Bölmə', companyId: companyId || '', adminLogin: currentUser.login }); }
+      }
+    } catch { /* ignore */ }
+  };
+
+  useEffect(() => { loadData(); }, [currentUser.login]);
 
   const showUgurlu = (msg: string) => {
     setUgurlu(msg);
@@ -90,54 +96,38 @@ function BolmeAdminPanel({ currentUser, onLogout, onGoToDashboard }: Props) {
     setTimeout(() => setUgurlu(""), 3000);
   };
 
-  const refreshUsers = (bolmeId: string) => {
-    const allUsers = getUsers();
-    setUsers(allUsers.filter((u) => u.bolmeId === bolmeId));
-  };
-
   // İSTİFADƏÇİ YARAT
-  const handleAddUser = () => {
+  const handleAddUser = async () => {
     if (!bolme) return;
     if (!newUserLogin.trim() || !newUserParol.trim() || !newUserAdSoyad.trim()) {
-      setXeta("Bütün məcburi sahələri doldurun");
-      return;
+      setXeta("Bütün məcburi sahələri doldurun"); return;
     }
-    const allUsers = getUsers();
-    if (allUsers.find((u) => u.login === newUserLogin)) {
-      setXeta("Bu login artıq mövcuddur");
-      return;
-    }
-    const newUser: User = {
-      login: newUserLogin.trim(),
-      parol: newUserParol.trim(),
-      rol: "İşçi",
-      adSoyad: newUserAdSoyad.trim(),
-      companyId: bolme.companyId,
-      bolmeId: bolme.id,
-      ataAdi: newUserAtaAdi.trim() || undefined,
-      rutbe: newUserRutbe.trim() || undefined,
-      vezife: newUserVezife.trim() || undefined,
-    };
-    saveUsers([...allUsers, newUser]);
-    refreshUsers(bolme.id);
-    setNewUserLogin("");
-    setNewUserParol("");
-    setNewUserAdSoyad("");
-    setNewUserAtaAdi("");
-    setNewUserRutbe("");
-    setNewUserVezife("");
-    addLog('istifadeci_yarat', currentUser.adSoyad, currentUser.login, `"${newUserAdSoyad}" istifadəçisini yaratdı`);
-    showUgurlu("İstifadəçi uğurla yaradıldı");
+    try {
+      await authAPI.register({
+        FullName: newUserAdSoyad.trim(),
+        Username: newUserLogin.trim(),
+        Password: newUserParol.trim(),
+        Role: "İşçi",
+        MuessiseId: bolme.companyId || null,
+        BolmeId: bolme.id,
+      });
+      setNewUserLogin(""); setNewUserParol(""); setNewUserAdSoyad(""); setNewUserAtaAdi(""); setNewUserRutbe(""); setNewUserVezife(""); setXeta("");
+      addLog('istifadeci_yarat', currentUser.adSoyad, currentUser.login, `"${newUserAdSoyad}" istifadəçisini yaratdı`);
+      showUgurlu("İstifadəçi uğurla yaradıldı");
+      await loadData();
+    } catch (err: any) { setXeta(err.message || "Xəta baş verdi"); }
   };
 
   // İSTİFADƏÇİ SİL
-  const handleDeleteUser = (login: string) => {
-    const allUsers = getUsers();
-    const silinən = allUsers.find(u => u.login === login);
-    saveUsers(allUsers.filter((u) => u.login !== login));
-    if (bolme) refreshUsers(bolme.id);
-    addLog('istifadeci_sil', currentUser.adSoyad, currentUser.login, `"${silinən?.adSoyad || login}" istifadəçisini sildi`);
-    showUgurlu("İstifadəçi silindi");
+  const handleDeleteUser = async (login: string) => {
+    const silinən = users.find(u => u.login === login);
+    if (!silinən?.id) return;
+    try {
+      await usersAPI.delete(silinən.id);
+      addLog('istifadeci_sil', currentUser.adSoyad, currentUser.login, `"${silinən.adSoyad}" istifadəçisini sildi`);
+      showUgurlu("İstifadəçi silindi");
+      await loadData();
+    } catch (err: any) { setXeta(err.message || "Xəta baş verdi"); }
   };
 
   // PAROL GÖSTƏR/GİZLƏT
@@ -148,21 +138,21 @@ function BolmeAdminPanel({ currentUser, onLogout, onGoToDashboard }: Props) {
   };
 
   // PAROLU DƏYİŞDİR
-  const handleChangeParol = (login: string) => {
+  const handleChangeParol = async (login: string) => {
     if (!yeniParol.trim()) { setXeta("Yeni parolu daxil edin"); return; }
-    const allUsers = getUsers();
-    saveUsers(allUsers.map((u) => u.login === login ? { ...u, parol: yeniParol.trim() } : u));
-    if (bolme) refreshUsers(bolme.id);
-    setParolDeyisenLogin(null);
-    setYeniParol("");
-    setXeta("");
-    showUgurlu("Parol uğurla dəyişdirildi");
+    const user = users.find(u => u.login === login);
+    if (!user?.id) { setXeta("İstifadəçi tapılmadı"); return; }
+    try {
+      await usersAPI.update(user.id, { FullName: user.adSoyad, Role: user.rol, NewPassword: yeniParol.trim() });
+      setParolDeyisenLogin(null); setYeniParol(""); setXeta("");
+      showUgurlu("Parol uğurla dəyişdirildi");
+    } catch (err: any) { setXeta(err.message || "Xəta baş verdi"); }
   };
 
   if (!bolme) {
     return (
       <div className="bap-container">
-        <p style={{ color: "#ff6b6b", padding: 20 }}>Bölmə tapılmadı</p>
+        <p style={{ color: "#ff6b6b", padding: 20 }}>Bölmə məlumatları yüklənir...</p>
       </div>
     );
   }

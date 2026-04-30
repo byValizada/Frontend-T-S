@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { FaUser, FaLock, FaEye, FaEyeSlash, FaTasks } from "react-icons/fa";
-import { isSuperAdmin } from "../../services/dataService";
+import { authAPI, setToken, mapUserDto } from "../../services/api";
 import { addLog } from "../shared/logHelper";
 import "./Login.css";
 import ThemeToggle from '../shared/ThemeToggle'
@@ -16,63 +16,24 @@ function Login({ onLogin }: LoginProps) {
   const [showParol, setShowParol] = useState(false);
   const [loading, setLoading] = useState(false);
 
-  const handleLogin = () => {
+  const handleLogin = async () => {
     if (!login.trim() || !parol.trim()) {
       setXeta("Login və parolu daxil edin");
       return;
     }
-
     setLoading(true);
-
-    setTimeout(() => {
-      // Super Admin yoxlama
-      if (isSuperAdmin(login)) {
-        const superAdminParol =
-          localStorage.getItem("superAdminParol") || "Tural123@";
-        if (parol === superAdminParol) {
-          const user: User = {
-            login: login,
-            parol: parol,
-            rol: "SuperAdmin",
-            adSoyad: "Tural Vəlizadə",
-          };
-          localStorage.setItem("currentUser", JSON.stringify(user));
-          addLog(
-            "giris",
-            "Tural Vəlizadə",
-            "Tural",
-            "SuperAdmin sisteme daxil oldu",
-          );
-          onLogin(user);
-          setLoading(false);
-          return;
-        } else {
-          setXeta("Parol yanlışdır");
-          setLoading(false);
-          return;
-        }
-      }
-
-      // Adi istifadəçi yoxlama
-      const usersData = localStorage.getItem("users");
-      if (!usersData) {
-        setXeta("İstifadəçi tapılmadı");
-        setLoading(false);
-        return;
-      }
-
-      const users: User[] = JSON.parse(usersData);
-      const user = users.find((u) => u.login === login && u.parol === parol);
-
-      if (user) {
-        localStorage.setItem("currentUser", JSON.stringify(user));
-        addLog('giris', user.adSoyad, user.login, `${user.adSoyad} (${user.rol}) sistemə daxil oldu`)
-        onLogin(user);
-      } else {
-        setXeta("Login və ya parol yanlışdır");
-      }
+    try {
+      const data = await authAPI.login(login, parol);
+      setToken(data.token);
+      const raw = mapUserDto(data.user || data);
+      const user: User = { ...raw, login: raw.login || login };
+      addLog('giris', user.adSoyad, user.login, `${user.adSoyad} (${user.rol}) sistemə daxil oldu`);
+      onLogin(user);
+    } catch (err: any) {
+      setXeta(err.message || "Login və ya parol yanlışdır");
+    } finally {
       setLoading(false);
-    }, 400);
+    }
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {

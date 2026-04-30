@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { FaBullhorn, FaCheck } from 'react-icons/fa'
+import { elanlarAPI } from '../../services/api'
 import './ElanBildirisi.css'
 
 interface User {
@@ -32,45 +33,31 @@ function ElanBildirisi({ currentUser }: Props) {
   const [oxunmamisElanlar, setOxunmamisElanlar] = useState<Elan[]>([])
   const [aktifIndex, setAktifIndex] = useState(0)
 
-  const getOxunmamisElanlar = (): Elan[] => {
+  const loadElanlar = async () => {
     try {
-      const data = localStorage.getItem('elanlar')
-      if (!data) return []
-      const all: Elan[] = JSON.parse(data)
-      return all.filter(e => {
+      const all: Elan[] = await elanlarAPI.getAll()
+      const oxunmamis = (all || []).filter(e => {
         if (e.gonderenLogin === currentUser.login) return false
         const menimUcun = e.alicilar === 'hamisi' ||
           (Array.isArray(e.alicilar) && e.alicilar.includes(currentUser.login))
         if (!menimUcun) return false
         return !e.oxuyanlar.includes(currentUser.login)
       })
-    } catch { return [] }
+      setOxunmamisElanlar(oxunmamis)
+    } catch { setOxunmamisElanlar([]) }
   }
 
   useEffect(() => {
-    const check = () => setOxunmamisElanlar(getOxunmamisElanlar())
-    check()
-    const interval = setInterval(check, 3000)
+    loadElanlar()
+    const interval = setInterval(loadElanlar, 5000)
     return () => clearInterval(interval)
   }, [currentUser.login])
 
-  const handleOxudum = () => {
+  const handleOxudum = async () => {
     const elan = oxunmamisElanlar[aktifIndex]
     if (!elan) return
-
-    try {
-      const data = localStorage.getItem('elanlar')
-      const all: Elan[] = data ? JSON.parse(data) : []
-      const updated = all.map(e =>
-        e.id === elan.id
-          ? { ...e, oxuyanlar: [...e.oxuyanlar, currentUser.login] }
-          : e
-      )
-      localStorage.setItem('elanlar', JSON.stringify(updated))
-    } catch {}
-
-    const yeniOxunmamislar = oxunmamisElanlar.filter(e => e.id !== elan.id)
-    setOxunmamisElanlar(yeniOxunmamislar)
+    try { await elanlarAPI.markAsRead(elan.id, currentUser.login) } catch {}
+    setOxunmamisElanlar(prev => prev.filter(e => e.id !== elan.id))
     setAktifIndex(0)
   }
 

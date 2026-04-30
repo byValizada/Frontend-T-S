@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { usersAPI, mapUserDto, bolmelerAPI, mapBolmeDto } from "../../services/api";
 import {
   FaTimes,
   FaRegCircle,
@@ -57,6 +58,7 @@ function TaskSidePanel({
   const [yeniSubTask, setYeniSubTask] = useState("");
   const [userSearch, setUserSearch] = useState("");
   const [allUsers, setAllUsers] = useState<User[]>([]);
+  const [bolmeler, setBolmeler] = useState<{ id: string; ad: string }[]>([]);
   const [editingMsgId, setEditingMsgId] = useState<string | null>(null);
   const [icraModal, setIcraModal] = useState(false);
   const [icraModalTip, setIcraModalTip] = useState<"icra" | "tamamla">("icra");
@@ -95,9 +97,14 @@ function TaskSidePanel({
   }, [task.mesajlar]);
 
   useEffect(() => {
-    const data = localStorage.getItem("users");
-    if (data) {
-      const users: User[] = JSON.parse(data);
+    bolmelerAPI.getAll().then((data: any[]) => {
+      setBolmeler((data || []).map(mapBolmeDto).map((b: any) => ({ id: b.id, ad: b.ad })));
+    }).catch(() => {});
+  }, []);
+
+  useEffect(() => {
+    usersAPI.getAll().then((data: any[]) => {
+      const users: User[] = (data || []).map(mapUserDto);
       const filtered = users.filter((u) => {
         if (u.login === currentUser.login) return false;
         if (u.rol === "SuperAdmin") return false;
@@ -106,7 +113,7 @@ function TaskSidePanel({
         return false;
       });
       setAllUsers(filtered);
-    }
+    }).catch(() => setAllUsers([]));
   }, [currentUser]);
 
   const filteredUsers = allUsers.filter((u) => {
@@ -339,18 +346,8 @@ function TaskSidePanel({
     return (bytes / (1024 * 1024)).toFixed(1) + " MB";
   };
 
-  const getBolmeName = (bolmeId?: string) => {
-    if (!bolmeId) return "";
-    try {
-      return (
-        JSON.parse(localStorage.getItem("bolmeler") || "[]").find(
-          (b: any) => b.id === bolmeId,
-        )?.ad || ""
-      );
-    } catch {
-      return "";
-    }
-  };
+  const getBolmeName = (bolmeId?: string) =>
+    !bolmeId ? "" : bolmeler.find((b) => b.id === bolmeId)?.ad ?? "";
 
   // YALNIZ OXUMA MESAJLAR
   const renderReadonlyMessages = () => (

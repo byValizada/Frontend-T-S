@@ -12,14 +12,11 @@ import {
   FaChartBar,
   FaBullhorn
 } from "react-icons/fa";
-import {
-  getCompanyByAdminLogin,
-  getBolmeler,
-  saveBolmeler,
-  getUsers,
-  saveUsers,
-} from "../../services/dataService";
 import type { Company, Bolme, User } from "../../services/dataService";
+import {
+  muessiselerAPI, bolmelerAPI, usersAPI, authAPI,
+  mapMuessiseDto, mapBolmeDto, mapUserDto,
+} from "../../services/api";
 import "./MuessiseAdminPanel.css";
 import StatsCards from "../shared/StatsCards";
 import PerformansPanel from "../shared/PerformansPanel";
@@ -82,14 +79,25 @@ function MuessiseAdminPanel({ currentUser, onLogout, onGoToDashboard }: Props) {
   const [parolDeyisenLogin, setParolDeyisenLogin] = useState<string | null>(null);
   const [yeniParol, setYeniParol] = useState("");
 
-  useEffect(() => {
-    const c = getCompanyByAdminLogin(currentUser.login);
-    if (c) {
-      setCompany(c);
-      setBolmeler(getBolmeler(c.id));
-      setUsers(getUsers(c.id));
-    }
-  }, [currentUser.login]);
+  const loadData = async () => {
+    try {
+      const companyId = currentUser.companyId;
+      const [bData, uData] = await Promise.all([
+        bolmelerAPI.getAll(companyId),
+        usersAPI.getAll(),
+      ]);
+      setBolmeler((bData || []).map(mapBolmeDto) as Bolme[]);
+      setUsers((uData || []).map(mapUserDto) as User[]);
+      if (companyId) {
+        try {
+          const cData = await muessiselerAPI.getById(companyId);
+          if (cData) setCompany(mapMuessiseDto(cData) as Company);
+        } catch { setCompany({ id: companyId, ad: currentUser.adSoyad, adminLogin: currentUser.login, yaranmaTarixi: '' }); }
+      }
+    } catch { /* ignore */ }
+  };
+
+  useEffect(() => { loadData(); }, [currentUser.login]);
 
   const showUgurlu = (msg: string) => {
     setUgurlu(msg);
@@ -97,107 +105,70 @@ function MuessiseAdminPanel({ currentUser, onLogout, onGoToDashboard }: Props) {
     setTimeout(() => setUgurlu(""), 3000);
   };
 
-  const refreshData = (companyId: string) => {
-    setBolmeler(getBolmeler(companyId));
-    setUsers(getUsers(companyId));
-  };
-
   // BÖLMƏ YARAT
-  const handleAddBolme = () => {
+  const handleAddBolme = async () => {
     if (!company) return;
     if (!newBolmeAd.trim() || !newBolmeAdminLogin.trim() || !newBolmeAdminParol.trim() || !newBolmeAdminAdSoyad.trim()) {
-      setXeta("Bütün sahələri doldurun");
-      return;
+      setXeta("Bütün sahələri doldurun"); return;
     }
-    const allUsers = getUsers();
-    if (allUsers.find((u) => u.login === newBolmeAdminLogin)) {
-      setXeta("Bu login artıq mövcuddur");
-      return;
-    }
-    const bolmeId = Date.now().toString();
-    const newBolme: Bolme = {
-      id: bolmeId,
-      ad: newBolmeAd.trim(),
-      companyId: company.id,
-      adminLogin: newBolmeAdminLogin.trim(),
-    };
-    const adminUser: User = {
-      login: newBolmeAdminLogin.trim(),
-      parol: newBolmeAdminParol.trim(),
-      rol: "BolmeAdmin",
-      adSoyad: newBolmeAdminAdSoyad.trim(),
-      companyId: company.id,
-      bolmeId,
-    };
-    const allBolmeler = getBolmeler();
-    saveBolmeler([...allBolmeler, newBolme]);
-    saveUsers([...allUsers, adminUser]);
-    refreshData(company.id);
-    setNewBolmeAd("");
-    setNewBolmeAdminLogin("");
-    setNewBolmeAdminParol("");
-    setNewBolmeAdminAdSoyad("");
-    addLog('istifadeci_yarat', currentUser.adSoyad, currentUser.login, `"${newBolmeAd}" bölməsini və admini yaratdı`);
-    showUgurlu("Bölmə uğurla yaradıldı");
+    try {
+      await bolmelerAPI.create({
+        Ad: newBolmeAd.trim(),
+        MuessiseId: company.id,
+        AdminFullName: newBolmeAdminAdSoyad.trim(),
+        AdminUsername: newBolmeAdminLogin.trim(),
+        AdminPassword: newBolmeAdminParol.trim(),
+      });
+      setNewBolmeAd(""); setNewBolmeAdminLogin(""); setNewBolmeAdminParol(""); setNewBolmeAdminAdSoyad(""); setXeta("");
+      addLog('istifadeci_yarat', currentUser.adSoyad, currentUser.login, `"${newBolmeAd}" bölməsini yaratdı`);
+      showUgurlu("Bölmə uğurla yaradıldı");
+      await loadData();
+    } catch (err: any) { setXeta(err.message || "Xəta baş verdi"); }
   };
 
   // BÖLMƏ SİL
-  const handleDeleteBolme = (bolmeId: string) => {
-    const allBolmeler = getBolmeler();
-    const silinen = allBolmeler.find(b => b.id === bolmeId);
-    saveBolmeler(allBolmeler.filter((b) => b.id !== bolmeId));
-    const allUsers = getUsers();
-    saveUsers(allUsers.filter((u) => u.bolmeId !== bolmeId));
-    if (company) refreshData(company.id);
-    addLog('istifadeci_sil', currentUser.adSoyad, currentUser.login, `"${silinen?.ad || bolmeId}" bölməsini sildi`);
-    showUgurlu("Bölmə silindi");
+  const handleDeleteBolme = async (bolmeId: string) => {
+    const silinen = bolmeler.find(b => b.id === bolmeId);
+    try {
+      await bolmelerAPI.delete(bolmeId);
+      addLog('istifadeci_sil', currentUser.adSoyad, currentUser.login, `"${silinen?.ad || bolmeId}" bölməsini sildi`);
+      showUgurlu("Bölmə silindi");
+      await loadData();
+    } catch (err: any) { setXeta(err.message || "Xəta baş verdi"); }
   };
 
   // İSTİFADƏÇİ YARAT
-  const handleAddUser = () => {
+  const handleAddUser = async () => {
     if (!company) return;
     if (!newUserLogin.trim() || !newUserParol.trim() || !newUserAdSoyad.trim() || !newUserBolmeId) {
-      setXeta("Bütün məcburi sahələri doldurun");
-      return;
+      setXeta("Bütün məcburi sahələri doldurun"); return;
     }
-    const allUsers = getUsers();
-    if (allUsers.find((u) => u.login === newUserLogin)) {
-      setXeta("Bu login artıq mövcuddur");
-      return;
-    }
-    const newUser: User = {
-      login: newUserLogin.trim(),
-      parol: newUserParol.trim(),
-      rol: newUserRol as User["rol"],
-      adSoyad: newUserAdSoyad.trim(),
-      companyId: company.id,
-      bolmeId: newUserBolmeId,
-      ataAdi: newUserAtaAdi.trim() || undefined,
-      rutbe: newUserRutbe.trim() || undefined,
-      vezife: newUserVezife.trim() || undefined,
-    };
-    saveUsers([...allUsers, newUser]);
-    refreshData(company.id);
-    setNewUserLogin("");
-    setNewUserParol("");
-    setNewUserAdSoyad("");
-    setNewUserAtaAdi("");
-    setNewUserRutbe("");
-    setNewUserVezife("");
-    setNewUserRol("İşçi");
-    setNewUserBolmeId("");
-    addLog('istifadeci_yarat', currentUser.adSoyad, currentUser.login, `"${newUserAdSoyad}" istifadəçisini yaratdı`);
-    showUgurlu("İstifadəçi uğurla yaradıldı");
+    try {
+      await authAPI.register({
+        FullName: newUserAdSoyad.trim(),
+        Username: newUserLogin.trim(),
+        Password: newUserParol.trim(),
+        Role: newUserRol,
+        MuessiseId: company.id,
+        BolmeId: newUserBolmeId,
+      });
+      setNewUserLogin(""); setNewUserParol(""); setNewUserAdSoyad(""); setNewUserAtaAdi(""); setNewUserRutbe(""); setNewUserVezife(""); setNewUserRol("İşçi"); setNewUserBolmeId(""); setXeta("");
+      addLog('istifadeci_yarat', currentUser.adSoyad, currentUser.login, `"${newUserAdSoyad}" istifadəçisini yaratdı`);
+      showUgurlu("İstifadəçi uğurla yaradıldı");
+      await loadData();
+    } catch (err: any) { setXeta(err.message || "Xəta baş verdi"); }
   };
 
   // İSTİFADƏÇİ SİL
-  const handleDeleteUser = (login: string) => {
-    const allUsers = getUsers();
-    const silinən = allUsers.find(u => u.login === login);
-    saveUsers(allUsers.filter((u) => u.login !== login));
-    if (company) refreshData(company.id);
-    addLog('istifadeci_sil', currentUser.adSoyad, currentUser.login, `"${silinən?.adSoyad || login}" istifadəçisini sildi`);
-    showUgurlu("İstifadəçi silindi");
+  const handleDeleteUser = async (login: string) => {
+    const silinən = users.find(u => u.login === login);
+    if (!silinən?.id) return;
+    try {
+      await usersAPI.delete(silinən.id);
+      addLog('istifadeci_sil', currentUser.adSoyad, currentUser.login, `"${silinən.adSoyad}" istifadəçisini sildi`);
+      showUgurlu("İstifadəçi silindi");
+      await loadData();
+    } catch (err: any) { setXeta(err.message || "Xəta baş verdi"); }
   };
 
   // PAROL GÖSTƏR/GİZLƏT
@@ -208,21 +179,21 @@ function MuessiseAdminPanel({ currentUser, onLogout, onGoToDashboard }: Props) {
   };
 
   // PAROLU DƏYİŞDİR
-  const handleChangeParol = (login: string) => {
+  const handleChangeParol = async (login: string) => {
     if (!yeniParol.trim()) { setXeta("Yeni parolu daxil edin"); return; }
-    const allUsers = getUsers();
-    saveUsers(allUsers.map((u) => u.login === login ? { ...u, parol: yeniParol.trim() } : u));
-    if (company) refreshData(company.id);
-    setParolDeyisenLogin(null);
-    setYeniParol("");
-    setXeta("");
-    showUgurlu("Parol uğurla dəyişdirildi");
+    const user = users.find(u => u.login === login);
+    if (!user?.id) { setXeta("İstifadəçi tapılmadı"); return; }
+    try {
+      await usersAPI.update(user.id, { FullName: user.adSoyad, Role: user.rol, NewPassword: yeniParol.trim() });
+      setParolDeyisenLogin(null); setYeniParol(""); setXeta("");
+      showUgurlu("Parol uğurla dəyişdirildi");
+    } catch (err: any) { setXeta(err.message || "Xəta baş verdi"); }
   };
 
   if (!company) {
     return (
       <div className="map-container">
-        <p style={{ color: "#ff6b6b", padding: 20 }}>Müəssisə tapılmadı</p>
+        <p style={{ color: "#ff6b6b", padding: 20 }}>Müəssisə məlumatları yüklənir...</p>
       </div>
     );
   }

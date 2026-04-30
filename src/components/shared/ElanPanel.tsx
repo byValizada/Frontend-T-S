@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { FaTrash, FaPlus, FaCheck, FaTimes, FaEye } from 'react-icons/fa'
+import { elanlarAPI } from '../../services/api'
 import './ElanPanel.css'
 
 interface User {
@@ -39,18 +40,21 @@ function ElanPanel({ users, currentUser }: ElanPanelProps) {
   const [ugurlu, setUgurlu] = useState('')
   const [aciqElanId, setAciqElanId] = useState<string | null>(null)
 
-  const getElanlar = (): Elan[] => {
+  const [elanlar, setElanlar] = useState<Elan[]>([])
+
+  useEffect(() => { loadElanlar() }, [currentUser.login])
+
+  const loadElanlar = async () => {
     try {
-      const data = localStorage.getItem('elanlar')
-      if (!data) return []
-      const all: Elan[] = JSON.parse(data)
-      return all.filter(e => e.gonderenLogin === currentUser.login).reverse()
-    } catch { return [] }
+      const all: Elan[] = await elanlarAPI.getAllSent()
+      setElanlar((all || []).filter(e => e.gonderenLogin === currentUser.login).reverse())
+    } catch {
+      try {
+        const all: Elan[] = await elanlarAPI.getAll()
+        setElanlar((all || []).filter(e => e.gonderenLogin === currentUser.login).reverse())
+      } catch { setElanlar([]) }
+    }
   }
-
-  const [elanlar, setElanlar] = useState<Elan[]>(getElanlar)
-
-  const refresh = () => setElanlar(getElanlar())
 
   const toggleAlici = (login: string) => {
     setSecilmisAlicilar(prev =>
@@ -58,48 +62,28 @@ function ElanPanel({ users, currentUser }: ElanPanelProps) {
     )
   }
 
-  const handleGonder = () => {
+  const handleGonder = async () => {
     if (!baslig.trim()) { setXeta('Başlıq daxil edin'); return }
     if (!metn.trim()) { setXeta('Elan mətni daxil edin'); return }
     if (!hamiseyaGonder && secilmisAlicilar.length === 0) { setXeta('Ən azı bir alıcı seçin'); return }
-
-    const yeniElan: Elan = {
-      id: Date.now().toString(),
-      baslig: baslig.trim(),
-      metn: metn.trim(),
-      yaranmaTarixi: new Date().toLocaleString('az-AZ'),
-      oxuyanlar: [],
-      alicilar: hamiseyaGonder ? 'hamisi' : secilmisAlicilar,
-      gonderenLogin: currentUser.login,
-      gonderenAd: currentUser.adSoyad,
-      gonderenRol: currentUser.rol,
-      companyId: currentUser.companyId,
-      bolmeId: currentUser.bolmeId
-    }
-
-    const data = localStorage.getItem('elanlar')
-    const list: Elan[] = data ? JSON.parse(data) : []
-    localStorage.setItem('elanlar', JSON.stringify([...list, yeniElan]))
-
-    setBaslig('')
-    setMetn('')
-    setSecilmisAlicilar([])
-    setXeta('')
-    setUgurlu('Elan uğurla göndərildi!')
-    setTimeout(() => setUgurlu(''), 3000)
-    refresh()
+    try {
+      await elanlarAPI.create({
+        baslig: baslig.trim(),
+        metn: metn.trim(),
+        alicilar: hamiseyaGonder ? 'hamisi' : secilmisAlicilar,
+      })
+      setBaslig(''); setMetn(''); setSecilmisAlicilar([]); setXeta('')
+      setUgurlu('Elan uğurla göndərildi!')
+      setTimeout(() => setUgurlu(''), 3000)
+      await loadElanlar()
+    } catch (err: any) { setXeta(err.message || 'Xəta baş verdi') }
   }
 
-  const handleSil = (id: string) => {
-    const data = localStorage.getItem('elanlar')
-    const list: Elan[] = data ? JSON.parse(data) : []
-    localStorage.setItem('elanlar', JSON.stringify(list.filter(e => e.id !== id)))
-    refresh()
-  }
-
-  // Alıcıların adını tap
-  const getAliciAd = (login: string): string => {
-    return users.find(u => u.login === login)?.adSoyad || login
+  const handleSil = async (id: string) => {
+    try {
+      await elanlarAPI.delete(id)
+      setElanlar(prev => prev.filter(e => e.id !== id))
+    } catch (err: any) { setXeta(err.message || 'Xəta baş verdi') }
   }
 
   // Elanın alıcı listəsi

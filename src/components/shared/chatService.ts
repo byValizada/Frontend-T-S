@@ -1,3 +1,7 @@
+import { getToken } from '../../services/api'
+
+const API_URL = import.meta.env.VITE_API_URL || 'http://10.206.156.142:5128/api'
+
 export interface ChatMessage {
   id: string
   gonderenLogin: string
@@ -6,105 +10,100 @@ export interface ChatMessage {
   alanAd: string
   metn: string
   tarix: string
+  createdAtIso: string
   oxundu: boolean
   silindi?: boolean
-  fayl?: {
-    name: string
-    type: string
-    base64: string
+  redakte?: boolean
+  fayl?: { name: string; type: string; base64: string }
+}
+
+export interface Conversation {
+  partnerLogin: string
+  lastMessage: ChatMessage
+  unreadCount: number
+}
+
+const req = async (endpoint: string, options: RequestInit = {}) => {
+  const token = getToken()
+  const headers: HeadersInit = {
+    'Content-Type': 'application/json',
+    ...(token ? { Authorization: `Bearer ${token}` } : {}),
+    ...options.headers,
   }
+  const res = await fetch(`${API_URL}${endpoint}`, { ...options, headers })
+  if (!res.ok) throw new Error(`Chat API error: ${res.status}`)
+  if (res.status === 204) return null
+  return res.json()
 }
 
-// Bütün mesajları al
-export const getAllMessages = (): ChatMessage[] => {
-  const data = localStorage.getItem('chatMessages')
-  return data ? JSON.parse(data) : []
+const mapMsg = (dto: any): ChatMessage => ({
+  id: (dto.Id || dto.id || '').toString(),
+  gonderenLogin: dto.SenderLogin || dto.senderLogin || '',
+  gonderenAd: dto.SenderName || dto.senderName || '',
+  alanLogin: dto.ReceiverLogin || dto.receiverLogin || '',
+  alanAd: dto.ReceiverName || dto.receiverName || '',
+  metn: dto.Text || dto.text || '',
+  createdAtIso: dto.CreatedAt || dto.createdAt || new Date().toISOString(),
+  tarix: (dto.CreatedAt || dto.createdAt)
+    ? new Date(dto.CreatedAt || dto.createdAt).toLocaleString('az-AZ')
+    : new Date().toLocaleString('az-AZ'),
+  oxundu: dto.IsRead ?? dto.isRead ?? false,
+  silindi: dto.IsDeleted ?? dto.isDeleted ?? false,
+  redakte: dto.IsEdited ?? dto.isEdited ?? false,
+  fayl: (dto.FileName || dto.fileName)
+    ? { name: dto.FileName || dto.fileName, type: dto.FileType || dto.fileType || '', base64: dto.FileBase64 || dto.fileBase64 || '' }
+    : undefined,
+})
+
+export const getMessages = async (_login1: string, login2: string): Promise<ChatMessage[]> => {
+  const data = await req(`/chat/messages?with=${encodeURIComponent(login2)}`)
+  return (data || []).map(mapMsg)
 }
 
-// İki şəxs arasındakı mesajları al
-export const getMessages = (login1: string, login2: string): ChatMessage[] => {
-  const all = getAllMessages()
-  return all.filter(m =>
-    !m.silindi &&
-    ((m.gonderenLogin === login1 && m.alanLogin === login2) ||
-     (m.gonderenLogin === login2 && m.alanLogin === login1))
-  )
-}
-
-// Mesaj göndər
-export const sendMessage = (message: Omit<ChatMessage, 'id' | 'tarix' | 'oxundu'>): ChatMessage => {
-  const all = getAllMessages()
-  const newMsg: ChatMessage = {
-    ...message,
-    id: Date.now().toString(),
-    tarix: new Date().toLocaleString('az-AZ'),
-    oxundu: false
+export const sendMessage = async (message: Omit<ChatMessage, 'id' | 'tarix' | 'createdAtIso' | 'oxundu'>): Promise<ChatMessage> => {
+  const dto = {
+    ReceiverLogin: message.alanLogin,
+    ReceiverName: message.alanAd,
+    Text: message.metn,
+    FileName: message.fayl?.name ?? null,
+    FileType: message.fayl?.type ?? null,
+    FileBase64: message.fayl?.base64 ?? null,
   }
-  localStorage.setItem('chatMessages', JSON.stringify([...all, newMsg]))
-  return newMsg
+  const result = await req('/chat/messages', { method: 'POST', body: JSON.stringify(dto) })
+  return mapMsg(result)
 }
 
-// Mesajları oxundu et
-export const markAsRead = (currentLogin: string, senderLogin: string) => {
-  const all = getAllMessages()
-  const updated = all.map(m =>
-    m.gonderenLogin === senderLogin && m.alanLogin === currentLogin && !m.oxundu
-      ? { ...m, oxundu: true }
-      : m
-  )
-  localStorage.setItem('chatMessages', JSON.stringify(updated))
+export const markAsRead = async (_currentLogin: string, senderLogin: string): Promise<void> => {
+  await req(`/chat/messages/read?from=${encodeURIComponent(senderLogin)}`, { method: 'PATCH' })
 }
 
-// Mesaj sil
-export const deleteMessage = (messageId: string) => {
-  const all = getAllMessages()
-  const updated = all.map(m =>
-    m.id === messageId ? { ...m, silindi: true } : m
-  )
-  localStorage.setItem('chatMessages', JSON.stringify(updated))
+export const deleteMessage = async (messageId: string): Promise<void> => {
+  await req(`/chat/messages/${messageId}`, { method: 'DELETE' })
 }
 
-// Oxunmamış mesaj sayı
-export const getUnreadCount = (currentLogin: string): number => {
-  const all = getAllMessages()
-  return all.filter(m =>
-    m.alanLogin === currentLogin && !m.oxundu && !m.silindi
-  ).length
+export const editMessage = async (messageId: string, text: string): Promise<void> => {
+  await req(`/chat/messages/${messageId}`, { method: 'PATCH', body: JSON.stringify({ Text: text }) })
 }
 
-// Şəxsə görə oxunmamış say
-export const getUnreadFromUser = (currentLogin: string, senderLogin: string): number => {
-  const all = getAllMessages()
-  return all.filter(m =>
-    m.gonderenLogin === senderLogin && m.alanLogin === currentLogin && !m.oxundu && !m.silindi
-  ).length
+export const getUnreadCount = async (): Promise<number> => {
+  const data = await req('/chat/unread')
+  return data?.count ?? 0
 }
 
-// Son mesaj (chat list üçün)
-export const getLastMessage = (login1: string, login2: string): ChatMessage | null => {
-  const msgs = getMessages(login1, login2)
-  return msgs.length > 0 ? msgs[msgs.length - 1] : null
+export const getConversations = async (): Promise<Conversation[]> => {
+  const data = await req('/chat/conversations')
+  return (data || []).map((c: any) => ({
+    partnerLogin: c.PartnerLogin || c.partnerLogin || '',
+    lastMessage: mapMsg(c.LastMessage || c.lastMessage || {}),
+    unreadCount: c.UnreadCount ?? c.unreadCount ?? 0,
+  }))
 }
 
-// Online status
-export const setOnlineStatus = (login: string, online: boolean) => {
-  const data = localStorage.getItem('onlineUsers')
-  const onlineUsers: Record<string, string> = data ? JSON.parse(data) : {}
-  if (online) {
-    onlineUsers[login] = new Date().toISOString()
-  } else {
-    delete onlineUsers[login]
-  }
-  localStorage.setItem('onlineUsers', JSON.stringify(onlineUsers))
+export const heartbeat = async (): Promise<void> => {
+  await req('/chat/heartbeat', { method: 'POST' })
 }
 
-export const isUserOnline = (login: string): boolean => {
-  const data = localStorage.getItem('onlineUsers')
-  if (!data) return false
-  const onlineUsers: Record<string, string> = JSON.parse(data)
-  if (!onlineUsers[login]) return false
-  // 2 dəqiqə ərzində aktiv olanlar online sayılır
-  const lastSeen = new Date(onlineUsers[login]).getTime()
-  const now = Date.now()
-  return now - lastSeen < 2 * 60 * 1000
+export const getOnlineUsers = async (): Promise<Set<string>> => {
+  const data = await req('/chat/online')
+  return new Set<string>(data || [])
 }

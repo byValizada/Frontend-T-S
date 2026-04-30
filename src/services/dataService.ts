@@ -15,6 +15,7 @@ export interface Bolme {
 }
 
 export interface User {
+  id?: string;
   login: string;
   parol: string;
   rol: "SuperAdmin" | "Admin" | "BolmeAdmin" | "Müavin" | "İşçi";

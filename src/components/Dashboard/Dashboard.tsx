@@ -11,7 +11,8 @@ import ElanBildirisi from "./ElanBildirisi";
 import { addLog } from "../shared/logHelper";
 import "./Dashboard.css";
 import ThemeToggle from '../shared/ThemeToggle';
-import ChatWidget from '../shared/ChatWidget'
+import ChatWidget from '../shared/ChatWidget';
+import { tasksAPI, notesAPI } from "../../services/api";
 
 interface User {
   login: string;
@@ -40,16 +41,6 @@ interface Note {
   saat?: string;
 }
 
-const getAllTasks = (): NewTask[] => {
-  try {
-    const data = localStorage.getItem("tasks");
-    return data ? JSON.parse(data) : [];
-  } catch { return []; }
-};
-
-const saveAllTasks = (tasks: NewTask[]) => {
-  localStorage.setItem("tasks", JSON.stringify(tasks));
-};
 
 function Dashboard({ currentUser, onLogout, onGoToAdminPanel }: DashboardProps) {
   const [activePage, setActivePage] = useState<"tasks" | "notes">("tasks");
@@ -69,24 +60,27 @@ function Dashboard({ currentUser, onLogout, onGoToAdminPanel }: DashboardProps) 
   const [activeSearch, setActiveSearch] = useState("");
   const [completedSearch, setCompletedSearch] = useState("");
 
-  const loadMyTasks = () => {
-    const all = getAllTasks();
-    const mine = all.filter(task => {
-      const meneQoyulan = task.secilmisShexsler.some(s => s.login === currentUser.login);
-      const menimQoydugum = task.verenLogin === currentUser.login;
-      const nezaretciyem = task.secilmisShexsler.some(s => s.login === currentUser.login && s.nezaretci);
-      return meneQoyulan || menimQoydugum || nezaretciyem;
-    });
-    setMyTasks(mine);
+  const loadMyTasks = async () => {
+    try {
+      const all: NewTask[] = await tasksAPI.getAll();
+      const mine = (all || []).filter((task: NewTask) => {
+        const meneQoyulan = task.secilmisShexsler.some((s: any) => s.login === currentUser.login);
+        const menimQoydugum = task.verenLogin === currentUser.login;
+        const nezaretciyem = task.secilmisShexsler.some((s: any) => s.login === currentUser.login && s.nezaretci);
+        return meneQoyulan || menimQoydugum || nezaretciyem;
+      });
+      setMyTasks(mine);
+    } catch { setMyTasks([]); }
   };
 
   useEffect(() => {
     loadMyTasks();
-    const notesData = localStorage.getItem(`notes_${currentUser.login}`);
-    if (notesData) setNotes(JSON.parse(notesData));
+    notesAPI.getAll(currentUser.login)
+      .then(data => setNotes(data || []))
+      .catch(() => setNotes([]));
   }, [currentUser.login]);
 
-  const handleQuickAddTask = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleQuickAddTask = async (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && yeniTapsirig.trim()) {
       const newTask: NewTask = {
         id: Date.now().toString(),
@@ -100,34 +94,34 @@ function Dashboard({ currentUser, onLogout, onGoToAdminPanel }: DashboardProps) 
         tarix: new Date().toLocaleString("az-AZ"),
         tamamlanib: false,
       };
-      const all = getAllTasks();
-      saveAllTasks([...all, newTask]);
-      setMyTasks(prev => [...prev, newTask]);
+      try {
+        const saved = await tasksAPI.create(newTask);
+        setMyTasks(prev => [...prev, saved || newTask]);
+      } catch { setMyTasks(prev => [...prev, newTask]); }
       addLog("tapsirig_yarat", currentUser.adSoyad, currentUser.login, `"${newTask.tapsirigAdi}" tapşırığını yaratdı`);
       setYeniTapsirig("");
     }
   };
 
-  const handleSaveTask = (task: NewTask) => {
-    const all = getAllTasks();
-    saveAllTasks([...all, task]);
-    setMyTasks(prev => [...prev, task]);
+  const handleSaveTask = async (task: NewTask) => {
+    try {
+      const saved = await tasksAPI.create(task);
+      setMyTasks(prev => [...prev, saved || task]);
+    } catch { setMyTasks(prev => [...prev, task]); }
     addLog("tapsirig_yarat", currentUser.adSoyad, currentUser.login, `"${task.tapsirigAdi}" tapşırığını yaratdı`);
   };
 
-  const handleUpdateTask = (updatedTask: NewTask, openPanel = false) => {
-    const all = getAllTasks();
-    saveAllTasks(all.map(t => t.id === updatedTask.id ? updatedTask : t));
-    setMyTasks(prev => prev.map(t => t.id === updatedTask.id ? updatedTask : t));
+  const handleUpdateTask = async (updatedTask: NewTask, openPanel = false) => {
+    setMyTasks(prev => prev.map((t: NewTask) => t.id === updatedTask.id ? updatedTask : t));
     if (openPanel) setSidePanelTask(updatedTask);
     else if (sidePanelTask?.id === updatedTask.id) setSidePanelTask(updatedTask);
+    try { await tasksAPI.update(updatedTask.id, updatedTask); } catch {}
   };
 
-  const handleDeleteTask = (taskId: string) => {
-    const all = getAllTasks();
-    saveAllTasks(all.filter(t => t.id !== taskId));
-    setMyTasks(prev => prev.filter(t => t.id !== taskId));
+  const handleDeleteTask = async (taskId: string) => {
+    setMyTasks(prev => prev.filter((t: NewTask) => t.id !== taskId));
     addLog("tapsirig_sil", currentUser.adSoyad, currentUser.login, "Tapşırıq silindi");
+    try { await tasksAPI.delete(taskId); } catch {}
   };
 
   const handleCheckboxClick = (e: React.MouseEvent, task: NewTask) => {
@@ -149,20 +143,15 @@ function Dashboard({ currentUser, onLogout, onGoToAdminPanel }: DashboardProps) 
     if (!note || note.tamamlanib) return;
     setFadingNoteId(id);
     setTimeout(() => {
-      const updatedNotes = notes.map((n) => n.id === id ? { ...n, tamamlanib: true } : n);
-      setNotes(updatedNotes);
-      localStorage.setItem(`notes_${currentUser.login}`, JSON.stringify(updatedNotes));
+      const updated = { ...note, tamamlanib: true };
+      setNotes(prev => prev.map(n => n.id === id ? updated : n));
+      notesAPI.update(currentUser.login, id, updated).catch(() => {});
       setFadingNoteId(null);
     }, 500);
   };
 
-  const handleRestoreNote = (id: string) => {
-    const updatedNotes = notes.map((n) => n.id === id ? { ...n, tamamlanib: false } : n);
-    setNotes(updatedNotes);
-    localStorage.setItem(`notes_${currentUser.login}`, JSON.stringify(updatedNotes));
-  };
 
-  const handleAddNote = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleAddNote = async (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && yeniQeyd.trim()) {
       const newNote: Note = {
         id: Date.now().toString(),
@@ -171,17 +160,17 @@ function Dashboard({ currentUser, onLogout, onGoToAdminPanel }: DashboardProps) 
         tamamlanib: false,
         yaranmaTarixi: new Date().toLocaleString("az-AZ"),
       };
-      const updatedNotes = [newNote, ...notes];
-      setNotes(updatedNotes);
-      localStorage.setItem(`notes_${currentUser.login}`, JSON.stringify(updatedNotes));
+      try {
+        const saved = await notesAPI.create(currentUser.login, newNote);
+        setNotes(prev => [saved || newNote, ...prev]);
+      } catch { setNotes(prev => [newNote, ...prev]); }
       setYeniQeyd("");
     }
   };
 
   const handleNoteSave = (updatedNote: Note) => {
-    const updatedNotes = notes.map((n) => n.id === updatedNote.id ? updatedNote : n);
-    setNotes(updatedNotes);
-    localStorage.setItem(`notes_${currentUser.login}`, JSON.stringify(updatedNotes));
+    setNotes(prev => prev.map(n => n.id === updatedNote.id ? updatedNote : n));
+    notesAPI.update(currentUser.login, updatedNote.id, updatedNote).catch(() => {});
   };
 
   const handleNoteClick = (note: Note) => {
@@ -191,9 +180,8 @@ function Dashboard({ currentUser, onLogout, onGoToAdminPanel }: DashboardProps) 
 
   const handleNoteDelete = (e: React.MouseEvent, id: string) => {
     e.stopPropagation();
-    const updatedNotes = notes.filter((n) => n.id !== id);
-    setNotes(updatedNotes);
-    localStorage.setItem(`notes_${currentUser.login}`, JSON.stringify(updatedNotes));
+    setNotes(prev => prev.filter(n => n.id !== id));
+    notesAPI.delete(currentUser.login, id).catch(() => {});
   };
 
   const sortByDeadline = (a: NewTask, b: NewTask) => {

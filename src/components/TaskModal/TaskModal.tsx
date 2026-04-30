@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { FaTimes, FaCloudUploadAlt, FaTrash, FaCalendarAlt } from 'react-icons/fa'
+import { usersAPI, mapUserDto } from '../../services/api'
 import './TaskModal.css'
 
 interface User {
@@ -18,6 +19,7 @@ interface TaskModalProps {
 }
 
 export interface ShexsStatus {
+  id?: string
   login: string
   adSoyad: string
   icraEdilib: boolean
@@ -38,12 +40,14 @@ export interface Mesaj {
   yazanAd: string
   metn: string
   tarix: string
+  redakteOlunub?: boolean
   fayl?: {
     name: string
     size: number
     type: string
     base64: string
   }
+  fayllar?: { name: string; base64: string; type: string; size?: number }[]
 }
 export interface SubTask {
   id: string
@@ -90,34 +94,17 @@ function TaskModal({ isOpen, onClose, currentUser, onSave }: TaskModalProps) {
 
   useEffect(() => {
     if (isOpen) {
-      const data = localStorage.getItem('users')
-      if (data) {
-        const allUsers: User[] = JSON.parse(data)
-
-        // FİLTR: yalnız eyni bölmənin/müəssisənin üzvləri
+      usersAPI.getAll().then((data: any[]) => {
+        const allUsers: User[] = (data || []).map(mapUserDto)
         const others = allUsers.filter(u => {
-          // Özünü çıxar
           if (u.login === currentUser.login) return false
-
-          // SuperAdmin heç kimin bölməsinə aid deyil - onu gizlət
           if (u.rol === 'SuperAdmin') return false
-
-          // Əgər cari istifadəçinin bölməsi varsa → yalnız eyni bölmənin üzvləri
-          if (currentUser.bolmeId) {
-            return u.bolmeId === currentUser.bolmeId
-          }
-
-          // Əgər bölməsi yoxdur amma müəssisəsi var (Müəssisə Admini) → yalnız öz müəssisəsinin üzvləri
-          if (currentUser.companyId) {
-            return u.companyId === currentUser.companyId
-          }
-
-          // Heç bir məlumat yoxdursa heç kimi göstərmə
+          if (currentUser.bolmeId) return u.bolmeId === currentUser.bolmeId
+          if (currentUser.companyId) return u.companyId === currentUser.companyId
           return false
         })
-
         setUsers(others)
-      }
+      }).catch(() => setUsers([]))
       setTapsirigAdi('')
       setQeyd('')
       setSecilmisLoginler([])
@@ -176,7 +163,7 @@ function TaskModal({ isOpen, onClose, currentUser, onSave }: TaskModalProps) {
 
     const shexslerStatus: ShexsStatus[] = secilmisLoginler.map(login => {
       const user = users.find(u => u.login === login)
-      return { login, adSoyad: user ? user.adSoyad : login, icraEdilib: false }
+      return { id: (user as any)?.id, login, adSoyad: user ? user.adSoyad : login, icraEdilib: false }
     })
 
     const newTask: NewTask = {

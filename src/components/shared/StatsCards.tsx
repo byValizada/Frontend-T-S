@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react'
 import { FaTasks, FaCheckCircle, FaSpinner, FaTimes, FaRegCircle } from 'react-icons/fa'
+import { tasksAPI } from '../../services/api'
 import './StatsCards.css'
 
 interface User {
@@ -41,8 +42,7 @@ function StatsCards({ currentUser, allowedLogins }: StatsCardsProps) {
   const [activeModal, setActiveModal] = useState<'all' | 'active' | 'completed' | null>(null)
 
   useEffect(() => {
-    const data = localStorage.getItem('tasks')
-    if (data) setTasks(JSON.parse(data))
+    tasksAPI.getAll().then(data => setTasks(data || [])).catch(() => setTasks([]))
   }, [])
 
   const filteredTasks = tasks.filter(task => {

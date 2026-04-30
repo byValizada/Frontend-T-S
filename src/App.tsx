@@ -6,18 +6,34 @@ import MuessiseAdminPanel from './components/MuessiseAdminPanel/MuessiseAdminPan
 import BolmeAdminPanel from './components/BolmeAdminPanel/BolmeAdminPanel'
 import ChatWidget from './components/shared/ChatWidget'
 import type { User } from './services/dataService'
+import { getToken, removeToken, authAPI, mapUserDto } from './services/api'
 
 function App() {
   const [currentUser, setCurrentUser] = useState<User | null>(null)
   const [adminInDashboard, setAdminInDashboard] = useState(false)
 
   useEffect(() => {
+    const token = getToken()
+    if (!token) return
+    // Fast render from cache, then verify with backend
     const saved = localStorage.getItem('currentUser')
-    if (saved) setCurrentUser(JSON.parse(saved))
+    if (saved) {
+      try { setCurrentUser(JSON.parse(saved)) } catch { /* ignore */ }
+    }
+    authAPI.me().then((data: any) => {
+      const user = { ...mapUserDto(data), login: data.username || data.Username || '' } as User
+      setCurrentUser(user)
+      localStorage.setItem('currentUser', JSON.stringify(user))
+    }).catch(() => {
+      removeToken()
+      localStorage.removeItem('currentUser')
+      setCurrentUser(null)
+    })
   }, [])
 
   const handleLogin = (user: User) => {
     setCurrentUser(user)
+    localStorage.setItem('currentUser', JSON.stringify(user))
     if (user.rol === 'Admin' || user.rol === 'BolmeAdmin') {
       setAdminInDashboard(true)
     } else {
@@ -26,6 +42,7 @@ function App() {
   }
 
   const handleLogout = () => {
+    removeToken()
     localStorage.removeItem('currentUser')
     setCurrentUser(null)
     setAdminInDashboard(false)

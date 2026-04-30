@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from "react";
+import { usersAPI, mapUserDto, muessiselerAPI, bolmelerAPI, mapMuessiseDto, mapBolmeDto } from "../../services/api";
 import {
   FaComments,
   FaTimes,
@@ -20,13 +21,13 @@ import {
   sendMessage,
   markAsRead,
   deleteMessage,
+  editMessage,
   getUnreadCount,
-  getUnreadFromUser,
-  getLastMessage,
-  setOnlineStatus,
-  isUserOnline,
+  getConversations,
+  heartbeat,
+  getOnlineUsers,
 } from "./chatService";
-import type { ChatMessage } from "./chatService";
+import type { ChatMessage, Conversation } from "./chatService";
 import "./ChatWidget.css";
 
 interface User {
@@ -48,94 +49,91 @@ interface ChatWidgetProps {
 type ChatView = "closed" | "list" | "chat";
 type ChatSize = "normal" | "minimized" | "maximized";
 
-function ChatWidget({ currentUser, hidden}: ChatWidgetProps) {
+function ChatWidget({ currentUser, hidden }: ChatWidgetProps) {
   const [view, setView] = useState<ChatView>("closed");
- const [pos, setPos] = useState({ x: window.innerWidth - 25 - 56, y: window.innerHeight - 24 - 56 });
-const isDragging = useRef(false);
-const hasDragged = useRef(false);
+  const [pos, setPos] = useState({ x: window.innerWidth - 25 - 56, y: window.innerHeight - 24 - 56 });
+  const isDragging = useRef(false);
+  const hasDragged = useRef(false);
   const [size, setSize] = useState<ChatSize>("normal");
   const [search, setSearch] = useState("");
   const [allUsers, setAllUsers] = useState<User[]>([]);
+  const [conversations, setConversations] = useState<Conversation[]>([]);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [unreadTotal, setUnreadTotal] = useState(0);
   const [editingMsgId, setEditingMsgId] = useState<string | null>(null);
+  const [onlineUsers, setOnlineUsers] = useState<Set<string>>(new Set());
+  const [muessiseler, setMuessiseler] = useState<{ id: string; ad: string }[]>([]);
+  const [bolmeler, setBolmeler] = useState<{ id: string; ad: string }[]>([]);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const msgInputRef = useRef<HTMLInputElement>(null);
 
+  // Heartbeat + online users
   useEffect(() => {
-    setOnlineStatus(currentUser.login, true);
-    const interval = setInterval(
-      () => setOnlineStatus(currentUser.login, true),
-      30000,
-    );
-    return () => {
-      clearInterval(interval);
-      setOnlineStatus(currentUser.login, false);
-    };
-  }, [currentUser.login]);
-
-  useEffect(() => {
-    const data = localStorage.getItem("users");
-    if (data) {
-      const users: User[] = JSON.parse(data);
-      setAllUsers(
-        users.filter(
-          (u) => u.login !== currentUser.login && u.rol !== "SuperAdmin",
-        ),
-      );
+    const tick = async () => {
+      try {
+        await heartbeat()
+        setOnlineUsers(await getOnlineUsers())
+      } catch { /* ignore */ }
     }
+    tick()
+    const interval = setInterval(tick, 30000)
+    return () => clearInterval(interval)
   }, [currentUser.login]);
 
   useEffect(() => {
-    const updateUnread = () =>
-      setUnreadTotal(getUnreadCount(currentUser.login));
-    updateUnread();
-    const interval = setInterval(updateUnread, 3000);
-    return () => clearInterval(interval);
+    usersAPI.getAll().then((data: any[]) => {
+      setAllUsers(
+        (data || []).map(mapUserDto).filter(
+          (u: any) => u.login !== currentUser.login && u.rol !== "SuperAdmin",
+        ) as User[],
+      );
+    }).catch(() => setAllUsers([]));
+
+    muessiselerAPI.getAll().then((data: any[]) => {
+      setMuessiseler((data || []).map(mapMuessiseDto).map((m: any) => ({ id: m.id, ad: m.ad })));
+    }).catch(() => {});
+
+    bolmelerAPI.getAll().then((data: any[]) => {
+      setBolmeler((data || []).map(mapBolmeDto).map((b: any) => ({ id: b.id, ad: b.ad })));
+    }).catch(() => {});
   }, [currentUser.login]);
 
+  // Poll unread count + conversations + online users every 3s
+  useEffect(() => {
+    const update = async () => {
+      try {
+        const [count, convs, online] = await Promise.all([getUnreadCount(), getConversations(), getOnlineUsers()])
+        setUnreadTotal(count)
+        setConversations(convs)
+        setOnlineUsers(online)
+      } catch { /* ignore */ }
+    }
+    update()
+    const interval = setInterval(update, 3000)
+    return () => clearInterval(interval)
+  }, [currentUser.login]);
+
+  // Poll messages when chat is open
   useEffect(() => {
     if (!selectedUser) return;
-    const updateMessages = () => {
-      const msgs = getMessages(currentUser.login, selectedUser.login);
-      setMessages(msgs);
-      markAsRead(currentUser.login, selectedUser.login);
+    const update = async () => {
+      try {
+        const msgs = await getMessages(currentUser.login, selectedUser.login)
+        setMessages(msgs)
+        await markAsRead(currentUser.login, selectedUser.login)
+      } catch { /* ignore */ }
     };
-    updateMessages();
-    const interval = setInterval(updateMessages, 2000);
+    update();
+    const interval = setInterval(update, 2000);
     return () => clearInterval(interval);
   }, [selectedUser, currentUser.login]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
-
-  useEffect(() => {
-    if (currentUser.rol !== "SuperAdmin") {
-      const data = localStorage.getItem("users");
-      if (data) {
-        const users: User[] = JSON.parse(data);
-        const hasSuper = allUsers.some((u) => u.login === "Tural");
-        if (!hasSuper) {
-          const superAdmin = users.find((u) => u.rol === "SuperAdmin");
-          if (!superAdmin) {
-            setAllUsers((prev) => [
-              ...prev,
-              {
-                login: "Tural",
-                parol: "",
-                rol: "SuperAdmin",
-                adSoyad: "Tural Vəlizadə",
-              },
-            ]);
-          }
-        }
-      }
-    }
-  }, [currentUser.rol, allUsers]);
 
   const filteredUsers = allUsers.filter((u) => {
     if (!search.trim()) return true;
@@ -148,52 +146,46 @@ const hasDragged = useRef(false);
   });
 
   const getUsersWithChats = () => {
-    return allUsers
-      .map((u) => ({
-        user: u,
-        lastMsg: getLastMessage(currentUser.login, u.login),
-        unread: getUnreadFromUser(currentUser.login, u.login),
+    return conversations
+      .map((conv) => ({
+        user: allUsers.find((u) => u.login === conv.partnerLogin),
+        lastMsg: conv.lastMessage,
+        unread: conv.unreadCount,
       }))
-      .filter((item) => item.lastMsg !== null)
-      .sort(
-        (a, b) =>
-          new Date(b.lastMsg!.tarix).getTime() -
-          new Date(a.lastMsg!.tarix).getTime(),
-      );
+      .filter((item): item is { user: User; lastMsg: ChatMessage; unread: number } => !!item.user)
+      .sort((a, b) => new Date(b.lastMsg.createdAtIso).getTime() - new Date(a.lastMsg.createdAtIso).getTime());
   };
 
-  // Mesaj göndər / redaktəni saxla
-  const handleSend = () => {
+  const getUnreadFromConvs = (partnerLogin: string): number =>
+    conversations.find((c) => c.partnerLogin === partnerLogin)?.unreadCount ?? 0;
+
+  const handleSend = async () => {
     if (!newMessage.trim() || !selectedUser) return;
 
     if (editingMsgId) {
-      // Edit rejimi - chatService-dən mesajı yenilə
-      const allMsgs: ChatMessage[] = JSON.parse(
-        localStorage.getItem("chat_messages") || "[]",
-      );
-      const updated = allMsgs.map((m) =>
-        m.id === editingMsgId
-          ? { ...m, metn: newMessage.trim(), redakte: true }
-          : m,
-      );
-      localStorage.setItem("chat_messages", JSON.stringify(updated));
-      setMessages(getMessages(currentUser.login, selectedUser.login));
-      setEditingMsgId(null);
-      setNewMessage("");
+      try {
+        await editMessage(editingMsgId, newMessage.trim())
+        const msgs = await getMessages(currentUser.login, selectedUser.login)
+        setMessages(msgs)
+        setEditingMsgId(null)
+        setNewMessage("")
+      } catch { /* ignore */ }
     } else {
-      sendMessage({
-        gonderenLogin: currentUser.login,
-        gonderenAd: currentUser.adSoyad,
-        alanLogin: selectedUser.login,
-        alanAd: selectedUser.adSoyad,
-        metn: newMessage.trim(),
-      });
-      setNewMessage("");
-      setMessages(getMessages(currentUser.login, selectedUser.login));
+      try {
+        await sendMessage({
+          gonderenLogin: currentUser.login,
+          gonderenAd: currentUser.adSoyad,
+          alanLogin: selectedUser.login,
+          alanAd: selectedUser.adSoyad,
+          metn: newMessage.trim(),
+        })
+        setNewMessage("")
+        const msgs = await getMessages(currentUser.login, selectedUser.login)
+        setMessages(msgs)
+      } catch { /* ignore */ }
     }
   };
 
-  // Karandaş klikdə mesajı input-a at
   const handleStartEdit = (msg: ChatMessage) => {
     setEditingMsgId(msg.id);
     setNewMessage(msg.metn);
@@ -217,48 +209,33 @@ const hasDragged = useRef(false);
       reader.onload = () => resolve(reader.result as string);
       reader.readAsDataURL(file);
     });
-    sendMessage({
-      gonderenLogin: currentUser.login,
-      gonderenAd: currentUser.adSoyad,
-      alanLogin: selectedUser.login,
-      alanAd: selectedUser.adSoyad,
-      metn: `📎 ${file.name}`,
-      fayl: { name: file.name, type: file.type, base64 },
-    });
-    e.target.value = "";
-    setMessages(getMessages(currentUser.login, selectedUser.login));
-  };
-
-  const handleDelete = (msgId: string) => {
-    deleteMessage(msgId);
-    setMessages(getMessages(currentUser.login, selectedUser!.login));
-  };
-
-  const getCompanyName = (companyId?: string) => {
-    if (!companyId) return "";
     try {
-      return (
-        JSON.parse(localStorage.getItem("companies") || "[]").find(
-          (c: any) => c.id === companyId,
-        )?.ad || ""
-      );
-    } catch {
-      return "";
-    }
+      await sendMessage({
+        gonderenLogin: currentUser.login,
+        gonderenAd: currentUser.adSoyad,
+        alanLogin: selectedUser.login,
+        alanAd: selectedUser.adSoyad,
+        metn: `📎 ${file.name}`,
+        fayl: { name: file.name, type: file.type, base64 },
+      })
+      e.target.value = "";
+      const msgs = await getMessages(currentUser.login, selectedUser.login)
+      setMessages(msgs)
+    } catch { /* ignore */ }
   };
 
-  const getBolmeName = (bolmeId?: string) => {
-    if (!bolmeId) return "";
+  const handleDelete = async (msgId: string) => {
     try {
-      return (
-        JSON.parse(localStorage.getItem("bolmeler") || "[]").find(
-          (b: any) => b.id === bolmeId,
-        )?.ad || ""
-      );
-    } catch {
-      return "";
-    }
+      await deleteMessage(msgId)
+      setMessages((prev) => prev.filter((m) => m.id !== msgId))
+    } catch { /* ignore */ }
   };
+
+  const getCompanyName = (companyId?: string) =>
+    !companyId ? "" : muessiseler.find((m) => m.id === companyId)?.ad ?? "";
+
+  const getBolmeName = (bolmeId?: string) =>
+    !bolmeId ? "" : bolmeler.find((b) => b.id === bolmeId)?.ad ?? "";
 
   const getUserLine1 = (user: User) => {
     const parts = [user.rol];
@@ -276,71 +253,60 @@ const hasDragged = useRef(false);
     return parts.join(" • ");
   };
 
-  const openChat = (user: User) => {
+  const openChat = async (user: User) => {
     setSelectedUser(user);
     setView("chat");
-    markAsRead(currentUser.login, user.login);
+    try { await markAsRead(currentUser.login, user.login) } catch { /* ignore */ }
   };
 
-if (view === "closed") {
-  if (hidden) return null
-  return (
-    <div
-      className="chat-fab"
-      style={{ left: pos.x, top: pos.y, right: 'auto', bottom: 'auto' }}
-      onMouseDown={(e) => {
-        e.preventDefault();
-        isDragging.current = false;
-        hasDragged.current = false;
-
-        const startX = e.clientX;
-        const startY = e.clientY;
-
-        const onMouseMove = (me: MouseEvent) => {
-          const dx = Math.abs(me.clientX - startX);
-          const dy = Math.abs(me.clientY - startY);
-          if (dx > 5 || dy > 5) {
-            isDragging.current = true;
-            hasDragged.current = true;
-          }
-          if (isDragging.current) {
-           setPos({
-  x: me.clientX - 28,
-  y: me.clientY - 28,
-});
-          }
-        };
-
-        const onMouseUp = () => {
+  if (view === "closed") {
+    if (hidden) return null;
+    return (
+      <div
+        className="chat-fab"
+        style={{ left: pos.x, top: pos.y, right: "auto", bottom: "auto" }}
+        onMouseDown={(e) => {
+          e.preventDefault();
           isDragging.current = false;
-          window.removeEventListener("mousemove", onMouseMove);
-          window.removeEventListener("mouseup", onMouseUp);
-        };
-
-        window.addEventListener("mousemove", onMouseMove);
-        window.addEventListener("mouseup", onMouseUp);
-      }}
-      onClick={() => {
-        if (!hasDragged.current) setView("list");
-        hasDragged.current = false;
-      }}
-    >
-      <FaComments />
-      {unreadTotal > 0 && (
-        <span className="chat-fab-badge">{unreadTotal}</span>
-      )}
-    </div>
-  );
-}
+          hasDragged.current = false;
+          const startX = e.clientX;
+          const startY = e.clientY;
+          const onMouseMove = (me: MouseEvent) => {
+            const dx = Math.abs(me.clientX - startX);
+            const dy = Math.abs(me.clientY - startY);
+            if (dx > 5 || dy > 5) {
+              isDragging.current = true;
+              hasDragged.current = true;
+            }
+            if (isDragging.current) {
+              setPos({ x: me.clientX - 28, y: me.clientY - 28 });
+            }
+          };
+          const onMouseUp = () => {
+            isDragging.current = false;
+            window.removeEventListener("mousemove", onMouseMove);
+            window.removeEventListener("mouseup", onMouseUp);
+          };
+          window.addEventListener("mousemove", onMouseMove);
+          window.addEventListener("mouseup", onMouseUp);
+        }}
+        onClick={() => {
+          if (!hasDragged.current) setView("list");
+          hasDragged.current = false;
+        }}
+      >
+        <FaComments />
+        {unreadTotal > 0 && <span className="chat-fab-badge">{unreadTotal}</span>}
+      </div>
+    );
+  }
 
   if (size === "minimized") {
     return (
       <div className="chat-minimized" onClick={() => setSize("normal")}>
         <FaComments style={{ marginRight: 8 }} />
         <span>Chat</span>
-        {unreadTotal > 0 && (
-          <span className="chat-min-badge">{unreadTotal}</span>
-        )}
+        {unreadTotal > 0 && <span className="chat-min-badge">{unreadTotal}</span>}
         <button
           className="chat-min-close"
           onClick={(e) => {
@@ -356,9 +322,7 @@ if (view === "closed") {
   }
 
   return (
-    <div
-      className={`chat-widget ${size === "maximized" ? "chat-maximized" : "chat-normal"}`}
-    >
+    <div className={`chat-widget ${size === "maximized" ? "chat-maximized" : "chat-normal"}`}>
       {/* BAŞLIQ */}
       <div className="chat-header">
         <div className="chat-header-left">
@@ -379,14 +343,10 @@ if (view === "closed") {
             <div className="chat-header-user">
               <span className="chat-header-name">{selectedUser.adSoyad}</span>
               <span className="chat-header-status">
-                {isUserOnline(selectedUser.login) ? (
-                  <>
-                    <FaCircle className="online-dot" /> Online
-                  </>
+                {onlineUsers.has(selectedUser.login) ? (
+                  <><FaCircle className="online-dot" /> Online</>
                 ) : (
-                  <>
-                    <FaCircle className="offline-dot" /> Offline
-                  </>
+                  <><FaCircle className="offline-dot" /> Offline</>
                 )}
               </span>
             </div>
@@ -395,25 +355,15 @@ if (view === "closed") {
           )}
         </div>
         <div className="chat-header-btns">
-          <button onClick={() => setSize("minimized")} title="Kiçilt">
-            <FaMinus />
-          </button>
+          <button onClick={() => setSize("minimized")} title="Kiçilt"><FaMinus /></button>
           <button
-            onClick={() =>
-              setSize(size === "maximized" ? "normal" : "maximized")
-            }
+            onClick={() => setSize(size === "maximized" ? "normal" : "maximized")}
             title={size === "maximized" ? "Normal" : "Tam ekran"}
           >
             {size === "maximized" ? <FaCompress /> : <FaExpand />}
           </button>
           <button
-            onClick={() => {
-              setView("closed");
-              setSize("normal");
-              setSelectedUser(null);
-              setEditingMsgId(null);
-              setNewMessage("");
-            }}
+            onClick={() => { setView("closed"); setSize("normal"); setSelectedUser(null); setEditingMsgId(null); setNewMessage(""); }}
             title="Bağla"
           >
             <FaTimes />
@@ -439,32 +389,18 @@ if (view === "closed") {
               <>
                 <p className="chat-section-title">Son yazışmalar</p>
                 {getUsersWithChats().map(({ user, lastMsg, unread }) => (
-                  <div
-                    key={user.login}
-                    className="chat-user-item"
-                    onClick={() => openChat(user)}
-                  >
+                  <div key={user.login} className="chat-user-item" onClick={() => openChat(user)}>
                     <div className="chat-user-avatar">
                       {user.adSoyad.charAt(0).toUpperCase()}
-                      <span
-                        className={`chat-user-dot ${isUserOnline(user.login) ? "online" : "offline"}`}
-                      />
+                      <span className={`chat-user-dot ${onlineUsers.has(user.login) ? "online" : "offline"}`} />
                     </div>
                     <div className="chat-user-info">
                       <span className="chat-user-name">{user.adSoyad}</span>
-                      <span className="chat-user-meta">
-                        {getUserLine1(user)}
-                      </span>
-                      {getUserLine2(user) && (
-                        <span className="chat-user-meta">
-                          {getUserLine2(user)}
-                        </span>
-                      )}
+                      <span className="chat-user-meta">{getUserLine1(user)}</span>
+                      {getUserLine2(user) && <span className="chat-user-meta">{getUserLine2(user)}</span>}
                       <span className="chat-user-last">{lastMsg?.metn}</span>
                     </div>
-                    {unread > 0 && (
-                      <span className="chat-user-unread">{unread}</span>
-                    )}
+                    {unread > 0 && <span className="chat-user-unread">{unread}</span>}
                   </div>
                 ))}
               </>
@@ -477,32 +413,18 @@ if (view === "closed") {
                   <p className="chat-empty">İstifadəçi tapılmadı</p>
                 ) : (
                   filteredUsers.map((user) => (
-                    <div
-                      key={user.login}
-                      className="chat-user-item"
-                      onClick={() => openChat(user)}
-                    >
+                    <div key={user.login} className="chat-user-item" onClick={() => openChat(user)}>
                       <div className="chat-user-avatar">
                         {user.adSoyad.charAt(0).toUpperCase()}
-                        <span
-                          className={`chat-user-dot ${isUserOnline(user.login) ? "online" : "offline"}`}
-                        />
+                        <span className={`chat-user-dot ${onlineUsers.has(user.login) ? "online" : "offline"}`} />
                       </div>
                       <div className="chat-user-info">
                         <span className="chat-user-name">{user.adSoyad}</span>
-                        <span className="chat-user-meta">
-                          {getUserLine1(user)}
-                        </span>
-                        {getUserLine2(user) && (
-                          <span className="chat-user-meta">
-                            {getUserLine2(user)}
-                          </span>
-                        )}
+                        <span className="chat-user-meta">{getUserLine1(user)}</span>
+                        {getUserLine2(user) && <span className="chat-user-meta">{getUserLine2(user)}</span>}
                       </div>
-                      {getUnreadFromUser(currentUser.login, user.login) > 0 && (
-                        <span className="chat-user-unread">
-                          {getUnreadFromUser(currentUser.login, user.login)}
-                        </span>
+                      {getUnreadFromConvs(user.login) > 0 && (
+                        <span className="chat-user-unread">{getUnreadFromConvs(user.login)}</span>
                       )}
                     </div>
                   ))
@@ -511,9 +433,7 @@ if (view === "closed") {
             )}
 
             {!search.trim() && getUsersWithChats().length === 0 && (
-              <p className="chat-empty">
-                Hələ yazışma yoxdur. Axtarışdan istifadəçi tapın.
-              </p>
+              <p className="chat-empty">Hələ yazışma yoxdur. Axtarışdan istifadəçi tapın.</p>
             )}
           </div>
         </div>
@@ -524,9 +444,7 @@ if (view === "closed") {
         <>
           <div className="chat-messages">
             {messages.length === 0 ? (
-              <p className="chat-empty">
-                Hələ mesaj yoxdur. İlk mesajı göndər!
-              </p>
+              <p className="chat-empty">Hələ mesaj yoxdur. İlk mesajı göndər!</p>
             ) : (
               messages.map((msg) => (
                 <div
@@ -534,26 +452,16 @@ if (view === "closed") {
                   className={`chat-msg ${msg.gonderenLogin === currentUser.login ? "chat-msg-mine" : "chat-msg-other"}`}
                 >
                   {msg.fayl && msg.fayl.type.startsWith("image/") ? (
-                    <img
-                      src={msg.fayl.base64}
-                      alt={msg.fayl.name}
-                      className="chat-msg-img"
-                    />
+                    <img src={msg.fayl.base64} alt={msg.fayl.name} className="chat-msg-img" />
                   ) : msg.fayl ? (
-                    <a
-                      href={msg.fayl.base64}
-                      download={msg.fayl.name}
-                      className="chat-msg-file"
-                    >
+                    <a href={msg.fayl.base64} download={msg.fayl.name} className="chat-msg-file">
                       📎 {msg.fayl.name}
                     </a>
                   ) : (
                     <div className="chat-msg-metn-row">
                       <span className="chat-msg-text">
                         {msg.metn}
-                        {(msg as any).redakte && (
-                          <span className="chat-msg-redakte"> ✎</span>
-                        )}
+                        {msg.redakte && <span className="chat-msg-redakte"> ✎</span>}
                       </span>
                       {msg.gonderenLogin === currentUser.login && (
                         <button
@@ -575,10 +483,7 @@ if (view === "closed") {
                         ) : (
                           <FaCheck className="chat-msg-unread" />
                         )}
-                        <button
-                          className="chat-msg-del"
-                          onClick={() => handleDelete(msg.id)}
-                        >
+                        <button className="chat-msg-del" onClick={() => handleDelete(msg.id)}>
                           <FaTrash />
                         </button>
                       </>
@@ -595,35 +500,23 @@ if (view === "closed") {
             {editingMsgId && (
               <div className="chat-edit-indicator">
                 <span>✎ Redaktə rejimi</span>
-                <button onClick={handleCancelEdit}>
-                  <FaTimes />
-                </button>
+                <button onClick={handleCancelEdit}><FaTimes /></button>
               </div>
             )}
             <div className="chat-input-row">
               {!editingMsgId && (
                 <>
-                  <button
-                    className="chat-attach-btn"
-                    onClick={() => fileInputRef.current?.click()}
-                  >
+                  <button className="chat-attach-btn" onClick={() => fileInputRef.current?.click()}>
                     <FaPaperclip />
                   </button>
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    style={{ display: "none" }}
-                    onChange={handleFileSelect}
-                  />
+                  <input ref={fileInputRef} type="file" style={{ display: "none" }} onChange={handleFileSelect} />
                 </>
               )}
               <input
                 ref={msgInputRef}
                 type="text"
                 className="chat-input"
-                placeholder={
-                  editingMsgId ? "Mesajı düzəldin..." : "Mesaj yazın..."
-                }
+                placeholder={editingMsgId ? "Mesajı düzəldin..." : "Mesaj yazın..."}
                 value={newMessage}
                 onChange={(e) => setNewMessage(e.target.value)}
                 onKeyDown={(e) => {
