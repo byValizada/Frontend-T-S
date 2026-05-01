@@ -80,6 +80,14 @@ function Dashboard({ currentUser, onLogout, onGoToAdminPanel }: DashboardProps) 
       .catch(() => setNotes([]));
   }, [currentUser.login]);
 
+  // Poll only when the panel is closed to avoid overwriting optimistic updates.
+  // No immediate refresh on close — tasksAPI.complete/update may still be in-flight.
+  useEffect(() => {
+    if (sidePanelTask) return;
+    const interval = setInterval(loadMyTasks, 8000);
+    return () => clearInterval(interval);
+  }, [!!sidePanelTask]); // eslint-disable-line react-hooks/exhaustive-deps
+
   const handleQuickAddTask = async (e: React.KeyboardEvent<HTMLInputElement>) => {
     if (e.key === "Enter" && yeniTapsirig.trim()) {
       const newTask: NewTask = {
@@ -131,7 +139,8 @@ function Dashboard({ currentUser, onLogout, onGoToAdminPanel }: DashboardProps) 
     setCheckingTaskId(task.id);
     setTimeout(() => {
       const updatedTask = { ...task, tamamlanib: true, tamamlanmaTarixi: new Date().toLocaleDateString("az-AZ") };
-      handleUpdateTask(updatedTask);
+      setMyTasks(prev => prev.map((t: NewTask) => t.id === updatedTask.id ? updatedTask : t));
+      tasksAPI.complete(task.id).catch(() => {});
       addLog("tapsirig_tamamla", currentUser.adSoyad, currentUser.login, `"${task.tapsirigAdi}" tapşırığını tamamladı`);
       setCheckingTaskId(null);
     }, 800);

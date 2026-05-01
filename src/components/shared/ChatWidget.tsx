@@ -87,7 +87,7 @@ function ChatWidget({ currentUser, hidden }: ChatWidgetProps) {
     usersAPI.getAll().then((data: any[]) => {
       setAllUsers(
         (data || []).map(mapUserDto).filter(
-          (u: any) => u.login !== currentUser.login && u.rol !== "SuperAdmin",
+          (u: any) => u.login !== currentUser.login,
         ) as User[],
       );
     }).catch(() => setAllUsers([]));
