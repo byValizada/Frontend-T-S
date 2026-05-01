@@ -117,19 +117,43 @@ function ChatWidget({ currentUser, hidden }: ChatWidgetProps) {
   }, [currentUser.login]);
 
   // Poll messages when chat is open
-  useEffect(() => {
-    if (!selectedUser) return;
-    const update = async () => {
-      try {
-        const msgs = await getMessages(currentUser.login, selectedUser.login)
-        setMessages(msgs)
-        await markAsRead(currentUser.login, selectedUser.login)
-      } catch { /* ignore */ }
-    };
-    update();
-    const interval = setInterval(update, 2000);
-    return () => clearInterval(interval);
-  }, [selectedUser, currentUser.login]);
+ const prevMsgCount = useRef(0);
+
+const playNotificationSound = () => {
+  const ctx = new AudioContext();
+  const oscillator = ctx.createOscillator();
+  const gainNode = ctx.createGain();
+  oscillator.connect(gainNode);
+  gainNode.connect(ctx.destination);
+  oscillator.frequency.setValueAtTime(880, ctx.currentTime);
+  oscillator.frequency.setValueAtTime(1100, ctx.currentTime + 0.1);
+  gainNode.gain.setValueAtTime(0.3, ctx.currentTime);
+  gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + 0.3);
+  oscillator.start(ctx.currentTime);
+  oscillator.stop(ctx.currentTime + 0.3);
+};
+
+useEffect(() => {
+  if (!selectedUser) return;
+  const update = async () => {
+    try {
+      const msgs = await getMessages(currentUser.login, selectedUser.login)
+      const last = msgs[msgs.length - 1];
+      if (
+        msgs.length > prevMsgCount.current &&
+        last?.gonderenLogin !== currentUser.login
+      ) {
+        playNotificationSound();
+      }
+      prevMsgCount.current = msgs.length;
+      setMessages(msgs)
+      await markAsRead(currentUser.login, selectedUser.login)
+    } catch { /* ignore */ }
+  };
+  update();
+  const interval = setInterval(update, 2000);
+  return () => clearInterval(interval);
+}, [selectedUser, currentUser.login]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
