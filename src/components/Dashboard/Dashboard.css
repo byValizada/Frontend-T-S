@@ -639,11 +639,16 @@
 }
 .task-yeni-mesaj-badge {
   font-size: 14px;
-   color: var(--danger) !important;
+  color: var(--danger) !important;
   animation: pulse-msg 1.5s ease-in-out infinite;
 }
 
 @keyframes pulse-msg {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.4;
+  }
 }
