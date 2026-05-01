@@ -343,6 +343,7 @@ const filteredCompletedTasks = myCompletedTasks
                                 if (task.verenLogin !== currentUser.login) return;
                                 const restored = { ...task, tamamlanib: false, tamamlanmaTarixi: undefined };
                                 handleUpdateTask(restored);
+                                tasksAPI.complete(task.id, false).catch(() => {});
                               }}
                               onDoubleClick={(e) => e.stopPropagation()}
                             >

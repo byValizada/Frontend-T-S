@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_API_URL || "http://10.85.70.142:5128/api";
+const API_URL = import.meta.env.VITE_API_URL || "http://10.41.165.142:5128/api";
 
 // TOKEN
 export const getToken = (): string | null => localStorage.getItem("token");
@@ -200,8 +200,11 @@ export const tasksAPI = {
     return result ? mapTaskDto(result) : null;
   },
   delete: async (id: string) => request(`/tasks/${id}`, { method: "DELETE" }),
-  complete: async (id: string) =>
-    request(`/tasks/${id}/complete`, { method: "PATCH" }),
+  complete: async (id: string, value = true) =>
+    request(`/tasks/${id}/complete`, {
+      method: "PATCH",
+      body: JSON.stringify(value),
+    }),
   updateStatus: async (id: string, status: string) =>
     request(`/tasks/${id}/status`, {
       method: "PATCH",
