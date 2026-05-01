@@ -44,6 +44,7 @@ export const mapTaskDto = (dto: any) => ({
     adSoyad: a.FullName || a.fullName || "",
     icraEdilib: (a.Status || a.status) === "Completed",
     status: mapTaskItemStatus(a.Status || a.status),
+    nezaretci: a.IsNezaretci || a.isNezaretci || false,
   })),
   deadline:
     dto.Deadline || dto.deadline
@@ -179,9 +180,9 @@ export const tasksAPI = {
       Title: data.tapsirigAdi || data.Title || "",
       Note: data.qeyd ?? data.Note ?? "",
       Priority: data.tecili ? 3 : 1,
-      AssigneeIds: (data.secilmisShexsler || [])
-        .map((s: any) => s.id)
-        .filter(Boolean),
+      Assignees: (data.secilmisShexsler || [])
+        .filter((s: any) => s.id)
+        .map((s: any) => ({ Id: s.id, IsNezaretci: s.nezaretci || false })),
       Deadline: data.deadline
         ? new Date(data.deadline + "T00:00:00").toISOString()
         : null,

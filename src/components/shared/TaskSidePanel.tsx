@@ -118,6 +118,7 @@ function TaskSidePanel({
   }, [currentUser]);
 
   const filteredUsers = allUsers.filter((u) => {
+    if (u.login === task.verenLogin) return false;
     if (!userSearch.trim()) return true;
     return u.adSoyad.toLowerCase().includes(userSearch.toLowerCase());
   });
@@ -156,6 +157,7 @@ function TaskSidePanel({
 
   const toggleIcraci = (user: User) => {
     if (!isOwner && !isNezaretci) return;
+    if (user.login === task.verenLogin) return;
     const exists = task.secilmisShexsler.some((s) => s.login === user.login);
     let updated: ShexsStatus[];
     if (exists) {
