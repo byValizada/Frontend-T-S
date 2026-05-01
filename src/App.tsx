@@ -12,33 +12,32 @@ function App() {
   const [currentUser, setCurrentUser] = useState<User | null>(null)
   const [adminInDashboard, setAdminInDashboard] = useState(false)
 
-  useEffect(() => {
-    const token = getToken()
-    if (!token) return
-    // Fast render from cache, then verify with backend
-    const saved = localStorage.getItem('currentUser')
-    if (saved) {
-      try { setCurrentUser(JSON.parse(saved)) } catch { /* ignore */ }
-    }
-    authAPI.me().then((data: any) => {
-      const user = { ...mapUserDto(data), login: data.username || data.Username || '' } as User
-      setCurrentUser(user)
-      localStorage.setItem('currentUser', JSON.stringify(user))
-    }).catch(() => {
-      removeToken()
-      localStorage.removeItem('currentUser')
-      setCurrentUser(null)
-    })
-  }, [])
+ useEffect(() => {
+  const token = getToken()
+  if (!token) return
+  // Fast render from cache, then verify with backend
+  const saved = localStorage.getItem('currentUser')
+  if (saved) {
+    try {
+      setCurrentUser(JSON.parse(saved))
+      setAdminInDashboard(true)
+    } catch { /* ignore */ }
+  }
+  authAPI.me().then((data: any) => {
+    const user = { ...mapUserDto(data), login: data.username || data.Username || '' } as User
+    setCurrentUser(user)
+    setAdminInDashboard(true)
+    localStorage.setItem('currentUser', JSON.stringify(user))
+  }).catch(() => {
+    removeToken()
+    localStorage.removeItem('currentUser')
+    setCurrentUser(null)
+  })
+}, [])
 
   const handleLogin = (user: User) => {
     setCurrentUser(user)
-    localStorage.setItem('currentUser', JSON.stringify(user))
-    if (user.rol === 'Admin' || user.rol === 'BolmeAdmin') {
-      setAdminInDashboard(true)
-    } else {
-      setAdminInDashboard(false)
-    }
+    setAdminInDashboard(true)
   }
 
   const handleLogout = () => {
