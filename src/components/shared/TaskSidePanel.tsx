@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { usersAPI, mapUserDto, bolmelerAPI, mapBolmeDto } from "../../services/api";
+import { usersAPI, mapUserDto, bolmelerAPI, mapBolmeDto, tasksAPI } from "../../services/api";
 import {
   FaTimes,
   FaRegCircle,
@@ -22,6 +22,7 @@ import type {
 import "./TaskSidePanel.css";
 
 interface User {
+  id?: string;
   login: string;
   parol: string;
   rol: string;
@@ -149,6 +150,7 @@ function TaskSidePanel({
       tamamlanib: true,
       tamamlanmaTarixi: new Date().toLocaleDateString("az-AZ"),
     });
+    tasksAPI.complete(task.id).catch(() => {});
     onClose();
   };
 
@@ -161,7 +163,7 @@ function TaskSidePanel({
     } else {
       updated = [
         ...task.secilmisShexsler,
-        { login: user.login, adSoyad: user.adSoyad, icraEdilib: false },
+        { id: user.id, login: user.login, adSoyad: user.adSoyad, icraEdilib: false },
       ];
     }
     onUpdateTask({ ...task, secilmisShexsler: updated });
@@ -212,6 +214,10 @@ function TaskSidePanel({
       fayllar: updatedFayllar,
       mesajlar: [...(task.mesajlar || []), statusMsg],
     });
+    // 1 = InProgress, 2 = Completed
+    const backendStatus = yeniStatus === "icrada" ? 1 : 2;
+    tasksAPI.updateStatus(task.id, backendStatus as any).catch(() => {});
+    tasksAPI.addComment(task.id, statusMetn).catch(() => {});
     setIcraModal(false);
     setIcraFayl(null);
   };
@@ -263,6 +269,7 @@ function TaskSidePanel({
         tarix: new Date().toLocaleString("az-AZ"),
       };
       onUpdateTask({ ...task, mesajlar: [...(task.mesajlar || []), newMsg], yeniMesaj: true });
+      tasksAPI.addComment(task.id, mesaj.trim()).catch(() => {});
       setMesaj("");
     }
   };

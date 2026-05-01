@@ -3,7 +3,7 @@ const API_URL = import.meta.env.VITE_API_URL || 'http://10.85.70.142:5128/api'
 // TOKEN
 export const getToken = (): string | null => localStorage.getItem('token')
 export const setToken = (token: string) => localStorage.setItem('token', token)
-export const removeToken = () => localStorage.removeItem('token')
+export const removeToken = () => localStorage.rSemoveItem('token')
 
 // USER MAPPER — backend PascalCase → frontend camelCase
 export const mapUserDto = (dto: any) => ({
@@ -154,6 +154,7 @@ export const tasksAPI = {
     const dto: any = {
       Title: data.tapsirigAdi || data.Title || '',
       Note: data.qeyd ?? data.Note ?? '',
+      Priority: data.tecili ? 3 : 1,
       AssigneeIds: (data.secilmisShexsler || []).map((s: any) => s.id).filter(Boolean),
       Deadline: data.deadline ? new Date(data.deadline + 'T00:00:00').toISOString() : null,
       Files: (data.fayllar || []).map((f: any) => ({

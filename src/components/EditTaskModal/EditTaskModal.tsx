@@ -5,6 +5,7 @@ import { usersAPI, mapUserDto } from '../../services/api'
 import './EditTaskModal.css'
 
 interface User {
+  id?: string
   login: string
   parol: string
   rol: string
@@ -62,6 +63,7 @@ function EditTaskModal({ isOpen, onClose, task, currentUser, onSave }: EditTaskM
       setEditShexsler(prev => prev.filter(s => s.login !== user.login))
     } else {
       setEditShexsler(prev => [...prev, {
+        id: user.id,
         login: user.login,
         adSoyad: user.adSoyad,
         icraEdilib: false,
@@ -76,6 +78,7 @@ function EditTaskModal({ isOpen, onClose, task, currentUser, onSave }: EditTaskM
       setEditShexsler([])
     } else {
       setEditShexsler(allUsers.map(u => ({
+        id: u.id,
         login: u.login,
         adSoyad: u.adSoyad,
         icraEdilib: false,
